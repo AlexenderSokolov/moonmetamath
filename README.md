@@ -1,82 +1,135 @@
-# MoonBit Metamath：Claude Code 实施交接包
+# MoonMetamath
 
-文档日期：2026-10-23（Asia/Shanghai）。状态：**独立目录与交接文档已准备；尚无实现代码、项目测试通过、用户采用、公开发布或赛事审核结果。**
+MoonBit 原生的 Metamath `.mm` 验证与逐步证明库，附 Node CLI 和浏览器证明实验室。解析、代换、不交变量检查、普通/压缩证明、交互会话与导出都由同一个 MoonBit 核心执行；运行产品无需 Python、C 检查器或模型凭据。
 
-Claude Code 首先读取根目录 [CLAUDE.md](CLAUDE.md) 和 [PROJECT.md](PROJECT.md)，当前状态与下一项见 [PROGRESS.md](PROGRESS.md)。仅打开目录或读取文档不等于获准开始实现；用户明确发出实施指令后才执行T0。
+**0.1.0 本地验收已完成；公开仓库发布、CI 与 Mooncakes 注册表安装结果待发布流程补充。** 模块名为 `AlexenderSokolov/moonmetamath`。核心已在 JS、wasm-gc 两个后端运行测试；网页使用 MoonBit 生成的 JavaScript。
 
-## 结论与目标
+## 可以做什么
 
-建议实施“MoonBit 原生 Metamath 证明验证与逐步执行库”，附 CLI 和网页证明实验器。参考 MIT 许可的 `mmverify.py`，依据 Metamath 规范实现 `.mm` 声明、作用域、普通/压缩证明、代换和不交变量条件；以原生、可嵌入的执行接口补齐 MoonBit 能力。
+- 加载真实 Metamath 数据库，验证证明并区分 valid、invalid、incomplete 与未检查项。
+- 在目标原有作用域内从空栈重做已有定理，观察代换和栈变化；错误步骤不会改变会话状态。
+- 回放原证明，或把自己完成的普通标签证明导出为自足 `.mm` 文件。
+- 在独立 MoonBit 程序或 JavaScript 宿主中调用版本化 JSON dispatcher。
 
-全球已有同类不构成否决理由；重点是在 MoonBit 内避免直接重复。2026-10-23 实时读取 Mooncakes `/api/v0/modules` 得到 3231 条模块元数据，Metamath/mmverify 直接关键词匹配为 0；GitHub MoonBit 代码搜索 `metamath` 也为空。已读 HOL、Stella、moon prove 等相关项目属于不同格式和检查机制。此结论是公开排查结果，不保证未公开或未索引项目不存在，实施与申报前各刷新一次即可。
+网页的原证明回放明确标为 Replay。项目没有实际 LLM 调用、外部用户采用或新数学成果；形式证明通过只说明它符合所声明的公理及假设。
 
-十月目标：形成可安装的库、可操作的演示和真实外部数据库验收证据，争取初审支持与完成支持。长期目标：通过兼容、性能、逐步证明接口和实际下游接入参与持续评选。**不得将规划、工具运行或本地测试称为报名通过、奖金到账或研究成果。**
+## 从源码开始
 
-## 阅读顺序
+需要 Node.js **24.x**。开发与构建使用锁定 MoonBit 工具链：compiler `v0.10.14+7d59c7ec9`、moon `0.1.20260920` 及匹配标准库。脚本支持 Windows x64、Linux x64，不修改全局工具链；没有 npm 依赖。
 
-1. [DESIGN_AND_SCOPE.md](DESIGN_AND_SCOPE.md)：产品、数学语义、权限、模块和公共契约，实施时的权威规格。
-2. [REFERENCES.md](REFERENCES.md)：固定参考版本、用途、许可、排重和日期冲突。
-3. [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)：逐任务文件、接口、测试与依赖顺序。
-4. [ACCEPTANCE.md](ACCEPTANCE.md)：验收矩阵、计划中的命令、发布闭环和真实试用。
-5. [CLAUDE_CODE_PROMPT.md](CLAUDE_CODE_PROMPT.md)：给 Claude Code 的完整启动提示词。
+在本项目目录运行：
 
-## 目录与边界
+```sh
+node scripts/toolchain.mjs install
+node scripts/toolchain.mjs verify
+node scripts/build.mjs
+node bin/moonmetamath.mjs --help
+```
 
-- **当前项目与权威资料目录**：`D:\Study_Works\MoonBit\moonmetamath`；六份计划已迁入根目录，PROJECT/CLAUDE/PROGRESS入口已建立。名称是本地暂名，公开仓库和 Mooncakes 命名须在公开前确认。
-- 旧 `docs\superpowers\plans\2026-10-23-metamath-moonbit` 位置只保留迁移指引，不再维护计划正文。
-- 父目录是 **MoonFlowGraph** 仓库，并非新项目仓库。不得在父仓库执行批量 `git add`、切分支或把旧项目改成 Metamath。
-- 不修改 `moonportcheck`、`moontrack`、`moonsplit` 的实现或配置；只允许读取明确列出的工具链资料。
-- 当前轮次仅准备目录和文档；没有实现源码、MoonBit模块、Git仓库、定时任务或生产会话。
-- 将启动提示词亲自发给 Claude Code 后，提示词中的执行授权才生效。提示词建议允许**新目录内的 Git 初始化与实质本地阶段提交**；不授权远程仓库创建、push/PR、Mooncakes 发布、部署、报名、群消息或联系他人。这些外部动作准备到可审查状态后再由用户批准。
+安装器按 [toolchain.lock.json](scripts/toolchain.lock.json) 校验官方归档哈希。已有对应隔离工具链时，可通过 `MOONMETAMATH_TOOLCHAIN_HOME` 指定目录并直接执行 verify。发布压缩包若包含 `dist/moonmetamath-core.mjs`，CLI/Web 运行只需 Node 24，无需再次编译。
 
-## 2026-10-23 本机事实
+公开发布后，MoonBit 消费者可使用下面的固定版本安装命令；**该注册表安装尚未在本地验收阶段完成**：
 
-| 项目 | 实测结果 | 使用方式 |
-|---|---|---|
-| 全局 MoonBit | `moonc v0.10.3+16975d007`，moon `0.1.20260703` | 不假定满足新项目，不全局升级 |
-| 现有隔离工具链 | `moonportcheck\.toolchains\windows-x86_64` 内为 `moonc v0.10.14+7d59c7ec9`、moon `0.1.20260920` | 经本轮 `version --all` 核实；未来可只读使用，不能改动旧项目 |
-| Node | `v24.15.0` | CLI 宿主与无依赖工具脚本 |
-| Python | `3.14.4`，路径 `C:\Python314\python.exe` | 仅参考检查器/验收工具；不用作产品核心 |
-| Mooncakes | 旧 `/api-new/v0/modules` 返回 404；`/api/v0/modules` 可用 | 请求失败绝不能记为“0 个包，无重合” |
+```sh
+moon add AlexenderSokolov/moonmetamath@0.1.0
+```
 
-建议以已存在的 v0.10.14 完整版本建立**项目自有工具链检查入口**。允许只读引用旧隔离目录；复制或下载到新项目缓存时，按 `REFERENCES.md` 的固定官方来源和哈希验证。Windows/Linux 都不得回退 `latest`。本轮没有安装或编译 Metamath。
+## CLI：检查一个真实库
 
-## 更新后的排期与 G0
+仓库中的 demo0 是固定来源的真实示例。命令默认输出 JSON：
 
-今天已是 10 月 23 日，旧方案的 10/22 工作不再视为已完成。
+```sh
+node bin/moonmetamath.mjs verify tests/fixtures/upstream/set-mm/demo0.mm --format json
+node bin/moonmetamath.mjs list tests/fixtures/upstream/set-mm/demo0.mm --format json
+node bin/moonmetamath.mjs replay tests/fixtures/upstream/set-mm/demo0.mm --theorem th1
+```
 
-| 时间 | 目标 |
-|---|---|
-| 10/23 | T0 项目与参考准备；T1–T2 扫描、声明及上下文 |
-| 10/24–25 | T3–T5 普通/压缩证明、错误输入、独立对照，执行 G0 |
-| 10/26 | T6 逐步会话、原子失败与回退 |
-| 10/27 | T7 导出与真实数据库；独立检查实际候选证明 |
-| 10/28 | T8–T9 CLI、网页与三个完整操作场景 |
-| 10/29 | T10–T11 独立消费者、CI、文档和可选模型试步 |
-| 10/30 | T12 发布准备、最终验收；有授权后才执行公开动作 |
-| 10/31 | 提交/修复缓冲；不新加核心功能 |
+`list` 是查询，单独运行时不会验证证明。批量结果须同时看 `outcome`、`complete` 和各状态计数，不能只看请求的 `status: "ok"`。CLI 默认在受限 Worker 中执行，120 秒截止；可用 `--timeout-ms N` 调整（1..300000），超时或 Ctrl+C 返回未完成。
 
-上述是 agent 连续执行的条件排期，不是完成保证。任务验收通过后主动推进下一必要单元；不为每一步重复索要批准。独立任务可并行，核心状态与同一源码文件只保留一个写者。
+外部动作文件可以通过 `session` 重做证明并导出：
 
-**G0 在开始实现后最多 48 小时执行**：普通/压缩路径能共用检查语义；真实小库能完成；代表性的 `$d`、作用域、自引用/未来引用、压缩越界反例被拒绝；JS 核心不依赖 Python；与独立检查器的关键差异已解释。G0 不过时定位与修复根因，不降低数学检查要求；必要时撤回十月完整交付承诺。可以削减视觉细节、AI 与全库性能目标，不得删去健全性检查。
+```sh
+node bin/moonmetamath.mjs session mini.mm --theorem th --actions actions.json --export candidate.mm
+```
 
-## 赛事事实与待确认项
+可直接复制的 `mini.mm`、动作文件和完整三场景见 [SCENARIOS.md](docs/SCENARIOS.md)。CLI 不覆盖已有导出文件。include 默认限制在入口所在目录内，可用 `--root DIR` 显式指定允许的源根目录。
 
-- 官网于本轮仍写 **2026-10-31 报名与验收截止**、十月最多 3 次提交/修改机会；月度 150 元初审支持 + 350 元验收支持；新项目验收后进入季度评选范围，长期社区维护项目另有入口。
-- 官网链接的飞书章程保留 **10/24** 和九月旧日期，存在冲突。**用户/赛事通知须确认最终执行日期；本计划按 10/31 条件编制，不代替官方确认。** 若实际 10/24 截止，则当前完整排期无法保证十月资格，不能靠改日期掩盖。
-- 章程列出至少 3 个完整预期场景、至少 10 个有效提交、一页人工撰写的 Markdown 申报、CI 与 Mooncakes 发布。有效提交来自自然开发单元，禁止补造或拆空提交。
-- Claude 可准备事实清单、截图、命令、来源和申报结构；**官方要求人工撰写的申报正文由用户亲自定稿**。不把本交接文档直接冒充用户人工申报书。
-- 不等待到 10/29 才准备初审。形成可运行早期版本、有效历史和清晰范围后，尽早把可审查申报材料交给用户；滚动审核没有已知处理时限。
+## Web：逐步走完证明
 
-## 完成定义
+```sh
+node scripts/serve.mjs --port 4173
+```
 
-本轮完成定义：资料包内链、接口命名、任务依赖、验收与权限一致，来源可追溯，Claude 无需读聊天历史即可开始。
+打开 [本地证明实验室](http://127.0.0.1:4173/web/)。首次自动加载并验证 demo0；也可选 MIU、HOL，或上传一组包含入口与 include 的文件。
 
-未来实现完成定义见 `ACCEPTANCE.md`。本轮任何复用索引只记录“规划交接已完成，实施待开始”，不记录代码或测试成功。
+选择定理后，手动构造从空栈开始。点击活动假设或输入标签，逐步检查栈；可以撤回、重启，最后“检查完成”并下载新标签的普通 `.mm`。原证明回放放在单独标签页，不会自动填入构造会话。取消会实际终止 Worker；保留视图只读，继续需要重新加载数据库。
 
-## 本轮文档验收记录
+## 嵌入 MoonBit 或 JavaScript
 
-- 六份资料已保存；任务T0–T12共13项，先前置脚本再由后续任务调用，避免T1/T5调用尚未创建入口。
-- 独立语义审阅后已修正Worker取消、压缩replay导出和include源身份三项具体缺口；最终任务/验收依赖审阅未发现新的阻塞项。
-- 本地Markdown链接、代码围栏和任务编号检查通过；父仓库`git diff --check`通过。此项只验证文档结构，不验证未来实现。
-- 独立目录现已建立，完整计划迁入；当前变更只有文档、复用说明和导航。没有编译/运行Metamath、初始化或提交Git、公开发布或发出Claude任务。
+MoonBit 消费者的 `moon.pkg`：
+
+```moonbit
+import {
+  "AlexenderSokolov/moonmetamath",
+}
+options(is_main: true)
+```
+
+`main.mbt` 中调用根包的稳定入口：
+
+```moonbit
+fn main {
+  println(@moonmetamath.dispatch_json(
+    "{\"schema_version\":1,\"request_id\":\"load-1\",\"operation\":\"load\",\"entry\":\"mini.mm\",\"sources\":[{\"source_id\":\"mini.mm\",\"text\":\"$c |- a $. ax $a |- a $. th $p |- a $= ax $.\"}]}",
+  ))
+}
+```
+
+`load` 返回数据库句柄，随后用同一实例调用 `verify`、`start` 等操作。完整原生 API、响应与会话约束见 [API.md](docs/API.md)。独立 workspace 消费者验收入口为 `node scripts/consumer.mjs`，注册表验收入口为 `node scripts/consumer.mjs --registry --version 0.1.0`；后者须在发布后运行。
+
+JavaScript 宿主直接导入构建产物：
+
+```js
+import { dispatch_json } from './dist/moonmetamath-core.mjs';
+const response = JSON.parse(dispatch_json(JSON.stringify({
+  schema_version: 1, request_id: 'reset-1', operation: 'reset'
+})));
+console.log(response);
+```
+
+## 已完成的验证与边界
+
+2026-10-23 的本地验收：
+
+| 范围 | 实际结果 |
+| --- | --- |
+| MoonBit 核心测试 | 47 项，在 JS 与 wasm-gc 后端通过 |
+| 固定外部测试材料 | 79/79 符合预期：22 valid、55 invalid、2 incomplete |
+| 独立 mmreference | 同一 79 项全部符合上游预期 |
+| 官方小库 | demo0 1 个证明、MIU 1 个证明、HOL 151 个证明通过；peano 只有声明，0 个证明 |
+| 实际浏览器 | demo0 34 步构造、错误标签拒绝、撤回与完成通过；实际下载文件由独立官方 C 检查器接受 |
+
+官方 C 对整套外部材料有 **7 项已记录分歧**，并非 79/79 全过；细节见 [兼容性](docs/COMPATIBILITY.md)。上述验证不等于完整 set.mm、所有 Metamath 扩展或所有平台兼容，也没有对实现本身作形式化认证。
+
+运行开发检查：
+
+```sh
+node scripts/check.mjs
+```
+
+重新取得固定测试材料及独立检查器源码：
+
+```sh
+node scripts/fixtures.mjs fetch --profile october
+```
+
+该步骤需要网络和 C 编译器：Windows 使用已有 MSVC x86 环境，Linux 使用 gcc；Python 仅供独立参考测试。已有完整缓存时可追加 `--offline`。产品运行不依赖这些参考检查器。验收日志保存在本地 `artifacts/`；浏览器检查项见 [manual-checklist.md](tests/web/manual-checklist.md)。
+
+当前支持标准 ASCII Metamath 输入、普通与压缩证明、文件集合 include。完整 set.mm 的容量/性能、任意新目标编辑、逆向 tactic、模型搜索、压缩导出和压缩 Replay 转普通证明尚未作为本版能力交付。默认额度及详细限制见 [COMPATIBILITY.md](docs/COMPATIBILITY.md)。
+
+## 文档与来源
+
+- [API](docs/API.md) · [三个操作场景](docs/SCENARIOS.md) · [兼容性与限制](docs/COMPATIBILITY.md) · [更新记录](CHANGELOG.md)
+- [第三方来源及许可](docs/THIRD_PARTY.md) · [固定测试清单](tests/fixtures/manifest.json)
+- 项目实现采用 [MIT](LICENSE)；工具链安装脚本保留 Apache-2.0，第三方测试材料遵守各自许可。
+- 原规划资料保留供追溯：[设计规格](DESIGN_AND_SCOPE.md)、[实施计划](IMPLEMENTATION_PLAN.md)、[参考资料](REFERENCES.md)、[验收设计](ACCEPTANCE.md)、[启动提示词](CLAUDE_CODE_PROMPT.md)。其中规划日期、排期与“待实施”叙述是历史背景；当前状态以 [PROGRESS.md](PROGRESS.md) 为准。
