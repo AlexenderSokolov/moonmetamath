@@ -1,0 +1,2064 @@
+{
+  "schemaVersion": 1,
+  "profile": "october",
+  "sources": {
+    "set": {
+      "repo": "metamath/set.mm",
+      "commit": "b4c3130f3b8081e1e4a33b47321141359e3380ae",
+      "license": "CC0-1.0"
+    },
+    "edge": {
+      "repo": "LegionMammal978/mm-verifier-tests",
+      "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+      "license": "CC0-1.0"
+    },
+    "suite": {
+      "repo": "david-a-wheeler/metamath-test",
+      "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+      "license": "MIT; file headers may declare CC0"
+    },
+    "python": {
+      "repo": "david-a-wheeler/mmverify.py",
+      "commit": "63a2aa3815cd5bf67892dbfc7f2048cbb177524c",
+      "license": "MIT"
+    },
+    "c": {
+      "repo": "metamath/metamath-exe",
+      "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+      "license": "GPL-2.0-or-later"
+    }
+  },
+  "fixtures": [
+    {
+      "id": "set-demo0",
+      "path": "tests/fixtures/upstream/set-mm/demo0.mm",
+      "source": {
+        "repo": "metamath/set.mm",
+        "commit": "b4c3130f3b8081e1e4a33b47321141359e3380ae",
+        "license": "CC0-1.0",
+        "path": "demo0.mm",
+        "url": "https://raw.githubusercontent.com/metamath/set.mm/b4c3130f3b8081e1e4a33b47321141359e3380ae/demo0.mm"
+      },
+      "bytes": 2285,
+      "sha256": "72ed7400ccf250f41af6eb7696727394e5cd126b8fa94594da8628ed79ac2c44",
+      "expected": "valid",
+      "category": "official-database",
+      "applicable": true
+    },
+    {
+      "id": "set-miu",
+      "path": "tests/fixtures/upstream/set-mm/miu.mm",
+      "source": {
+        "repo": "metamath/set.mm",
+        "commit": "b4c3130f3b8081e1e4a33b47321141359e3380ae",
+        "license": "CC0-1.0",
+        "path": "miu.mm",
+        "url": "https://raw.githubusercontent.com/metamath/set.mm/b4c3130f3b8081e1e4a33b47321141359e3380ae/miu.mm"
+      },
+      "bytes": 5553,
+      "sha256": "2b37347a892060adaa2c361d4b0fec92b49b8c2a40ddcc4a82c996f2f1eb58fa",
+      "expected": "valid",
+      "category": "official-database",
+      "applicable": true
+    },
+    {
+      "id": "set-peano",
+      "path": "tests/fixtures/upstream/set-mm/peano.mm",
+      "source": {
+        "repo": "metamath/set.mm",
+        "commit": "b4c3130f3b8081e1e4a33b47321141359e3380ae",
+        "license": "GPL (unversioned notice in file)",
+        "path": "peano.mm",
+        "url": "https://raw.githubusercontent.com/metamath/set.mm/b4c3130f3b8081e1e4a33b47321141359e3380ae/peano.mm",
+        "repositoryLicense": "CC0-1.0",
+        "licenseNote": "File header declares GPL; repository-level license is CC0-1.0. Preserve the file notice; do not assert file is CC0."
+      },
+      "bytes": 27979,
+      "sha256": "7a43a6804e9b130100ca0d84301ffa1b34da5b169c80ff464e836ea72732e0be",
+      "expected": "valid",
+      "category": "official-database",
+      "applicable": true
+    },
+    {
+      "id": "set-hol",
+      "path": "tests/fixtures/upstream/set-mm/hol.mm",
+      "source": {
+        "repo": "metamath/set.mm",
+        "commit": "b4c3130f3b8081e1e4a33b47321141359e3380ae",
+        "license": "CC0-1.0",
+        "path": "hol.mm",
+        "url": "https://raw.githubusercontent.com/metamath/set.mm/b4c3130f3b8081e1e4a33b47321141359e3380ae/hol.mm"
+      },
+      "bytes": 96899,
+      "sha256": "47a1e96538143ff382be54425beceddbd656e1105553f395c9bd9a4c1b6c3cde",
+      "expected": "valid",
+      "category": "official-database",
+      "applicable": true
+    },
+    {
+      "id": "edge-unknown-tests-test001.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/unknown-tests/test001.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "unknown-tests/test001.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/unknown-tests/test001.mm"
+      },
+      "bytes": 101,
+      "sha256": "2fafd61a35dca4e8ff3633c6fe1e60925c6b3125fc310b2ea93d4fdc28757b7c",
+      "expected": "incomplete",
+      "category": "unknown-proof",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-unknown-tests-test002.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/unknown-tests/test002.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "unknown-tests/test002.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/unknown-tests/test002.mm"
+      },
+      "bytes": 84,
+      "sha256": "a01dfc922adeb89b66ac6a0466cd102b1882b0e1840c12203b8ac478a9ee54bc",
+      "expected": "incomplete",
+      "category": "unknown-proof",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test001.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test001.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test001.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test001.mm"
+      },
+      "bytes": 40,
+      "sha256": "9394f2a49cce21cec6915057534ce5a7552c575e5b050c84f24c30a98f206d4f",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test002.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test002.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test002.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test002.mm"
+      },
+      "bytes": 35,
+      "sha256": "7f8ac9618c894969684b7a31cc4f38e8aa819a45325632599cd30c9c85c4e64e",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test003.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test003.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test003.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test003.mm"
+      },
+      "bytes": 22,
+      "sha256": "25fb2c80ba089d35f7d8b5571490f9ce91b1ee4a74bd3aab28b104468742908e",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test004.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test004.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test004.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test004.mm"
+      },
+      "bytes": 24,
+      "sha256": "3eefc39bcef5855affff19cff2b8635e5e783fa64a6e6ccfd6050f231bc88b6e",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test005.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test005.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test005.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test005.mm"
+      },
+      "bytes": 32,
+      "sha256": "ec678cb3ad73550853c16a8e1f1caf979a2a6abed440b155e8236134e01f98da",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test006.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test006.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test006.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test006.mm"
+      },
+      "bytes": 31,
+      "sha256": "0587e986f3bdaff0859596d322a88405619ed4e91c5ed7749f530c104a9e1842",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test007.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test007.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test007.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test007.mm"
+      },
+      "bytes": 58,
+      "sha256": "af8146ff56f9d6a332b2305af35770f63b3c05cc66e2cfd24b77d333761168d2",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test008.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test008.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test008.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test008.mm"
+      },
+      "bytes": 45,
+      "sha256": "f13741baf091551cd41ff333408ed1275a8ff3ac273d97b9740af71a36bac38b",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test009.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test009.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test009.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test009.mm"
+      },
+      "bytes": 42,
+      "sha256": "8914dbe549a9d951335d9cc7e25485df774c54c3552ef36393fb37851885c4d0",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test010.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test010.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test010.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test010.mm"
+      },
+      "bytes": 44,
+      "sha256": "a9ee1ee95417066fb5353eed24fac56cb00bde5d0eac724f88a4c8cd9f6919ff",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test011.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test011.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test011.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test011.mm"
+      },
+      "bytes": 47,
+      "sha256": "29eff7b46525b9973dddd197a21c3bb62538e73bcb5a3187c3c7f7395c3299ac",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test012.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test012.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test012.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test012.mm"
+      },
+      "bytes": 43,
+      "sha256": "659bf96768aa7279a3d62778cae8baa446de5412df28a92623e63d7598bf0a09",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test013.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test013.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test013.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test013.mm"
+      },
+      "bytes": 43,
+      "sha256": "57f7bdc17975fd07782ac4f1946d80ff9d0aaebdc02a1172ee3a490e6a6e35b3",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test014.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test014.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test014.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test014.mm"
+      },
+      "bytes": 33,
+      "sha256": "7d8cbdd8e29a53118f66bd17399c973db549e51c248d305c7df515f5adc6aed5",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test015.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test015.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test015.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test015.mm"
+      },
+      "bytes": 37,
+      "sha256": "1a0b99cbc0e609e1f67e49b38402763e35073c9d5ad204d09b312f9903c9b1cf",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test016.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test016.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test016.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test016.mm"
+      },
+      "bytes": 52,
+      "sha256": "8090c164260a57c3e4b2a6519000bea2fb0cf84bad763a190f0cbaf8aa92c87b",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test017.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test017.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test017.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test017.mm"
+      },
+      "bytes": 105,
+      "sha256": "b75318cc3e4e5b6e2bac8c097cbe6ea6677757c0a10cb8ebb5d6d901bfb20da0",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test018.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test018.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test018.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test018.mm"
+      },
+      "bytes": 90,
+      "sha256": "c5629efb2968c29edf8f167faca57afcdeb24bdba1993cac52cfa06eb06752e8",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test019.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test019.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test019.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test019.mm"
+      },
+      "bytes": 55,
+      "sha256": "e1749271718df77351b8b07b30e911d02fb8d985183161aac6d3ff86cb462040",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test020.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test020.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test020.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test020.mm"
+      },
+      "bytes": 55,
+      "sha256": "9756d76dd5c7bc323f0dbd1858ecb9e28a34851a25b49ac7ef3425e66849a5e0",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test021.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test021.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test021.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test021.mm"
+      },
+      "bytes": 57,
+      "sha256": "7383974106e5f41fede7bc9a6341192bf9e7c7e40dd7183cd17cb055926ec958",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test022.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test022.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test022.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test022.mm"
+      },
+      "bytes": 88,
+      "sha256": "e7f2edb30b832dc3fd918ee6f79f6bdf659bf3812690226a647ab6afb19c8c4e",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test023.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test023.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test023.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test023.mm"
+      },
+      "bytes": 45,
+      "sha256": "42081745fb7818554923396d6af330db820b98d793e8ed868263d45efccc1b0f",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test024.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test024.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test024.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test024.mm"
+      },
+      "bytes": 28,
+      "sha256": "8ada0c9d5772b56d7bffd522fbeb9a7615be9e932eff00da1c76585876eaf7a6",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test025.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test025.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test025.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test025.mm"
+      },
+      "bytes": 30,
+      "sha256": "1f701442dde043c7ab5bc17177aa711bfd09d64ce372f4184187eee58f569f47",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test026.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test026.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test026.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test026.mm"
+      },
+      "bytes": 67,
+      "sha256": "cdd2186f03f23a2c98fa95f175f844e735d711fe27f2df580e2796e6db8d1a4a",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test027.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test027.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test027.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test027.mm"
+      },
+      "bytes": 69,
+      "sha256": "9a5043c96a8188d682aa1a1bbb14628ccdb2be8b0c6fb823bad1c1dd7472c46d",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test028.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test028.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test028.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test028.mm"
+      },
+      "bytes": 73,
+      "sha256": "bd3ed5097c784d731c8a5ed840c67b7d535b0aed6597a4b032efd265eb32a869",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test029.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test029.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test029.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test029.mm"
+      },
+      "bytes": 25,
+      "sha256": "07259086769dc6687241fc85b42050b8b6449b246706640c24c76d89ca120037",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test030.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test030.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test030.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test030.mm"
+      },
+      "bytes": 25,
+      "sha256": "6631339b00da22fe493421cc7430a549765ff7bf35559785cc3bc7fc8d79ba25",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test031.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test031.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test031.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test031.mm"
+      },
+      "bytes": 25,
+      "sha256": "18a180b43b0c5c17e974eff83441f202c43b640efcbf28fc72d23858b376d551",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test032.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test032.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test032.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test032.mm"
+      },
+      "bytes": 37,
+      "sha256": "4d375969f8bafbc07bf1364878d4161d6b71bf00e358e7030f7675aa958dbb8d",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test033.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test033.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test033.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test033.mm"
+      },
+      "bytes": 40,
+      "sha256": "abebcd3e6b9aeaf65dcbf9493028dbfeb5c345a59c38e3059769d2ba64ba7f7f",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test034.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test034.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test034.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test034.mm"
+      },
+      "bytes": 131,
+      "sha256": "b91b24e07ea79497d9d2a28c6257693d38db33e6994c8dfe04e57202f07554f9",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test035.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test035.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test035.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test035.mm"
+      },
+      "bytes": 74,
+      "sha256": "afa0de62b34a8fab3a794c29139adadeb9389b7c8c0563d40d7f84dbaa0c680c",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test036.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test036.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test036.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test036.mm"
+      },
+      "bytes": 85,
+      "sha256": "4180accbcc325388c8525ceb9586b6b568a1326a657dfa6404482c55398d514e",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test037.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test037.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test037.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test037.mm"
+      },
+      "bytes": 73,
+      "sha256": "cedf57230e80d04055e7ed591640f80029bb4f4ef5f7eca467d60d4f72c210c7",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test038.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test038.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test038.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test038.mm"
+      },
+      "bytes": 74,
+      "sha256": "122c998c77a8300eeb716afa349b7c1da4cc2db57fbd53cb4d56c7eb68065dbd",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test039.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test039.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test039.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test039.mm"
+      },
+      "bytes": 94,
+      "sha256": "f5b8f69c18190532fb4115105b32f390aa858f554b53cf9a5257efbacd83a05e",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test040.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test040.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test040.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test040.mm"
+      },
+      "bytes": 74,
+      "sha256": "09d80e817a9449b0e47ec485e7191671f08268ef44b4f20abcc2d29559b0fde7",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test041.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test041.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test041.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test041.mm"
+      },
+      "bytes": 94,
+      "sha256": "17ff6b1363d85821168a11092164c450f54b552bb7ef3501f671b48f229a8760",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test042.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test042.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test042.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test042.mm"
+      },
+      "bytes": 67,
+      "sha256": "d70bd684f96e3b309af876dd817ec416befadf536e389d28d34551008182f91a",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test043.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test043.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test043.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test043.mm"
+      },
+      "bytes": 101,
+      "sha256": "8ad1a5189f403db2b12194202ad2a3ba4a81fc509e5b9470c45fa9e6cfdf52e0",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test044.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test044.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test044.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test044.mm"
+      },
+      "bytes": 32,
+      "sha256": "ff291ff6b751e89e6ad88c4eb9d30878b8e080fcd350bcb9e7b667ae942db721",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test045.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test045.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test045.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test045.mm"
+      },
+      "bytes": 47,
+      "sha256": "2080e2216c64f621d8faa164ed831555e8e3db708e9a6263a82ae55f689e4f35",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test046.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test046.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test046.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test046.mm"
+      },
+      "bytes": 127,
+      "sha256": "55ed54f8dddd95817bc5165beadc9143698b27ca7a0f536caa1a555f8b415a9f",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test047.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test047.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test047.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test047.mm"
+      },
+      "bytes": 34,
+      "sha256": "cb0c025a61ff93376e4562b18414999cf764ccb67e070ac1221c7b439df18dd8",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test048.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test048.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test048.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test048.mm"
+      },
+      "bytes": 70,
+      "sha256": "1bed8eb0b508b69b5af53325c55cf3c50b4b669ae1f64882e398b45512a34bac",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test049.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test049.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test049.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test049.mm"
+      },
+      "bytes": 111,
+      "sha256": "3ab0c0e089836bbb4cb6da829ca45ca3fff62ab6082e0d350ba040911e16c05c",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test050.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test050.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test050.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test050.mm"
+      },
+      "bytes": 113,
+      "sha256": "d4760f11b8d9a3111fefac460a01d31584c375bbf1846cc1e180d481557ccdd2",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test051.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test051.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test051.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test051.mm"
+      },
+      "bytes": 29,
+      "sha256": "f2261f693fff8d6c5419f6a46cf541ebd76ce6ec2aadd59daa2a90b4dbff354d",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test052.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test052.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test052.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test052.mm"
+      },
+      "bytes": 85,
+      "sha256": "7a6307a68d019a5dd5b731afdcca6c099262340ce7588e2c45bd2d85515a1851",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test053.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test053.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test053.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test053.mm"
+      },
+      "bytes": 141,
+      "sha256": "a24fa15caca998133e3ec8a05ca8b37939fd3c316928150c9391e51127f0a449",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test054.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test054.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test054.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test054.mm"
+      },
+      "bytes": 71,
+      "sha256": "78d24bb8713b2c60b7dba0e77dfc53f1430f8176fd652d58207182ad3802fc97",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test055.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test055.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test055.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test055.mm"
+      },
+      "bytes": 131,
+      "sha256": "3881139f0b51ad6c2ef21af529332087926af753e2b7468b66b2cc0ae3e36363",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test056.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test056.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test056.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test056.mm"
+      },
+      "bytes": 70,
+      "sha256": "90527070395331ec940c3abf09ce8fed83a176642bda7c3d94d271c2d5a98247",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test057.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test057.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test057.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test057.mm"
+      },
+      "bytes": 56,
+      "sha256": "ec0837fd77984cd51c9a7f262094c9718140ef48575f3dbd0f57dedfbe333321",
+      "expected": "valid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "edge-verify-tests-test058.mm",
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/test058.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/test058.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/test058.mm"
+      },
+      "bytes": 29,
+      "sha256": "73e6a897c4cdf470932a43a88e0e2d98c821ef5be1ae897c7739c68b0fa048f2",
+      "expected": "invalid",
+      "category": "language-boundary",
+      "applicable": true,
+      "expectationSource": "upstream should verify/error/warn marker"
+    },
+    {
+      "id": "suite-anatomy",
+      "path": "tests/fixtures/upstream/metamath-test/anatomy.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "anatomy.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/anatomy.mm"
+      },
+      "bytes": 699,
+      "sha256": "95bf77f3a01bbce73fdda920900fb36da6270a064b00c5da6b2ab990ce95754a",
+      "expected": "valid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-anatomy-bad1",
+      "path": "tests/fixtures/upstream/metamath-test/anatomy-bad1.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "anatomy-bad1.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/anatomy-bad1.mm"
+      },
+      "bytes": 699,
+      "sha256": "ae91400bb88b0b64f3a366a4731bdf0c3aadd781d45d9161ed76585b9ebaf7d4",
+      "expected": "invalid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-anatomy-bad2",
+      "path": "tests/fixtures/upstream/metamath-test/anatomy-bad2.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "anatomy-bad2.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/anatomy-bad2.mm"
+      },
+      "bytes": 696,
+      "sha256": "c6210df06982b1f345785ddf5d20a63d0b8a80daacf984cade849e4ebe4e0219",
+      "expected": "invalid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-anatomy-bad3",
+      "path": "tests/fixtures/upstream/metamath-test/anatomy-bad3.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "anatomy-bad3.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/anatomy-bad3.mm"
+      },
+      "bytes": 696,
+      "sha256": "4d64c3f41352b8d113be26bb69f7af924c762d3e8f88a8ff15ad388787d37846",
+      "expected": "invalid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-big-unifier",
+      "path": "tests/fixtures/upstream/metamath-test/big-unifier.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "big-unifier.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/big-unifier.mm"
+      },
+      "bytes": 21990,
+      "sha256": "c8754fa518cf3a81c3cb33cf05d6c2c90024925cb8be369195ac033492bd1715",
+      "expected": "valid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-big-unifier-bad1",
+      "path": "tests/fixtures/upstream/metamath-test/big-unifier-bad1.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "big-unifier-bad1.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/big-unifier-bad1.mm"
+      },
+      "bytes": 3369,
+      "sha256": "98c8bb533ebbff065bc0f5f703263c84c684dc455beafa2c2cf02413edc3cf2e",
+      "expected": "invalid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-big-unifier-bad2",
+      "path": "tests/fixtures/upstream/metamath-test/big-unifier-bad2.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "big-unifier-bad2.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/big-unifier-bad2.mm"
+      },
+      "bytes": 3366,
+      "sha256": "9f35587ac5919e8dfd92103e3f0600e88d43145db86aebf55bd2e334010234d0",
+      "expected": "invalid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-big-unifier-bad3",
+      "path": "tests/fixtures/upstream/metamath-test/big-unifier-bad3.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "big-unifier-bad3.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/big-unifier-bad3.mm"
+      },
+      "bytes": 3369,
+      "sha256": "917647ceb28e519c160ee4df6343791cebe9a6415293115fff8b3805a67c69f4",
+      "expected": "invalid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-demo0",
+      "path": "tests/fixtures/upstream/metamath-test/demo0.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "demo0.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/demo0.mm"
+      },
+      "bytes": 1353,
+      "sha256": "b68d7488bdbf2d55d1a955f3a6a3efac68ca9e3009d24f867e1a75aacb7b03d3",
+      "expected": "valid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-demo0-bad1",
+      "path": "tests/fixtures/upstream/metamath-test/demo0-bad1.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "demo0-bad1.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/demo0-bad1.mm"
+      },
+      "bytes": 1353,
+      "sha256": "e925fded2c0fdf765b98b33424ad187cb955d2bc3c43768ed4ddcb407ac85250",
+      "expected": "invalid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-demo0-includer",
+      "path": "tests/fixtures/upstream/metamath-test/demo0-includer.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "demo0-includer.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/demo0-includer.mm"
+      },
+      "bytes": 520,
+      "sha256": "677f25cc98e63e08f68ad20f0c79f8fe8101029079e03a1ce18d2a1039ee21d3",
+      "expected": "valid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-emptyline",
+      "path": "tests/fixtures/upstream/metamath-test/emptyline.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "emptyline.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/emptyline.mm"
+      },
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "expected": "valid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-hol",
+      "path": "tests/fixtures/upstream/metamath-test/hol.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "hol.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/hol.mm"
+      },
+      "bytes": 87283,
+      "sha256": "acea027bf1c48e1fc645942e2dad41ea2b33d40de15b094f0e5256f337fc6343",
+      "expected": "valid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-miu",
+      "path": "tests/fixtures/upstream/metamath-test/miu.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "miu.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/miu.mm"
+      },
+      "bytes": 4649,
+      "sha256": "43ead5a0b37e968462cd66331dec324d42959c8f54460eab35cfb869b423d3f2",
+      "expected": "valid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    },
+    {
+      "id": "suite-peano-fixed",
+      "path": "tests/fixtures/upstream/metamath-test/peano-fixed.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "GPL (unversioned notice in file)",
+        "path": "peano-fixed.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/peano-fixed.mm",
+        "repositoryLicense": "MIT; file headers may declare CC0",
+        "licenseNote": "File header declares GPL; repository-level license is MIT; file headers may declare CC0. Preserve the file notice; do not assert file is CC0."
+      },
+      "bytes": 27843,
+      "sha256": "c5314f062315415f5ad730df00cf74a000c881a11e707cda5dd932e11523e163",
+      "expected": "valid",
+      "category": "metamath-test",
+      "expectationSource": "pinned run-testsuite pass/fail invocation",
+      "applicable": true
+    }
+  ],
+  "supportFiles": [
+    {
+      "path": "tests/fixtures/upstream/set-mm/LICENSE",
+      "source": {
+        "repo": "metamath/set.mm",
+        "commit": "b4c3130f3b8081e1e4a33b47321141359e3380ae",
+        "license": "CC0-1.0",
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/metamath/set.mm/b4c3130f3b8081e1e4a33b47321141359e3380ae/LICENSE"
+      },
+      "bytes": 7238,
+      "sha256": "8a5f6a2b110cdecd3543c2b18c4d17fa2f08d16ca61c1fe0a1e41b1343464b5c"
+    },
+    {
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/empty.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/empty.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/empty.mm"
+      },
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/helper001ä.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/helper001ä.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/helper001%C3%A4.mm"
+      },
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tests/fixtures/upstream/mm-verifier-tests/verify-tests/helper016a.mm",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "verify-tests/helper016a.mm",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/verify-tests/helper016a.mm"
+      },
+      "bytes": 3,
+      "sha256": "475a1318941bdc457139cd05270e63040b2ae9e291d631ecf032333a4546915b"
+    },
+    {
+      "path": "tests/fixtures/upstream/mm-verifier-tests/COPYING",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "COPYING",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/COPYING"
+      },
+      "bytes": 7048,
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    {
+      "path": "tests/fixtures/upstream/mm-verifier-tests/README.md",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "README.md",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/README.md"
+      },
+      "bytes": 917,
+      "sha256": "287d233e9da9f596776584f864399c6488ba68eaf4cf745d81d799109c690ef5"
+    },
+    {
+      "path": ".references/mmreference/mmreference.py",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "mmreference.py",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/mmreference.py"
+      },
+      "bytes": 20889,
+      "sha256": "97339baf97e073b72733dda969419b862c7a1d82fa6aa45aeaf5dbbf8a65d53d"
+    },
+    {
+      "path": ".references/mmreference/COPYING",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "COPYING",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/COPYING"
+      },
+      "bytes": 7048,
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    {
+      "path": ".references/mmreference/README.md",
+      "source": {
+        "repo": "LegionMammal978/mm-verifier-tests",
+        "commit": "9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f",
+        "license": "CC0-1.0",
+        "path": "README.md",
+        "url": "https://raw.githubusercontent.com/LegionMammal978/mm-verifier-tests/9b4165b8c9ac7a27c18dcf836c42979ca4b7a67f/README.md"
+      },
+      "bytes": 917,
+      "sha256": "287d233e9da9f596776584f864399c6488ba68eaf4cf745d81d799109c690ef5"
+    },
+    {
+      "path": ".references/mmverify/mmverify.py",
+      "source": {
+        "repo": "david-a-wheeler/mmverify.py",
+        "commit": "63a2aa3815cd5bf67892dbfc7f2048cbb177524c",
+        "license": "MIT",
+        "path": "mmverify.py",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/mmverify.py/63a2aa3815cd5bf67892dbfc7f2048cbb177524c/mmverify.py"
+      },
+      "bytes": 28925,
+      "sha256": "a1586636b9f3b8378932e129a1a8299dab8ad39098eca22480583947d1f644b8"
+    },
+    {
+      "path": ".references/mmverify/LICENSE",
+      "source": {
+        "repo": "david-a-wheeler/mmverify.py",
+        "commit": "63a2aa3815cd5bf67892dbfc7f2048cbb177524c",
+        "license": "MIT",
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/mmverify.py/63a2aa3815cd5bf67892dbfc7f2048cbb177524c/LICENSE"
+      },
+      "bytes": 1115,
+      "sha256": "e8b94f0c9e62ef5f30a2c014c1cf1371242ba1f5cce82f285281f9497197cd13"
+    },
+    {
+      "path": ".references/mmverify/README.md",
+      "source": {
+        "repo": "david-a-wheeler/mmverify.py",
+        "commit": "63a2aa3815cd5bf67892dbfc7f2048cbb177524c",
+        "license": "MIT",
+        "path": "README.md",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/mmverify.py/63a2aa3815cd5bf67892dbfc7f2048cbb177524c/README.md"
+      },
+      "bytes": 1240,
+      "sha256": "6f361fc2d2b16e1810e16d9fd2c108a7f0d487224a6737119261eeee99b66a7b"
+    },
+    {
+      "path": "tests/fixtures/upstream/metamath-test/run-testsuite",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "run-testsuite",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/run-testsuite"
+      },
+      "bytes": 1432,
+      "sha256": "e62a12856b3036f6f182ec93b399832b455f08af5e4b4badfeeb487c935818cf"
+    },
+    {
+      "path": "tests/fixtures/upstream/metamath-test/LICENSE",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/LICENSE"
+      },
+      "bytes": 1073,
+      "sha256": "4de5bb208973a62b8588281b0f72354ddf86419de6bc83c6ced66da5d0d6b125"
+    },
+    {
+      "path": "tests/fixtures/upstream/metamath-test/README.md",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "README.md",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/README.md"
+      },
+      "bytes": 2934,
+      "sha256": "42eb15e133d3234b6ed26c99501130e2325bc1b823b4cfe5c80f71aeeb578a19"
+    },
+    {
+      "path": "tests/fixtures/upstream/metamath-test/test-metamath",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "test-metamath",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/test-metamath"
+      },
+      "bytes": 291,
+      "sha256": "1bb594828347e141cabe4538d019b965b209ee46e2f8e6e15ea0e8720bfebe67"
+    },
+    {
+      "path": "tests/fixtures/upstream/metamath-test/demo0-includee.mm",
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "demo0-includee.mm",
+        "url": "https://raw.githubusercontent.com/david-a-wheeler/metamath-test/5758bf781bab662d4b31c7f72ac4dedea74fcb0f/demo0-includee.mm"
+      },
+      "bytes": 1145,
+      "sha256": "00dc5b1fb7f59cec3a8c8c7b49b11250dd0e96aa34f199cc540d28a484bb8ed0"
+    },
+    {
+      "path": ".references/metamath-exe/LICENSE.TXT",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "LICENSE.TXT",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/LICENSE.TXT"
+      },
+      "bytes": 18092,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    {
+      "path": ".references/metamath-exe/README.TXT",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "README.TXT",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/README.TXT"
+      },
+      "bytes": 13745,
+      "sha256": "beffa655ce7cfb58e05bbcc4cbb48f3fe95f5f0e8ef5397ead69f44837e3e156"
+    },
+    {
+      "path": ".references/metamath-exe/build.sh",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "build.sh",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/build.sh"
+      },
+      "bytes": 6130,
+      "sha256": "49d7158649502c3257ad95f7bc70263af59a20a1eed93ecd09e7b97cc703ea37"
+    },
+    {
+      "path": ".references/metamath-exe/doc/BUILD.md",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "doc/BUILD.md",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/doc/BUILD.md"
+      },
+      "bytes": 9445,
+      "sha256": "8e9b8152719835bbef1413ca9c5414133aac83c551905d14879c6247d41ae2b9"
+    },
+    {
+      "path": ".references/metamath-exe/src/metamath.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/metamath.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/metamath.c"
+      },
+      "bytes": 259665,
+      "sha256": "a7e76378fc5102fd28adf92a040b0a4af55883e74441b7b0d262d8f950edf8a7"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmcmdl.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmcmdl.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmcmdl.c"
+      },
+      "bytes": 70907,
+      "sha256": "b18a87fb91517b91113981c82e1e7c16948ff501d6c16013417fbe863da62883"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmcmdl.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmcmdl.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmcmdl.h"
+      },
+      "bytes": 2233,
+      "sha256": "a68c35fcd1e490fe4c2a93a523337ca6baf45aa4f00dad53d2cc9c460949b1df"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmcmds.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmcmds.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmcmds.c"
+      },
+      "bytes": 230594,
+      "sha256": "d02f9998fc4caff24b0fc4fddaaaf49e9d31a597b4e735c5899eaee2f8c8d1d4"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmcmds.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmcmds.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmcmds.h"
+      },
+      "bytes": 5995,
+      "sha256": "a414e3dc28782cf6062b8b5310515a2c32d81406aa62c2120a902b1584d9a843"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmdata.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmdata.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmdata.c"
+      },
+      "bytes": 147748,
+      "sha256": "a2face4e2c2f34bdeaa094ba56c927c7cc249c29acb32d7ae1a633acb32ff470"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmdata.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmdata.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmdata.h"
+      },
+      "bytes": 43463,
+      "sha256": "74ca51e59ea39ee159ed477e38370c5bfd1ae04fd8db2784e672e5e0741492e1"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmfatl.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmfatl.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmfatl.c"
+      },
+      "bytes": 32117,
+      "sha256": "95ad43554d5f3eb7aad05d6e43eeb731a7baf5868a5a2deae0002db90d0cd128"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmfatl.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmfatl.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmfatl.h"
+      },
+      "bytes": 16343,
+      "sha256": "260a24a0098c3d57e9dfa3ac2c1278c7a7ef0b4497b0ec6505e195e12ce13471"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmhlpa.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmhlpa.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmhlpa.c"
+      },
+      "bytes": 56944,
+      "sha256": "bcaa401c1b1232ef013905248f3faf6e4a25f6549111b3eae77255b3b45c98b8"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmhlpa.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmhlpa.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmhlpa.h"
+      },
+      "bytes": 665,
+      "sha256": "a1f7f1d660ab1024a69adcefe8108f9c996da953fbc98a3002b36a434b5e759f"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmhlpb.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmhlpb.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmhlpb.c"
+      },
+      "bytes": 71622,
+      "sha256": "ec0bffc48c101bb87233bc509c7ea693313d1241015b1a2cbf2a7711ad6a093b"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmhlpb.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmhlpb.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmhlpb.h"
+      },
+      "bytes": 579,
+      "sha256": "6dc67117a9a26a1a8410261f235fc8a1802f1513230108e253156054530915ce"
+    },
+    {
+      "path": ".references/metamath-exe/src/mminou.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mminou.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mminou.c"
+      },
+      "bytes": 61338,
+      "sha256": "5186548e6debf09d884a7fa1d6cf4b72db2e078fa166ac00f2ba745a9e1ea70d"
+    },
+    {
+      "path": ".references/metamath-exe/src/mminou.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mminou.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mminou.h"
+      },
+      "bytes": 36962,
+      "sha256": "9a8d4cb342e29823623412d099c7d1b4e4eaa06d50fd6e465bb67d2d3c132e4e"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmpars.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmpars.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmpars.c"
+      },
+      "bytes": 257022,
+      "sha256": "5a33e8ac7862394d7998a043bc82568069591c8a8aa7f0f4d458659cf3fcb28c"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmpars.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmpars.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmpars.h"
+      },
+      "bytes": 9749,
+      "sha256": "aebf7cef53ae4e8d9a19d8156f96a040419b321a432a55acf28cbbaae9a8a1c0"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmpfas.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmpfas.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmpfas.c"
+      },
+      "bytes": 134205,
+      "sha256": "b97d18319d04a9469adb51641b7742a469a7bf19959986ab58f107463de5fd71"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmpfas.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmpfas.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmpfas.h"
+      },
+      "bytes": 9640,
+      "sha256": "930c94dd32e7fc9b1df10883c0f965b30747276c2fe5299bd3be494922fbad45"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmtest.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmtest.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmtest.c"
+      },
+      "bytes": 1028,
+      "sha256": "2d0261dd0b4047cfc4160d1c8dc0ee20327e791b1f31eed2110fc9f03b23d9d0"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmtest.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmtest.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmtest.h"
+      },
+      "bytes": 7001,
+      "sha256": "22cfe3a63530738267b97a348140b2d5a219f9a20c769d94eb7467160c87328b"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmunif.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmunif.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmunif.c"
+      },
+      "bytes": 63661,
+      "sha256": "960ef90e8bfcc6dfc1e5bd3cbe8ed76cf65dc8014043a943d9d907041c034319"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmunif.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmunif.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmunif.h"
+      },
+      "bytes": 3945,
+      "sha256": "0361af2cbb9c0acdc5078c1e5f8712197750c74c55094473b3d5145e312f0756"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmveri.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmveri.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmveri.c"
+      },
+      "bytes": 34736,
+      "sha256": "8e394c593e16dc0cfeb7f1b64a81ce8a1f8c648a5555364189bb795e6c5e3671"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmveri.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmveri.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmveri.h"
+      },
+      "bytes": 2095,
+      "sha256": "e8eaa045c519268fee687df7cbf95ecf5d015746b127db8a1451ad2eab54120a"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmvstr.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmvstr.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmvstr.c"
+      },
+      "bytes": 34379,
+      "sha256": "0c221ed6c894fc399c725bffa1379afdd2ab456cc98c969a193cbb4315eee58e"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmvstr.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmvstr.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmvstr.h"
+      },
+      "bytes": 26452,
+      "sha256": "c4c094619e070b2aaa1c84f81a030e86ea8b165d3240f3dd546f19f22e56ae67"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmword.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmword.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmword.c"
+      },
+      "bytes": 18717,
+      "sha256": "bd8b660ac60e3a8dfbec55b32c75270e6f02b6637cd6edfa40d9c1c439fb0d43"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmword.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmword.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmword.h"
+      },
+      "bytes": 1062,
+      "sha256": "a5d64539e5550ada97181b4ec149300db094243ea5d6aeeeb90be049a4e913db"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmwtex.c",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmwtex.c",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmwtex.c"
+      },
+      "bytes": 223677,
+      "sha256": "341982b942913c41db0f0e24228ec60c89ec1b221f97bc1816340d5e1d26f420"
+    },
+    {
+      "path": ".references/metamath-exe/src/mmwtex.h",
+      "source": {
+        "repo": "metamath/metamath-exe",
+        "commit": "9898f5d1bb27045d764dd01672862a1c2a3b4f5e",
+        "license": "GPL-2.0-or-later",
+        "path": "src/mmwtex.h",
+        "url": "https://raw.githubusercontent.com/metamath/metamath-exe/9898f5d1bb27045d764dd01672862a1c2a3b4f5e/src/mmwtex.h"
+      },
+      "bytes": 9307,
+      "sha256": "39828ba7072efb56fc7f716f21d2e8579b6b8cd239d87d363195003de0e5a962"
+    }
+  ],
+  "exclusions": [
+    {
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "iset.mm"
+      },
+      "reason": "Deferred enhanced database or large historical set.mm test outside the October small-fixture profile; not claimed covered.",
+      "expected": "valid"
+    },
+    {
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "nf.mm"
+      },
+      "reason": "Deferred enhanced database or large historical set.mm test outside the October small-fixture profile; not claimed covered.",
+      "expected": "valid"
+    },
+    {
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "ql.mm"
+      },
+      "reason": "Deferred enhanced database or large historical set.mm test outside the October small-fixture profile; not claimed covered.",
+      "expected": "valid"
+    },
+    {
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "set.2010-08-29.mm"
+      },
+      "reason": "Deferred enhanced database or large historical set.mm test outside the October small-fixture profile; not claimed covered.",
+      "expected": "valid"
+    },
+    {
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "set.mm"
+      },
+      "reason": "Deferred enhanced database or large historical set.mm test outside the October small-fixture profile; not claimed covered.",
+      "expected": "valid"
+    },
+    {
+      "source": {
+        "repo": "david-a-wheeler/metamath-test",
+        "commit": "5758bf781bab662d4b31c7f72ac4dedea74fcb0f",
+        "license": "MIT; file headers may declare CC0",
+        "path": "set-dist-bad1.mm"
+      },
+      "reason": "Deferred enhanced database or large historical set.mm test outside the October small-fixture profile; not claimed covered.",
+      "expected": "invalid"
+    }
+  ]
+}

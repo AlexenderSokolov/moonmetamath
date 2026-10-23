@@ -11,4 +11,6 @@ node_modules/
 *.log
 *.zip
 *.tar.gz
+tests/fixtures/upstream/set-mm/peano.mm
+tests/fixtures/upstream/metamath-test/peano-fixed.mm
 
