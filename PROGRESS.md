@@ -9,7 +9,9 @@
 - 0.1.1：已公开发布，源码3ef0942、CI39978600841成功，Mooncakes0.1.1成功、六步registry消费者KzMScJ两后端成功，GitHub发行ZIP下载再运行HOL151通过；证据artifacts/v011/result.json。
 - 0.2：规则查询/原子预览/上下文新目标、保存恢复和三个练习已实现；55核心两后端、39宿主、79样例、15操作独立消费者两后端通过。实际浏览器含四种坏导入保留、2.2MiB回退、10000步取消、刷新恢复、新目标导出官方C有效；artifacts/v02-acceptance-local/result.json为PASS。组件及整分支独立审阅全部PASS；CI39986871533、Mooncakes0.2.0构建、registry消费者vAhhzH的15操作双后端均通过。公网站点再次新建public-swap并保存、刷新恢复、完成下载，artifacts/browser-v02/public-independent-c/result.json为valid。正式发行资产和最终提交以v0.2.0 Release/发布receipt为准。
 - AI：真实固定10题实验已完成，实际10次模型调用，模型10/10、有限BFS8/10，所有成功均独立C有效；模型无无效动作/超时，用量203344输入、1110输出，费用unknown。运行器8227909，artifacts/ai-2026-10-23保存开始于23日完成于24日原始记录；公开审查包artifacts/ai-public-final-2026-10-24.zip，报告docs/AI_RESULTS_2026-10-24.md。两个旧环境凭据401未用于实验，采用官方Codex现有ChatGPT登录、禁工具、最小临时目录，无原证明/源码/基线答案输入。
-- 三阶段代码、实际使用与真实实验均已完成，根执行者正在收尾正式0.2 Release资产/下载验收与停用临时服务器；不启动新研究或平台工作。
+- 三阶段已全部完成：0.1.1和0.2.0正式Release均已发布，程序ZIP与AI实验ZIP已从GitHub下载并核对哈希、解压运行通过。0.2发布源码97190c31f48c031600d9e5d24cc89851d8c768be，对应双平台及Pages CI39987977412成功。artifacts/v02-publication-complete/result.json为G5 PASS，11个公网文件与该CI Linux制品逐字节匹配；artifacts/publication-v02.json汇总。临时本地服务器已停止，任务结束，不启动新研究、监控或平台工作。
+
+最终验收保留一次GitHub制品TLS超时和并行Node获取失败，随后仅重试下载/采用串行本机TLS客户端恢复成功，没有重复模型实验。缺失用量P2已修复并独立复核；完整分支审阅规格/质量/实验完整性全部PASS。窄390px及浏览器拒绝/满存储未现场执行，未冒称通过。最后这次仅补已发生的收尾记录，不改变运行代码或v0.2.0标签。
 
 以下为0.1.0已完成历史记录：
 

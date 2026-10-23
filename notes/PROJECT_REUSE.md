@@ -40,3 +40,5 @@ AI的bin/ai-policy.mjs递归allowlist，ai-transport.mjs使用官方Codex现有�
 发布实验包由scripts/package-experiment.mjs仅保留题目、观察/动作/用量、独立C stdout与候选文件；本机路径告警/凭据不公开。产品NodeZIP不包含需要开发oracle的AI命令，AI从源码运行。来源输入包括以前证明的notebook/create_goal.sources绝不能给模型，legacy list保持有proof的兼容接口。公开状态以PROGRESS/正式Release为准，未宣称外部人类用户或获奖。
 
 0.2公开验收：CI39986871533成功，Mooncakes0.2.0 build_status success/has_package true/yanked false，独立registry消费者vAhhzH完成15操作两后端。公网站点public-swap经规则预览、新目标、部分保存、刷新恢复、finish及下载，public-independent-c为valid。整分支review6d88dbf通过并独立核对全部10题观察/动作及18候选；最终标签/资产见Release，正式字节比较以对应CI Pages制品为准。
+
+正式0.2.0 Release已完成：标签97190c3 / CI39987977412，运行包178402字节和实验包23521字节已从GitHub下载、SHA匹配并解压验收。公网11文件与对应CI Linux制品逐字一致。初次TLS网络失败保留，串行本机TLS恢复，无模型重跑。完整进度/artifactreceipt见PROGRESS。临时服务已停，未增加持久任务。
