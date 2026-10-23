@@ -1,0 +1,129 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "AlexenderSokolov/moonmetamath/src/core"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn apply_label(MMSession, String) -> Result[MMStepEvent, MMError]
+
+pub fn default_limits() -> Limits
+
+pub fn dispatch_json(String) -> String
+
+pub fn export_normal_proof(MMSession, String) -> Result[MMExport, MMError]
+
+pub fn finish(MMSession) -> Result[MMSessionView, MMError]
+
+pub fn inspect_session(MMSession) -> MMSessionView
+
+pub fn parse_sources(String, Array[(String, String)]) -> Result[MMDatabase, MMError]
+
+pub fn parse_sources_with_limits(String, Array[(String, String)], Limits) -> Result[MMDatabase, MMError]
+
+pub fn replay_proof(MMDatabase, String, Limits) -> Result[MMSession, MMError]
+
+pub fn rewind(MMSession, Int) -> Result[MMSessionView, MMError]
+
+pub fn scan_source(String, String, Limits) -> Result[Array[MMToken], MMError]
+
+pub fn start_proof(MMDatabase, String, Limits) -> Result[MMSession, MMError]
+
+pub fn verify_database(MMDatabase, Limits) -> MMReport
+
+// Errors
+
+// Types and methods
+pub struct Limits {
+  max_file_bytes : Int
+  max_total_bytes : Int
+  max_include_depth : Int
+  max_tokens : Int
+  max_operations : Int
+  max_stack_items : Int
+  max_expression_tokens : Int
+} derive(Eq, @debug.Debug)
+pub fn Limits::equal(Self, Self) -> Bool
+pub fn Limits::not_equal(Self, Self) -> Bool
+pub fn Limits::to_repr(Self) -> @debug.Repr
+
+pub struct MMDatabase {
+  // private fields
+} derive(@debug.Debug)
+pub fn MMDatabase::to_repr(Self) -> @debug.Repr
+
+pub struct MMDecl {
+  // private fields
+} derive(@debug.Debug)
+pub fn MMDecl::to_repr(Self) -> @debug.Repr
+
+pub struct MMError {
+  code : String
+  message : String
+  source : String
+  start : Int
+  end : Int
+  line : Int
+  column : Int
+} derive(Eq, @debug.Debug)
+pub fn MMError::equal(Self, Self) -> Bool
+pub fn MMError::not_equal(Self, Self) -> Bool
+pub fn MMError::to_repr(Self) -> @debug.Repr
+
+pub(all) struct MMExport {
+  text : String
+  new_label : String
+  source_ids : Array[String]
+}
+
+pub(all) struct MMReport {
+  outcome : String
+  complete : Bool
+  declaration_count : Int
+  proof_count : Int
+  verified_count : Int
+  invalid_count : Int
+  incomplete_count : Int
+  not_checked_count : Int
+  diagnostics : Array[MMError]
+}
+
+pub struct MMSession {
+  // private fields
+}
+
+pub(all) struct MMSessionView {
+  target_label : String
+  goal : Array[String]
+  active_hypotheses : Array[(String, Array[String])]
+  state : String
+  mode : String
+  successful_step_count : Int
+  stack : Array[Array[String]]
+}
+
+pub(all) struct MMStepEvent {
+  label : String
+  hypotheses : Array[String]
+  substitutions : Array[(String, Array[String])]
+  popped : Int
+  pushed : Int
+  result : Array[String]
+}
+
+pub struct MMToken {
+  text : String
+  source : String
+  start : Int
+  end : Int
+  line : Int
+  column : Int
+} derive(Eq, @debug.Debug)
+pub fn MMToken::equal(Self, Self) -> Bool
+pub fn MMToken::not_equal(Self, Self) -> Bool
+pub fn MMToken::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

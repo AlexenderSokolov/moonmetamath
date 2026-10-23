@@ -1,0 +1,14 @@
+import {
+  "AlexenderSokolov/moonmetamath/src/core",
+}
+
+pkgtype(kind: "foreign_library")
+
+options(
+  link: {
+    "js": {
+      "exports": ["dispatch_json"],
+      "format": "esm",
+    },
+  },
+)
