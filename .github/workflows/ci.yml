@@ -1,0 +1,62 @@
+name: Verify MoonMetamath
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Core, consumers and independent proofs (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Use existing Windows C compiler in x86 mode
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x86
+      - name: Install and verify fixed project MoonBit toolchain
+        run: node scripts/toolchain.mjs install
+      - name: Fetch pinned fixtures and build independent C checker
+        run: node scripts/fixtures.mjs fetch --profile october
+      - name: Format, interfaces, both backends, host integration and 79 fixtures
+        run: node scripts/check.mjs
+      - name: Fresh workspace consumer through the public API
+        run: node scripts/consumer.mjs
+      - name: Run the three real product scenarios
+        run: node scripts/demo.mjs
+      - name: Independent C checker accepts and rejects known proofs
+        run: node scripts/oracle.mjs self-test --out artifacts/ci-oracle-self-test
+      - name: Select the four required official databases
+        run: node -e "const fs=require('node:fs');const m=JSON.parse(fs.readFileSync('tests/fixtures/manifest.json'));m.fixtures=m.fixtures.filter(f=>f.category==='official-database');if(m.fixtures.length!==4)throw Error('Expected four official databases');fs.writeFileSync('artifacts/ci-four-manifest.json',JSON.stringify(m));"
+      - name: Independent C verifies all four official databases
+        run: node scripts/oracle.mjs fixtures --manifest artifacts/ci-four-manifest.json --out artifacts/ci-oracle-databases
+      - name: Full independent language boundary comparison
+        run: node scripts/oracle.mjs fixtures --engine mmreference --out artifacts/ci-python-fixtures
+      - name: Preserve verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-${{ matrix.os }}
+          path: artifacts/
+          if-no-files-found: warn
+
+# The pinned official C tool has seven documented differences on R6 boundary
+# tests. Its full 79-case result is retained locally as diagnostic evidence;
+# CI requires its three-state self-test and real four-database verification.
+# mmreference and MoonBit must each match all 79 upstream expectations.
