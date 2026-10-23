@@ -1,5 +1,7 @@
 # 兼容性与已测范围
 
+构建制品说明：固定0.10.14工具链在Windows/Linux生成的JavaScript仅有数值指数拼写差异（例如`1e+012`与`1e+12`），原始哈希不能跨构建平台直接比较。公网验收下载同一精确源码CI的实际Linux Pages制品并逐字节核对；Node发行ZIP单独按SHA256SUMS验证，不把两种产物混作同一个文件。`acceptance --phase publication --ref v0.1.0`可选择已发布标签，默认仍检验HEAD；该复核需要对应CI的Pages制品仍可下载，长期记录同时附在Release资源哈希文件中。
+
 本版为 `AlexenderSokolov/moonmetamath` 0.1.0。运行语义全部来自 MoonBit；CLI 使用 Node 24，网页使用 Web Worker 内的 MoonBit 生成 JavaScript。核心 JS 与 wasm-gc 两后端均已运行测试，网页没有把 WebAssembly 作为实际演示路径。
 
 ## 输入与证明

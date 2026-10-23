@@ -32,4 +32,8 @@
 
 Mooncakes正式publish返回200，manifest version/latest_version0.1.0、build_status success、has_package true、yanked false；证据artifacts/mooncakes-manifest.json。registry消费者artifacts/registry-consumer-p9LIWo/result.json两后端成功；symbols.zip更新出现连接超时警告，但模块安装、编译与实际运行成功，未隐藏此警告。公网站点重新构造34步并下载，artifacts/browser/public-proof-c/result.json为独立C valid，截图public-constructed-th1.png。
 
-完成标准是G5技术公开交付可由外部重现，所有已发现高影响问题已处理。正式发行脚本在完成文档后生成并回收最终精确SHA的CI、ZIP与下载复核证据，见artifacts/publication.json和artifacts/acceptance-publication/result.json。赛事结果依主办方真实流程单独记录；docs/SUBMISSION_FACTS.md提供可核实材料，未自动提交报名。任务不创建持久监控或扩大训练/用户邀约，临时本地服务器在公网验收后停用。
+G5已完整通过，证据artifacts/acceptance-publication-final/result.json；先前Windows/Linux输出数值指数拼写不同导致的哈希检查失败保留在artifacts/acceptance-publication，不改写失败。验收工具已改为下载同一精确SHA成功CI的Linux Pages制品，与公网站点原始字节比对，不做源码归一化或放宽比较。发布版本仍绑定1029f1d41992ef44ffe675b322b0ca1640c9c63f，v0.1.0标签未移动；后续main验收脚本修正不改变发行产品代码。
+
+正式GitHub Release包含142384字节Node24 ZIP、校验和、验证摘要、公网导出证明及截图。已从GitHub再次下载并核对sha256，解压后不依赖编译器实际运行version和HOL151验证，artifacts/release-download/result.json为PASS。注册表最新六步双后端消费者artifacts/registry-consumer-K1Oyx4/result.json为PASS。发布汇总artifacts/publication.json，公网6项资源哈希见artifacts/acceptance-publication-final/public-assets.json。
+
+赛事结果依主办方真实流程单独记录；docs/SUBMISSION_FACTS.md提供可核实材料，未自动提交报名。临时本地服务器已停止，未创建持久监控。当前授权的技术交付已完成；长期下一项是取得真实下游反馈，再决定完整set.mm性能工作，不自动扩展本轮任务。
