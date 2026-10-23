@@ -43,3 +43,7 @@ test('batch verification stays within a 64 MiB heap for a growing proof',()=>{
  const r=spawnSync(process.execPath,['--max-old-space-size=64','--input-type=module','-e',code],{cwd:root,encoding:'utf8',timeout:30000});
  assert.equal(r.status,0,r.stderr);assert.equal(JSON.parse(r.stdout).data.verified_count,1);
 });
+test('CLI timeout terminates its worker with an explicit incomplete resource result',()=>{
+ const r=cli(['verify',good,'--timeout-ms','1']);
+ assert.equal(r.status,5);assert.equal(r.json.outcome,'resource_limit');
+});

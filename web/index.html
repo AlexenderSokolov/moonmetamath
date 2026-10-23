@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f5f4ef">
+  <title>MoonMetamath · 证明实验室</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="brand-icon" aria-hidden="true">∴</span><span>MoonMetamath<small>证明实验室 / PROOF LAB</small></span></a>
+    <div class="engine"><span class="dot"></span> MoonBit 原生检查核心 <span class="local-tag">本地浏览器</span></div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar" aria-label="数据库与定理">
+      <section>
+        <div class="eyebrow">01 / DATABASE</div><h2>从一个数学库开始</h2>
+        <label for="builtin">真实示例库</label>
+        <div class="inline"><select id="builtin"><option value="demo0">demo0 · 等式入门</option><option value="miu">MIU · 形式系统</option><option value="hol">HOL · 高阶逻辑</option></select><button id="load-builtin" class="button small">加载</button></div>
+        <details class="upload"><summary>上传自己的 .mm 文件</summary>
+          <p class="muted">可同时选择入口与 include 文件；只读取本次选择的文件集合。</p>
+          <label class="file-picker" for="files">选择 .mm 文件<input id="files" type="file" multiple accept=".mm,text/plain"></label>
+          <label for="entry">入口文件</label><select id="entry" disabled><option>尚未选择文件</option></select>
+          <button id="load-upload" class="button secondary full" disabled>加载上传文件</button>
+        </details>
+        <div id="database-info" class="source-info">正在准备内核…</div>
+        <button id="verify" class="button secondary full" disabled>验证数据库</button>
+        <div id="report" class="report" aria-live="polite"></div>
+      </section>
+      <section class="theorem-section">
+        <div class="section-heading"><div><div class="eyebrow">02 / THEOREM</div><h2>选择目标定理</h2></div><span id="theorem-count" class="count">0</span></div>
+        <label class="sr-only" for="search">筛选定理标签</label><input id="search" type="search" placeholder="筛选标签…" disabled>
+        <div id="theorems" class="theorem-list"><p class="muted">加载后显示定理。</p></div>
+      </section>
+      <div class="sidebar-foot">目标是已有定理的重证明。公理与活动假设构成检查前提。</div>
+    </aside>
+    <main>
+      <div class="workspace-heading"><div><div class="eyebrow">A SMALL STEP, CHECKED.</div><h1>把证明，走一遍。</h1><p>每一步由同一个 Metamath 核心检查。</p></div><button id="cancel" class="button quiet" disabled>取消当前任务</button></div>
+      <div id="activity" class="activity" role="status" aria-live="polite">准备中</div>
+      <div id="notice" class="notice" hidden><div id="notice-content" role="alert"></div><button id="dismiss" class="icon-button" aria-label="关闭提示">×</button></div>
+      <section class="goal-card" aria-label="目标与上下文">
+        <div class="section-heading"><span class="eyebrow">TARGET / 目标</span><span id="target-status" class="badge neutral">未选择</span></div>
+        <h2 id="target-label">选择一个定理</h2><div id="goal" class="math goal-expression">⊢ …</div>
+        <details id="hypothesis-details" open><summary>有效假设 <span id="hypothesis-count">0</span></summary><div id="hypotheses" class="hypotheses"><span class="muted">开始会话后显示目标的活动上下文。</span></div></details>
+      </section>
+      <div class="modebar" role="tablist" aria-label="证明模式"><button id="construct-tab" role="tab" aria-selected="true" aria-controls="construct-panel">手动构造 <span>CONSTRUCT</span></button><button id="replay-tab" role="tab" aria-selected="false" aria-controls="replay-panel">原证明回放 <span>REPLAY</span></button></div>
+      <section id="construct-panel" role="tabpanel" aria-labelledby="construct-tab" class="action-panel">
+        <div class="panel-intro"><div><h3>从空栈出发</h3><p>输入一个标签，检查并应用它；失败不会改变已确认状态。</p></div><button id="restart" class="button quiet" disabled>重新开始</button></div>
+        <form id="apply-form" class="apply-form"><label class="sr-only" for="label">要应用的标签</label><input id="label" placeholder="输入标签，例如 tt、a2、mp" autocomplete="off" spellcheck="false" disabled><button id="apply" class="button" disabled>应用标签 <span aria-hidden="true">↵</span></button></form>
+        <div class="action-footer"><button id="rewind" class="button quiet" disabled>← 撤回一步</button><span id="step-count" class="muted">0 步已确认</span><button id="finish" class="button secondary" disabled>检查完成</button></div>
+      </section>
+      <section id="replay-panel" role="tabpanel" aria-labelledby="replay-tab" class="action-panel" hidden>
+        <div class="panel-intro"><div><h3>观察已有答案如何成立</h3><p>这是数据库原证明的教学回放，由核心检查；没有模型调用。</p></div><button id="run-replay" class="button" disabled>检查并回放</button></div>
+        <div id="replay-controls" hidden><div class="replay-navigation"><button id="replay-prev" class="button quiet">← 上一步</button><label for="replay-position" class="sr-only">回放位置</label><input id="replay-position" type="range" min="0" max="0" value="0"><span id="replay-progress">0 / 0</span><button id="replay-next" class="button secondary">下一步 →</button></div><div id="proof-labels" class="proof-labels" aria-label="原证明动作"></div></div>
+      </section>
+      <div class="proof-grid">
+        <section class="surface stack-panel"><div class="section-heading"><h3>证明栈 <span class="heading-en">STACK</span></h3><span id="stack-count" class="count">0</span></div><div id="stack"><div class="empty-state"><span aria-hidden="true">∅</span><strong>空栈也是一个起点</strong><p>应用假设或断言后，表达式会出现在这里。</p></div></div></section>
+        <section class="surface event-panel"><div class="section-heading"><h3>这一步 <span class="heading-en">STEP DETAIL</span></h3><span id="event-label" class="badge neutral">等待动作</span></div><div id="event"><p class="muted">成功步骤将显示必要假设、同时代换及栈变化。</p></div><details class="history-details"><summary>已确认的动作</summary><ol id="history" class="history"></ol></details></section>
+      </div>
+      <section class="export-panel"><div><h3>带走一份普通证明</h3><p id="export-hint">手动构造完成并通过检查后，可导出自足 .mm 文件。</p></div><div class="export-actions"><label class="sr-only" for="export-label">新定理标签</label><input id="export-label" value="moonmm-result" aria-label="新定理标签" spellcheck="false"><button id="export" class="button" disabled>下载 .mm <span aria-hidden="true">↓</span></button></div></section>
+      <footer>浏览器内运行 · 无账户 · 无模型凭据要求 <span>证明有效性相对于库中的公理与假设；不说明公理一致性。</span></footer>
+    </main>
+  </div>
+</body>
+</html>
