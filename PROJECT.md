@@ -66,7 +66,7 @@ run_check、run_demo、run_acceptance同时提供.ps1/.sh。完整本地验收�
 
 ```sh
 node scripts/acceptance.mjs --phase local
-node scripts/acceptance.mjs --phase publication --ref v0.2.0 --receipt artifacts/publication.json
+node scripts/acceptance.mjs --phase publication --ref v0.2.0 --receipt artifacts/publication-v02.json
 ```
 
 0.2本地验收记录artifacts/v02-acceptance-local/result.json。55项MoonBit测试在JS/wasm-gc通过，39项宿主集成测试通过，79外部样例与mmreference匹配；官方C四个真实数据库及浏览器下载候选通过，完整边界集有7项已解释差异。peano是120声明、0证明，不宣传为算术证明结果。完整set.mm和Mac/ARM未验证。
