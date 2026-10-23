@@ -1,6 +1,7 @@
 import {mkdirSync,readFileSync,writeFileSync,existsSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {root,version} from './common.mjs';
 const args=process.argv.slice(2),option=(key,fallback)=>args.includes(key)?args[args.indexOf(key)+1]:fallback;
 const phase=option('--phase','local'),out=resolve(root,option('--out','artifacts/acceptance-'+Date.now()));mkdirSync(out,{recursive:true});
@@ -28,7 +29,11 @@ try{
   execute('remote-ci','gh',['run','view',String(receipt.ci_run_id),'--repo','AlexenderSokolov/moonmetamath','--json','headSha,status,conclusion']);
   const ci=JSON.parse(readFileSync(join(out,'remote-ci.stdout.txt'),'utf8'));if(ci.headSha!==sha||ci.status!=='completed'||ci.conclusion!=='success')throw new Error('Exact HEAD remote CI is not successful');
   execute('registry-consumer',process.execPath,['scripts/consumer.mjs','--registry','--version',version]);
+  const manifestResponse=await fetch('https://mooncakes.io/api/v0/manifest/AlexenderSokolov/moonmetamath',{signal:AbortSignal.timeout(30000)});if(!manifestResponse.ok)throw new Error('Registry manifest unavailable');
+  const registry=await manifestResponse.json();writeFileSync(join(out,'registry-manifest.json'),JSON.stringify(registry,null,2));if(registry.version!==version||registry.latest_version!==version||registry.yanked!==false||registry.build_status!=='success'||registry.has_package!==true)throw new Error('Registry version is not successfully published');
   const response=await fetch('https://alexendersokolov.github.io/moonmetamath/web/',{signal:AbortSignal.timeout(30000)});if(!response.ok||!(await response.text()).includes('MoonMetamath'))throw new Error('Public proof lab unavailable');
+  const assets=['web/app.mjs','web/worker.mjs','dist/moonmetamath-core.mjs','tests/fixtures/upstream/set-mm/demo0.mm','tests/fixtures/upstream/set-mm/miu.mm','tests/fixtures/upstream/set-mm/hol.mm'];
+  const hashes=[];for(const path of assets){const response=await fetch('https://alexendersokolov.github.io/moonmetamath/'+path,{signal:AbortSignal.timeout(30000)});if(!response.ok)throw new Error('Public asset unavailable: '+path);const hash=data=>createHash('sha256').update(data).digest('hex');const actual=hash(Buffer.from(await response.arrayBuffer())),expected=hash(readFileSync(join(root,path)));if(actual!==expected)throw new Error('Public asset differs from local release: '+path);hashes.push({path,sha256:actual});}writeFileSync(join(out,'public-assets.json'),JSON.stringify(hashes,null,2));
  }
 }catch(error){failure=error.message;process.exitCode=1;console.error(failure);}
 const result={schema_version:1,phase,version,pass:failure===null,gates:phase==='local'?['G0','G1','G2','G3','G4']:['G5'],failure,steps,contest_result:'G6 requires actual organizer receipts; never inferred from technical checks'};writeFileSync(join(out,'result.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

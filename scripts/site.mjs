@@ -9,6 +9,7 @@ mkdirSync(join(out,'dist'),{recursive:true});
 copyFileSync(join(root,'dist/moonmetamath-core.mjs'),join(out,'dist/moonmetamath-core.mjs'));
 const fixtures=join(out,'tests/fixtures/upstream/set-mm');mkdirSync(fixtures,{recursive:true});
 for(const name of ['demo0','miu','hol'])copyFileSync(join(root,`tests/fixtures/upstream/set-mm/${name}.mm`),join(fixtures,name+'.mm'));
+copyFileSync(join(root,'tests/fixtures/upstream/set-mm/LICENSE'),join(fixtures,'LICENSE'));
 copyFileSync(join(root,'LICENSE'),join(out,'LICENSE'));
 copy(join(root,'LICENSES'),join(out,'LICENSES'));
 mkdirSync(join(out,'docs'),{recursive:true});copyFileSync(join(root,'docs/THIRD_PARTY.md'),join(out,'docs/THIRD_PARTY.md'));

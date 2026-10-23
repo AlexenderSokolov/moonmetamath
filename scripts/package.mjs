@@ -10,6 +10,7 @@ for(const dir of ['bin','dist','web','LICENSES','docs'])copy(join(root,dir),join
 for(const file of ['LICENSE','README.md','CHANGELOG.md'])copyFileSync(join(root,file),join(stage,file));
 const fixtures=join(stage,'tests/fixtures/upstream/set-mm');mkdirSync(fixtures,{recursive:true});
 for(const name of ['demo0','miu','hol'])copyFileSync(join(root,`tests/fixtures/upstream/set-mm/${name}.mm`),join(fixtures,name+'.mm'));
+copyFileSync(join(root,'tests/fixtures/upstream/set-mm/LICENSE'),join(fixtures,'LICENSE'));
 writeFileSync(join(stage,'USAGE.txt'),`MoonMetamath ${version}\nRequires Node.js 24. No MoonBit compiler or model API is needed.\nnode bin/moonmetamath.mjs --help\nnode bin/moonmetamath.mjs verify tests/fixtures/upstream/set-mm/hol.mm\nFor browser use the public demo or serve this folder with a static HTTP server.\nSee docs/THIRD_PARTY.md for retained licenses.\n`);
 const zip=join(out,`moonmetamath-${version}-node24.zip`),python=process.env.PYTHON||'python';
 run(python,['-c','import sys,zipfile,pathlib; src=pathlib.Path(sys.argv[1]); z=zipfile.ZipFile(sys.argv[2],"w",zipfile.ZIP_DEFLATED); [(z.write(p,p.relative_to(src.parent))) for p in sorted(src.rglob("*")) if p.is_file()]; z.close()',stage,zip]);
