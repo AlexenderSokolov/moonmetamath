@@ -1,0 +1,14 @@
+_build/
+.moon/
+.toolchains/
+.references/
+.superpowers/
+artifacts/
+dist/
+node_modules/
+.env
+.env.*
+*.log
+*.zip
+*.tar.gz
+
