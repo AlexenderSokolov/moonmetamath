@@ -18,7 +18,8 @@
       <section>
         <div class="eyebrow">01 / DATABASE</div><h2>从一个数学库开始</h2>
         <label for="builtin">真实示例库</label>
-        <div class="inline"><select id="builtin"><option value="demo0">demo0 · 等式入门</option><option value="miu">MIU · 形式系统</option><option value="hol">HOL · 高阶逻辑</option></select><button id="load-builtin" class="button small">加载</button></div>
+        <div class="inline"><select id="builtin"><optgroup label="循序练习 · 自编 CC0"><option value="01-first-steps">01 · 两步构造</option><option value="02-essential-hypothesis">02 · 必要假设</option><option value="03-disjoint">03 · 不交变量诊断</option></optgroup><optgroup label="真实示例库"><option value="demo0" selected>demo0 · 等式入门</option><option value="miu">MIU · 形式系统</option><option value="hol">HOL · 高阶逻辑</option></optgroup></select><button id="load-builtin" class="button small">加载</button></div>
+        <div id="exercise-guide" class="exercise-guide" hidden></div>
         <details class="upload"><summary>上传自己的 .mm 文件</summary>
           <p class="muted">可同时选择入口与 include 文件；只读取本次选择的文件集合。</p>
           <label class="file-picker" for="files">选择 .mm 文件<input id="files" type="file" multiple accept=".mm,text/plain"></label>
@@ -34,7 +35,7 @@
         <label class="sr-only" for="search">筛选定理标签</label><input id="search" type="search" placeholder="筛选标签…" disabled>
         <div id="theorems" class="theorem-list"><p class="muted">加载后显示定理。</p></div>
       </section>
-      <div class="sidebar-foot">目标是已有定理的重证明。公理与活动假设构成检查前提。</div>
+      <div class="sidebar-foot">可重证明已有定理，也可在其上下文中创建新目标。所有构造均由 MoonBit 核心检查。</div>
     </aside>
     <main>
       <div class="workspace-heading"><div><div class="eyebrow">A SMALL STEP, CHECKED.</div><h1>把证明，走一遍。</h1><p>每一步由同一个 Metamath 核心检查。</p></div><button id="cancel" class="button quiet" disabled>取消当前任务</button></div>
@@ -44,12 +45,22 @@
         <div class="section-heading"><span class="eyebrow">TARGET / 目标</span><span id="target-status" class="badge neutral">未选择</span></div>
         <h2 id="target-label">选择一个定理</h2><div id="goal" class="math goal-expression">⊢ …</div>
         <details id="hypothesis-details" open><summary>有效假设 <span id="hypothesis-count">0</span></summary><div id="hypotheses" class="hypotheses"><span class="muted">开始会话后显示目标的活动上下文。</span></div></details>
+        <details class="new-goal-details"><summary>在这个上下文中创建新目标</summary>
+          <p class="muted">新目标继承所选定理之前的合法声明、全部活动假设和 $d 不交变量约束。只修改新标签与目标表达式；不会加入新公理。</p>
+          <form id="new-goal-form" class="new-goal-form"><label for="new-goal-label">新目标标签</label><input id="new-goal-label" value="my-goal" autocomplete="off" spellcheck="false" disabled><label for="new-goal-expression">目标表达式（以空白分隔已有符号，包含类型码）</label><textarea id="new-goal-expression" rows="2" placeholder="例如 |- ( ph -> ph )" spellcheck="false" disabled></textarea><button id="create-goal" class="button secondary" disabled>创建未完成目标</button></form>
+        </details>
       </section>
       <div class="modebar" role="tablist" aria-label="证明模式"><button id="construct-tab" role="tab" aria-selected="true" aria-controls="construct-panel">手动构造 <span>CONSTRUCT</span></button><button id="replay-tab" role="tab" aria-selected="false" aria-controls="replay-panel">原证明回放 <span>REPLAY</span></button></div>
       <section id="construct-panel" role="tabpanel" aria-labelledby="construct-tab" class="action-panel">
         <div class="panel-intro"><div><h3>从空栈出发</h3><p>输入一个标签，检查并应用它；失败不会改变已确认状态。</p></div><button id="restart" class="button quiet" disabled>重新开始</button></div>
         <form id="apply-form" class="apply-form"><label class="sr-only" for="label">要应用的标签</label><input id="label" placeholder="输入标签，例如 tt、a2、mp" autocomplete="off" spellcheck="false" disabled><button id="apply" class="button" disabled>应用标签 <span aria-hidden="true">↵</span></button></form>
         <div class="action-footer"><button id="rewind" class="button quiet" disabled>← 撤回一步</button><span id="step-count" class="muted">0 步已确认</span><button id="finish" class="button secondary" disabled>检查完成</button></div>
+        <details class="rule-browser" open><summary>查找可见规则 <span class="muted">按标签、结论或类型码</span></summary>
+          <p class="muted rule-explanation">这里列出活动假设、公理和此前已验证的定理。预览只检查当前栈能否执行这一步，不判断它对目标是否有用。</p>
+          <form id="rules-form" class="rules-form"><div><label for="rule-query">标签或结论包含</label><input id="rule-query" type="search" placeholder="例如 ->、pair、ax…" disabled></div><div><label for="rule-typecode">类型码（精确匹配，可留空）</label><input id="rule-typecode" placeholder="例如 |- 或 wff" spellcheck="false" disabled></div><button id="find-rules" class="button secondary" disabled>查找规则</button></form>
+          <div class="rule-columns"><div><div id="rules-list" class="rules-list"><p class="muted">选择目标后显示其可见规则。</p></div><div class="rule-pagination"><button id="rules-prev" class="button quiet" disabled>← 上页</button><span id="rules-count" class="muted">0 条</span><button id="rules-next" class="button quiet" disabled>下页 →</button></div></div><div id="rule-detail" class="rule-detail"><p class="muted">选择规则，查看其必要假设与结论。</p></div></div>
+          <div class="rule-actions"><button id="preview-rule" class="button secondary" disabled>预览当前栈上的一步</button><button id="apply-rule" class="button" disabled>应用所选规则</button></div><div id="preview-output" class="preview-output" role="status" aria-live="polite" hidden></div>
+        </details>
       </section>
       <section id="replay-panel" role="tabpanel" aria-labelledby="replay-tab" class="action-panel" hidden>
         <div class="panel-intro"><div><h3>观察已有答案如何成立</h3><p>这是数据库原证明的教学回放，由核心检查；没有模型调用。</p></div><button id="run-replay" class="button" disabled>检查并回放</button></div>
@@ -59,6 +70,7 @@
         <section class="surface stack-panel"><div class="section-heading"><h3>证明栈 <span class="heading-en">STACK</span></h3><span id="stack-count" class="count">0</span></div><div id="stack"><div class="empty-state"><span aria-hidden="true">∅</span><strong>空栈也是一个起点</strong><p>应用假设或断言后，表达式会出现在这里。</p></div></div></section>
         <section class="surface event-panel"><div class="section-heading"><h3>这一步 <span class="heading-en">STEP DETAIL</span></h3><span id="event-label" class="badge neutral">等待动作</span></div><div id="event"><p class="muted">成功步骤将显示必要假设、同时代换及栈变化。</p></div><details class="history-details"><summary>已确认的动作</summary><ol id="history" class="history"></ol></details></section>
       </div>
+      <section class="save-panel" aria-label="保存与恢复工作"><div><h3>保存当前构造，稍后继续</h3><p>保存源文件、目标和撤回后保留的动作；恢复时在新内核中重新验证、重放。失败会保留当前工作。</p></div><div class="save-actions"><button id="save-work" class="button secondary" disabled>下载工作 .json</button><label class="button secondary import-picker" for="import-work">导入工作文件<input id="import-work" type="file" accept=".json,application/json"></label><button id="restore-last" class="button secondary" disabled>恢复本机上次保存</button></div><p id="local-save-info" class="muted">点击保存时，至多 2 MiB 的工作也会留在本机浏览器；不会自动上传或无限量自动保存。</p></section>
       <section class="export-panel"><div><h3>带走一份普通证明</h3><p id="export-hint">手动构造完成并通过检查后，可导出自足 .mm 文件。</p></div><div class="export-actions"><label class="sr-only" for="export-label">新定理标签</label><input id="export-label" value="moonmm-result" aria-label="新定理标签" spellcheck="false"><button id="export" class="button" disabled>下载 .mm <span aria-hidden="true">↓</span></button></div></section>
       <footer>浏览器内运行 · 无账户 · 无模型凭据要求 <span>证明有效性相对于库中的公理与假设；不说明公理一致性。</span></footer>
     </main>

@@ -1,8 +1,20 @@
+import { createNotebook, restoreNotebook } from './notebook.mjs';
+
 const $ = (id) => document.getElementById(id);
 const state = {
-  worker: null, pending: new Map(), serial: 0, busy: false, epoch: 0,
+  worker: null, candidate: null, serial: 0, busy: false, epoch: 0,
   db: null, bundle: null, uploaded: [], theorems: [], target: null,
   session: null, view: null, events: [], mode: 'construct', replay: null, position: 0,
+  rules: [], rule: null, ruleOffset: 0, ruleTotal: 0, hasLocalSave: false,
+};
+const LOCAL_SAVE_KEY = 'moonmetamath-work-schema1';
+const LOCAL_SAVE_LIMIT = 2 * 1024 * 1024;
+const FILE_SAVE_LIMIT = 128 * 1024 * 1024;
+const RULE_PAGE_SIZE = 20;
+const exercises = {
+  '01-first-steps': { title: '01 · 两步构造', help: '先应用 wph，再应用 identity；检查完成。试着搜索结论中的 ->，查看 identity 如何用必要假设构造结论。' },
+  '02-essential-hypothesis': { title: '02 · 必要假设', help: '先查看 lift 的必要假设。依次应用 wph、premise、lift，再检查完成。缺少 premise 时预览 lift，会得到栈不足诊断。' },
+  '03-disjoint': { title: '03 · 不交变量诊断', help: '尝试 vx、vx，再预览 pair-rule：同一个变量不能满足 $d x y。撤回第二步，应用 vy，然后预览并应用 pair-rule。合法顺序为 vx、vy、pair-rule。' },
 };
 const statusText = { verified: '已验证', not_checked: '未检查', invalid: '无效', incomplete: '未完成', valid: '验证通过', unsupported: '不支持', resource_limit: '达到资源限制', cancelled: '已取消' };
 const expression = (tokens) => Array.isArray(tokens) ? tokens.join(' ') : '';
@@ -25,14 +37,13 @@ function diagnostics(response) {
   return items.map((d) => `${d.code}: ${d.message}${d.source && d.source !== 'request' ? `（${d.source}:${d.line || 1}:${d.column || 1}）` : ''}`).join('\n') || `请求未完成：${response.outcome || response.status}`;
 }
 
-function initWorker() {
-  if (state.worker) return;
+function createWorkerClient() {
   const worker = new Worker(new URL('./worker.mjs', import.meta.url), { type: 'module' });
-  state.worker = worker;
+  const client = { worker, pending: new Map(), alive: true };
   worker.addEventListener('message', ({ data }) => {
-    const pending = state.pending.get(data.request_id);
+    const pending = client.pending.get(data.request_id);
     if (!pending) return;
-    state.pending.delete(data.request_id);
+    client.pending.delete(data.request_id);
     if (data.schema_version !== 1 || data.operation !== pending.operation) {
       pending.reject(new Error('内核响应协议不匹配。'));
     } else if (data.status !== 'ok') {
@@ -40,29 +51,44 @@ function initWorker() {
     } else pending.resolve(data);
   });
   worker.addEventListener('error', (event) => {
-    if (state.worker !== worker) return;
     event.preventDefault();
-    invalidateWorker(new Error(`内核启动或运行失败：${event.message || '请确认已构建 dist/moonmetamath-core.mjs，并通过本地服务器打开。'}`));
+    const error = new Error(`内核启动或运行失败：${event.message || '请确认已构建 dist/moonmetamath-core.mjs，并通过本地服务器打开。'}`);
+    if (state.worker === client) invalidateWorker(error);
+    else terminateClient(client, error);
   });
+  return client;
+}
+
+function terminateClient(client, error = new Error('工作线程已终止。')) {
+  if (!client) return;
+  client.alive = false;
+  client.worker.terminate();
+  for (const pending of client.pending.values()) pending.reject(error);
+  client.pending.clear();
 }
 
 function invalidateWorker(error) {
-  state.worker?.terminate();
+  terminateClient(state.worker, error);
+  terminateClient(state.candidate, error);
   state.worker = null;
+  state.candidate = null;
   state.epoch += 1;
-  for (const pending of state.pending.values()) pending.reject(error);
-  state.pending.clear();
   state.db = null;
   state.session = null;
   renderControls();
 }
 
 function request(operation, fields = {}) {
-  initWorker();
+  if (!state.worker) state.worker = createWorkerClient();
+  return requestClient(state.worker, operation, fields);
+}
+
+function requestClient(client, operation, fields = {}) {
+  if (!client.alive) return Promise.reject(new Error('工作线程已终止；请重新加载。'));
   const request_id = `web-${++state.serial}`;
   return new Promise((resolve, reject) => {
-    state.pending.set(request_id, { resolve, reject, operation });
-    state.worker.postMessage({ schema_version: 1, request_id, operation, ...fields });
+    client.pending.set(request_id, { resolve, reject, operation });
+    client.worker.postMessage({ schema_version: 1, request_id, operation, ...fields });
   });
 }
 
@@ -73,7 +99,7 @@ async function task(label, action) {
   $('activity').textContent = label;
   $('activity').classList.add('busy');
   renderControls();
-  try { await action(); }
+  try { await action(state.epoch); }
   catch (error) { notice(error.message || String(error)); }
   finally {
     state.busy = false;
@@ -101,9 +127,62 @@ function renderControls() {
   $('run-replay').disabled = busy || !active;
   $('export').disabled = busy || !construct || state.view?.state !== 'complete';
   $('export-label').disabled = busy || state.mode !== 'construct';
+  for (const id of ['new-goal-label', 'new-goal-expression', 'create-goal']) $(id).disabled = busy || !active;
+  for (const id of ['rule-query', 'rule-typecode', 'find-rules']) $(id).disabled = busy || !active;
+  $('preview-rule').disabled = $('apply-rule').disabled = busy || !open || !state.rule;
+  $('rules-prev').disabled = busy || !active || state.ruleOffset === 0;
+  $('rules-next').disabled = busy || !active || state.ruleOffset + state.rules.length >= state.ruleTotal;
+  $('save-work').disabled = busy || !construct || !state.bundle;
+  $('import-work').disabled = busy;
+  $('import-work').parentElement.classList.toggle('disabled', busy);
+  $('restore-last').disabled = busy || !state.hasLocalSave;
   $('step-count').textContent = `${state.view?.successful_step_count || 0} 步已确认`;
   for (const node of document.querySelectorAll('.theorem-item')) node.disabled = busy || !state.db;
   for (const node of document.querySelectorAll('.hypothesis')) node.disabled = busy || !open;
+  for (const node of document.querySelectorAll('.rule-item')) node.disabled = busy || !active;
+}
+
+function clearPreview() { $('preview-output').hidden = true; $('preview-output').replaceChildren(); }
+
+function renderRules() {
+  $('rules-list').replaceChildren();
+  for (const rule of state.rules) {
+    const button = element('button', `rule-item${state.rule?.label === rule.label ? ' selected' : ''}`);
+    button.type = 'button';
+    button.setAttribute('aria-pressed', String(state.rule?.label === rule.label));
+    button.append(element('code', '', rule.label), element('span', 'rule-kind', rule.kind), element('span', 'math', expression(rule.conclusion)));
+    button.addEventListener('click', () => { state.rule = rule; clearPreview(); renderRules(); });
+    $('rules-list').append(button);
+  }
+  if (!state.rules.length) $('rules-list').append(element('p', 'muted', state.db ? '没有匹配的可见规则。可减少搜索词或清空类型码。' : '选择目标后显示其可见规则。'));
+  $('rules-count').textContent = state.ruleTotal ? `${state.ruleOffset + 1}–${state.ruleOffset + state.rules.length} / ${state.ruleTotal} 条` : '0 条';
+  const detail = $('rule-detail');
+  detail.replaceChildren();
+  const rule = state.rule;
+  if (!rule) detail.append(element('p', 'muted', '选择规则，查看其必要假设与结论。'));
+  else {
+    detail.append(element('strong', 'rule-title', `${rule.label} · ${rule.kind}`), element('div', 'detail-label', '必要假设（按栈顺序）'));
+    if (!rule.mandatory_hypotheses.length) detail.append(element('p', 'muted', '无必要假设'));
+    for (const hypothesis of rule.mandatory_hypotheses) {
+      const row = element('div', 'rule-hypothesis');
+      row.append(element('code', '', `${hypothesis.label} ${hypothesis.kind}`), element('span', 'math', expression(hypothesis.expression)));
+      detail.append(row);
+    }
+    detail.append(element('div', 'detail-label', '结论'), element('div', 'math', expression(rule.conclusion)), element('div', 'detail-label', '$d 不交变量约束'));
+    detail.append(element('p', 'math', rule.disjoint.length ? rule.disjoint.map((pair) => pair.join(' ≠ ')).join('；') : '无'));
+  }
+  renderControls();
+}
+
+async function searchRules(offset = 0) {
+  const response = await request('rules', { database_id: state.db, target_label: state.target.label,
+    query: $('rule-query').value.trim(), typecode: $('rule-typecode').value.trim(), offset, limit: RULE_PAGE_SIZE });
+  state.rules = response.data.rules;
+  state.ruleOffset = response.data.offset;
+  state.ruleTotal = response.data.total;
+  state.rule = state.rules.find((rule) => rule.label === state.rule?.label) || state.rules[0] || null;
+  clearPreview();
+  renderRules();
 }
 
 function renderTheorems() {
@@ -204,14 +283,21 @@ async function selectTarget(theorem) {
   state.view = null;
   state.events = [];
   state.replay = null;
+  state.rule = null;
+  state.rules = [];
+  state.ruleOffset = state.ruleTotal = 0;
+  clearPreview();
   $('replay-controls').hidden = true;
   renderTheorems();
+  renderRules();
   renderView();
   // A native start gives the actual active context and an empty construction.
   const response = await request('start', { database_id: state.db, target_label: theorem.label });
   state.session = response.data.session_id;
   state.view = response.data.view;
+  $('new-goal-expression').value = expression(state.view.goal);
   renderView();
+  await searchRules();
 }
 
 async function loadBundle(bundle) {
@@ -223,10 +309,15 @@ async function loadBundle(bundle) {
   state.events = [];
   state.replay = null;
   state.theorems = [];
+  state.rules = [];
+  state.rule = null;
+  state.ruleOffset = state.ruleTotal = 0;
   $('report').replaceChildren();
   $('search').value = '';
   $('replay-controls').hidden = true;
+  renderExercise();
   renderTheorems();
+  renderRules();
   renderView();
   const loaded = await request('load', { entry: bundle.entry, sources: bundle.sources });
   state.db = loaded.data.database_id;
@@ -248,11 +339,20 @@ function decodeSource(bytes, sourceId) {
 async function loadBuiltin() {
   const name = $('builtin').value;
   const epoch = state.epoch;
-  const response = await fetch(new URL(`../tests/fixtures/upstream/set-mm/${name}.mm`, import.meta.url));
+  const path = exercises[name] ? `../examples/exercises/${name}.mm` : `../tests/fixtures/upstream/set-mm/${name}.mm`;
+  const response = await fetch(new URL(path, import.meta.url));
   if (!response.ok) throw new Error(`示例库读取失败 (${response.status})。请先获取项目测试数据。`);
   const bytes = new Uint8Array(await response.arrayBuffer());
   if (epoch !== state.epoch) return;
   await loadBundle({ entry: `${name}.mm`, sources: [{ source_id: `${name}.mm`, text: decodeSource(bytes, `${name}.mm`) }] });
+  renderExercise(name);
+}
+
+function renderExercise(name) {
+  const guide = exercises[name];
+  $('exercise-guide').hidden = !guide;
+  $('exercise-guide').replaceChildren();
+  if (guide) $('exercise-guide').append(element('strong', '', guide.title), element('p', '', guide.help));
 }
 
 function apply(label) {
@@ -261,11 +361,82 @@ function apply(label) {
     const response = await request('apply_label', { session_id: state.session, label: label.trim() });
     state.view = response.data.view;
     state.events.push(response.data.event);
+    clearPreview();
     $('label').value = '';
     renderView();
     // Focus only once the task's finally has enabled the input again.
     setTimeout(() => { if (!$('label').disabled) $('label').focus(); }, 0);
   });
+}
+
+function download(text, filename, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const link = element('a');
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function inspectLocalSave() {
+  try {
+    const saved = localStorage.getItem(LOCAL_SAVE_KEY);
+    state.hasLocalSave = !!saved;
+    $('local-save-info').textContent = saved
+      ? '本机有一份上次保存。点击“恢复本机上次保存”会重新验证和重放；当前工作在恢复成功后替换。仅保存按钮会更新它，大小上限 2 MiB。'
+      : '点击保存时，至多 2 MiB 的工作也会留在本机浏览器；不会自动上传或无限量自动保存。';
+  } catch {
+    state.hasLocalSave = false;
+    $('local-save-info').textContent = '浏览器不允许访问本机存储；仍可下载和导入工作文件。';
+  }
+}
+
+async function restoreWork(document, epoch) {
+  if (epoch !== state.epoch) return;
+  const candidate = createWorkerClient();
+  state.candidate = candidate;
+  try {
+    const restored = await restoreNotebook(document, ({ operation, ...fields }) => {
+      if (epoch !== state.epoch || state.candidate !== candidate) throw new Error('恢复已取消。');
+      return requestClient(candidate, operation, fields);
+    });
+    if (epoch !== state.epoch || state.candidate !== candidate || !candidate.alive) throw new Error('恢复已取消。');
+    // Commit only a completely verified/replayed candidate; failed imports never
+    // replace the active Worker or its opaque handles and confirmed state.
+    terminateClient(state.worker);
+    state.worker = candidate;
+    state.candidate = null;
+    state.bundle = restored.bundle;
+    state.db = restored.database_id;
+    state.session = restored.session_id;
+    state.view = restored.view;
+    state.events = restored.events;
+    state.theorems = restored.theorems;
+    state.target = restored.target;
+    state.replay = null;
+    state.rule = null;
+    state.rules = [];
+    state.ruleTotal = state.ruleOffset = 0;
+    $('replay-controls').hidden = true;
+    $('search').value = '';
+    $('new-goal-expression').value = expression(state.view.goal);
+    $('database-info').textContent = `${state.bundle.entry} · ${state.bundle.sources.length} 个源文件 · 从工作文件重新验证`;
+    renderReport(restored.report);
+    renderTheorems();
+    renderRules();
+    renderExercise();
+    setMode('construct');
+    notice(`已重新验证并恢复 ${state.events.length} 步${state.view.state === 'complete' ? '，完成状态已再次检查' : '，可继续构造'}。`, true);
+  } finally {
+    if (state.candidate === candidate) state.candidate = null;
+    if (state.worker !== candidate) terminateClient(candidate);
+  }
+  // Rule browsing is supplementary. A later lookup error cannot turn a
+  // successfully committed restore into an apparently failed atomic restore.
+  try { await searchRules(); }
+  catch (error) { if (epoch === state.epoch) notice(`工作已恢复；规则列表暂未加载：${error.message}`); }
 }
 
 function setMode(mode) {
@@ -328,6 +499,98 @@ $('verify').addEventListener('click', () => task('按声明次序验证数据库
   renderView();
 }));
 $('search').addEventListener('input', renderTheorems);
+$('rules-form').addEventListener('submit', (event) => { event.preventDefault(); task('查找目标上下文中的可见规则…', () => searchRules()); });
+$('rules-prev').addEventListener('click', () => task('读取上一页规则…', () => searchRules(Math.max(0, state.ruleOffset - RULE_PAGE_SIZE))));
+$('rules-next').addEventListener('click', () => task('读取下一页规则…', () => searchRules(state.ruleOffset + RULE_PAGE_SIZE)));
+$('apply-rule').addEventListener('click', () => { if (state.rule) apply(state.rule.label); });
+$('preview-rule').addEventListener('click', () => task('在副本中检查这一步…', async () => {
+  const label = state.rule.label;
+  clearPreview();
+  try {
+    const response = await request('preview', { session_id: state.session, label });
+    const output = $('preview-output');
+    output.classList.remove('failed');
+    output.append(element('strong', '', `${label}：当前栈可执行这一步`), element('p', '', '仅预览，当前栈和已确认动作均未改变。是否有助于目标，需要你判断。'), element('div', 'detail-label', '预计得到的表达式'), element('div', 'math', expression(response.data.event.result)), element('p', '', `预计弹出 ${response.data.event.popped} 项、推入 ${response.data.event.pushed} 项；预览后栈共 ${response.data.view.stack.length} 项。`));
+    output.hidden = false;
+  } catch (error) {
+    if (!state.session) throw error;
+    $('preview-output').classList.add('failed');
+    $('preview-output').append(element('strong', '', `${label}：当前栈无法执行`), element('p', '', error.message), element('p', '', '当前栈和已确认动作均未改变。检查必要假设顺序、表达式和 $d 约束。'));
+    $('preview-output').hidden = false;
+  }
+}));
+$('new-goal-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  task('继承当前上下文并创建新目标…', async (epoch) => {
+    const new_label = $('new-goal-label').value.trim();
+    const goalText = $('new-goal-expression').value.trim();
+    if (!new_label || !goalText) throw new Error('请填写新目标标签和目标表达式。');
+    const response = await request('create_goal', { database_id: state.db, context_label: state.target.label, new_label, goal: goalText.split(/\s+/) });
+    const created = response.data;
+    const report = await request('verify', { database_id: created.database_id });
+    const listed = await request('list', { database_id: created.database_id });
+    const started = await request('start', { database_id: created.database_id, target_label: created.target_label });
+    if (epoch !== state.epoch) return;
+    const target = listed.data.theorems.find((theorem) => theorem.label === created.target_label);
+    if (!target) throw new Error('新目标未出现在核心定理列表中，当前工作已保留。');
+    state.bundle = { entry: created.entry, sources: created.sources.map(({ source_id, text }) => ({ source_id, text })) };
+    state.db = created.database_id;
+    state.theorems = listed.data.theorems;
+    state.target = target;
+    state.session = started.data.session_id;
+    state.view = started.data.view;
+    state.events = [];
+    state.replay = null;
+    state.rule = null;
+    state.rules = [];
+    state.ruleTotal = state.ruleOffset = 0;
+    $('replay-controls').hidden = true;
+    $('database-info').textContent = `${created.entry} · 继承上下文的新目标`;
+    $('new-goal-expression').value = expression(state.view.goal);
+    renderReport(report);
+    renderTheorems();
+    renderRules();
+    renderExercise();
+    setMode('construct');
+    await searchRules();
+    notice(`已创建 ${created.target_label}，继承活动假设及 $d 约束。目标尚未证明，请从空栈开始。`, true);
+  });
+});
+$('save-work').addEventListener('click', () => task('保存源文件与当前动作前缀…', async (epoch) => {
+  const saved = await createNotebook({ bundle: state.bundle, target_label: state.target.label,
+    actions: state.events.map((event) => ({ operation: 'apply_label', label: event.label })), completed: state.view.state === 'complete' });
+  if (epoch !== state.epoch) return;
+  const text = JSON.stringify(saved);
+  download(text, `${state.target.label}-work.json`, 'application/json');
+  let message = '已生成工作文件，可在导入时重新验证和重放。';
+  if (new TextEncoder().encode(text).length <= LOCAL_SAVE_LIMIT) {
+    try { localStorage.setItem(LOCAL_SAVE_KEY, text); message += ' 本机上次保存也已更新，可刷新后恢复。'; }
+    catch { message += ' 浏览器本机存储不可用；请保留下载文件。'; }
+  } else message += ' 此文件超过 2 MiB，仅提供下载；本机上次保存未覆盖。';
+  inspectLocalSave();
+  notice(message, true);
+}));
+$('import-work').addEventListener('change', () => {
+  const file = $('import-work').files[0];
+  if (!file) return;
+  task('在独立内核中验证并恢复工作…', async (epoch) => {
+    try {
+      if (file.size > FILE_SAVE_LIMIT) throw new Error('工作文件超过 128 MiB 限制。当前工作已保留。');
+      const text = await file.text();
+      if (epoch !== state.epoch) return;
+      let document;
+      try { document = JSON.parse(text); }
+      catch { throw new Error('工作文件不是有效的 JSON。当前工作已保留。'); }
+      await restoreWork(document, epoch);
+    } finally { $('import-work').value = ''; }
+  });
+});
+$('restore-last').addEventListener('click', () => task('重新验证本机上次保存…', async (epoch) => {
+  const text = localStorage.getItem(LOCAL_SAVE_KEY);
+  if (!text) { inspectLocalSave(); throw new Error('本机没有可恢复的保存文件。'); }
+  if (new TextEncoder().encode(text).length > LOCAL_SAVE_LIMIT) throw new Error('本机保存超出 2 MiB 限制；请从工作文件导入。');
+  await restoreWork(JSON.parse(text), epoch);
+}));
 $('apply-form').addEventListener('submit', (event) => { event.preventDefault(); apply($('label').value); });
 $('construct-tab').addEventListener('click', () => setMode('construct'));
 $('replay-tab').addEventListener('click', () => setMode('replay'));
@@ -337,11 +600,13 @@ $('rewind').addEventListener('click', () => task('重放成功动作前缀…', 
   const response = await request('rewind', { session_id: state.session, successful_step_count });
   state.events = state.events.slice(0, successful_step_count);
   state.view = response.data.view;
+  clearPreview();
   renderView();
 }));
 $('finish').addEventListener('click', () => task('检查最终栈与目标是否一致…', async () => {
   const response = await request('finish', { session_id: state.session });
   state.view = response.data.view;
+  clearPreview();
   renderView();
   notice('构造完成：最终栈与目标一致。现在可以下载普通 .mm 证明。', true);
 }));
@@ -349,14 +614,7 @@ $('export').addEventListener('click', () => task('生成自足普通证明文件
   const new_label = $('export-label').value.trim();
   if (!new_label) throw new Error('请填写一个新的定理标签。');
   const response = await request('export', { session_id: state.session, new_label });
-  const url = URL.createObjectURL(new Blob([response.data.text], { type: 'text/plain;charset=us-ascii' }));
-  const link = element('a');
-  link.href = url;
-  link.download = `${new_label}.mm`;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  download(response.data.text, `${new_label}.mm`, 'text/plain;charset=us-ascii');
   notice('已生成下载文件。此导出由 MoonBit 核心构造；独立检查器复核需另行运行。', true);
 }));
 $('run-replay').addEventListener('click', () => task('检查数据库原证明并生成回放…', async () => {
@@ -378,11 +636,12 @@ $('replay-position').addEventListener('input', () => { state.position = Number($
 $('replay-prev').addEventListener('click', () => { if (state.position > 0) { state.position -= 1; renderReplay(); } });
 $('replay-next').addEventListener('click', () => { if (state.position < state.replay.events.length) { state.position += 1; renderReplay(); } });
 $('cancel').addEventListener('click', () => {
-  invalidateWorker(new Error('已取消：工作线程已终止。显示的只是最后确认视图；请重新加载数据库开始新会话。'));
+  invalidateWorker(new Error('已取消：活动及恢复工作线程已终止。显示的只是最后确认视图；请重新加载数据库或恢复保存文件。'));
   $('activity').classList.remove('busy');
   $('activity').textContent = '已取消 · 原数据库与会话句柄已失效';
-  notice('已终止工作线程。最后确认视图保留为只读；继续操作须重新加载数据库。', true);
+  notice('已终止活动及恢复工作线程。最后确认视图保留为只读；继续操作须重新加载数据库或恢复保存文件。', true);
 });
 
+inspectLocalSave();
 renderControls();
 task('读取 demo0 示例并启动原生核心…', loadBuiltin);
