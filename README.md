@@ -2,7 +2,7 @@
 
 MoonBit 原生的 Metamath `.mm` 验证与逐步证明库，附 Node CLI 和浏览器证明实验室。解析、代换、不交变量检查、普通/压缩证明、交互会话与导出都由同一个 MoonBit 核心执行；运行产品无需 Python、C 检查器或模型凭据。
 
-**0.1.0 本地验收已完成；公开仓库发布、CI 与 Mooncakes 注册表安装结果待发布流程补充。** 模块名为 `AlexenderSokolov/moonmetamath`。核心已在 JS、wasm-gc 两个后端运行测试；网页使用 MoonBit 生成的 JavaScript。
+**0.1.0 已公开交付：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.1.0) · [Windows/Linux CI](https://github.com/AlexenderSokolov/moonmetamath/actions)。模块名为 `AlexenderSokolov/moonmetamath`。注册表构建成功，独立消费者已从注册表安装并在JS、wasm-gc实际运行；网页使用MoonBit生成的JavaScript。
 
 ## 可以做什么
 
@@ -28,7 +28,7 @@ node bin/moonmetamath.mjs --help
 
 安装器按 [toolchain.lock.json](scripts/toolchain.lock.json) 校验官方归档哈希。已有对应隔离工具链时，可通过 `MOONMETAMATH_TOOLCHAIN_HOME` 指定目录并直接执行 verify。发布压缩包若包含 `dist/moonmetamath-core.mjs`，CLI/Web 运行只需 Node 24，无需再次编译。
 
-公开发布后，MoonBit 消费者可使用下面的固定版本安装命令；**该注册表安装尚未在本地验收阶段完成**：
+MoonBit 消费者可使用下面的固定版本安装命令；注册表安装与公共入口调用已在独立消费者中完成验收：
 
 ```sh
 moon add AlexenderSokolov/moonmetamath@0.1.0
@@ -107,7 +107,9 @@ console.log(response);
 | 固定外部测试材料 | 79/79 符合预期：22 valid、55 invalid、2 incomplete |
 | 独立 mmreference | 同一 79 项全部符合上游预期 |
 | 官方小库 | demo0 1 个证明、MIU 1 个证明、HOL 151 个证明通过；peano 只有声明，0 个证明 |
-| 实际浏览器 | demo0 34 步构造、错误标签拒绝、撤回与完成通过；实际下载文件由独立官方 C 检查器接受 |
+| 宿主集成 | 14项通过，包括目标前缀、动作严格校验、资源/IO分类、超时、导出排他写入 |
+| 实际浏览器 | 本地及公网站点完成demo0 34步构造；公网下载文件由独立官方C检查器接受；MIU/HOL、include上传、BOM拒绝、取消重载均实测 |
+| 公开交付 | Windows/Linux CI、Mooncakes0.1.0 manifest成功、独立注册表消费者两后端实际运行 |
 
 官方 C 对整套外部材料有 **7 项已记录分歧**，并非 79/79 全过；细节见 [兼容性](docs/COMPATIBILITY.md)。上述验证不等于完整 set.mm、所有 Metamath 扩展或所有平台兼容，也没有对实现本身作形式化认证。
 

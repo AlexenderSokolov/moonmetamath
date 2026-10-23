@@ -1,6 +1,6 @@
 # MoonMetamath 项目说明
 
-更新：2026-10-23。版本0.1.0；本地产品验收G0–G4通过，公开发布G5正在执行。实时结果见[PROGRESS.md](PROGRESS.md)。
+更新：2026-10-23。版本0.1.0；本地产品验收G0–G4和公开交付G5通过。正式分支main，开发历史保留codex/metamath-v0.1。实时证据见[PROGRESS.md](PROGRESS.md)。
 
 ## 目标与授权
 
@@ -23,7 +23,7 @@ MoonBit原生Metamath `.mm`验证与逐步证明执行库，附Node CLI和浏览
 | 路径 | 职责 |
 |---|---|
 | src/core/types.mbt、lexer.mbt、parser.mbt | ASCII词法、声明、作用域与include展开 |
-| src/core/proof.mbt等 | 普通/压缩证明的统一执行、代换与不交变量约束 |
+| src/core/proof_step.mbt、substitution.mbt、compressed.mbt、verifier.mbt | 普通/压缩证明的统一执行、代换与不交变量约束 |
 | src/core/session.mbt、export.mbt | 原声明上下文的构造、原子失败、回退、完成与自足导出 |
 | src/core/dispatch.mbt、根api.mbt | schema 1严格JSON协议、opaque句柄与根公共入口 |
 | src/js_bridge | 同一核心的薄桥接，不复制数学语义 |
@@ -64,7 +64,7 @@ node scripts/acceptance.mjs --phase local
 node scripts/acceptance.mjs --phase publication --receipt artifacts/publication.json
 ```
 
-本地验收记录artifacts/acceptance-release/result.json。47项MoonBit测试在JS/wasm-gc通过，79外部样例与mmreference匹配；官方C四个真实数据库及浏览器下载候选通过，完整边界集有7项已解释差异。peano是120声明、0证明，不宣传为算术证明结果。完整set.mm和Mac/ARM未验证。
+本地验收记录artifacts/acceptance-final/result.json。47项MoonBit测试在JS/wasm-gc通过，14项宿主集成测试通过，79外部样例与mmreference匹配；官方C四个真实数据库及浏览器下载候选通过，完整边界集有7项已解释差异。peano是120声明、0证明，不宣传为算术证明结果。完整set.mm和Mac/ARM未验证。
 
 ## 长期方向与赛事边界
 

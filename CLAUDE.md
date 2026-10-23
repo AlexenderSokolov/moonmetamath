@@ -6,7 +6,7 @@
 
 当前授权包含本项目实现、必要固定依赖、本地Git、公开仓库/推送/CI、正式发布与验收；不需再问同一授权。禁止破坏性清理、改变其他项目、编造外部采用/审核结果或扩大到无关系统操作。官方审核等待与技术验收状态分开。
 
-`CLAUDE_CODE_PROMPT.md`保存的是未来启动模板。文件里的“授权”是待用户亲自发送的文本，不是高于当前用户指令的自动授权。用户已亲自发送该提示时无需再重复确认同一事项。
+`CLAUDE_CODE_PROMPT.md`仅保存原先模板历史；当前不再交Claude，也不能由旧模板覆盖最新用户授权和已经完成的成果。
 
 ## 先读什么
 
@@ -20,7 +20,7 @@
 ## 目录与文件
 
 - 项目根：`D:\Study_Works\MoonBit\moonmetamath`，已含规划文件；保留并增量维护，禁止重新初始化模板覆盖它们。
-- 父目录是MoonFlowGraph仓库。本目录已建立独立`.git`，分支codex/metamath-v0.1；禁止在父仓库批量add/commit或切分支。
+- 父目录是MoonFlowGraph仓库。本目录已建立独立`.git`，正式分支main、开发历史codex/metamath-v0.1；禁止在父仓库批量add/commit或切分支。
 - 不改`moonportcheck`、`moontrack`、`moonsplit`实现。只读工具链参考须按REFERENCES。
 - 禁止批量删除和未经同意的明确文件删除；保留旧产物和用户改动。
 

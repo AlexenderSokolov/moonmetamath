@@ -14,11 +14,11 @@
 
 ## Global Constraints
 
-- 当前交付是规划，不写实现；下列任务由用户亲自把启动提示交给 Claude Code 后执行。
+- 最新授权为Codex自主实施、发布和验收；原Claude交接仅保留历史。
 - 新项目仅在 `D:\Study_Works\MoonBit\moonmetamath`；父目录是 MoonFlowGraph，禁止修改其实现、Git 分支或纳入旧未跟踪内容。
 - 运行时语义只能 MoonBit；不把 Python/C/Rust verifier 包装后称为 MoonBit 实现。
 - 主要参考 R2 为 MIT；官方 C checker 为 GPL-2.0-or-later，只作外部工具调用。保留逐文件来源与许可。
-- 本地 Git 初始化与阶段提交只有用户亲自发出含该授权的交接提示后执行；远程创建/push/PR、发布、部署、报名、联系他人均另需明确批准。
+- 本项目本地Git、公开仓库/push/CI、Mooncakes及网站部署已明确授权；赛事结果与额外联系人外发不从技术发布推断。
 - 普通/压缩/交互使用同一执行器；未检查/未完成/超限/取消不得返回 Valid。
 - 必测 JS/wasm-gc；不全局升级 MoonBit，不回退 latest。具体宿主路径由项目工具链入口解析。
 - schema_version=1；CLI 退出码 0/1/2/3/4/5 与规格一致。
@@ -45,7 +45,7 @@
 
 **Files:** 已备 `PROJECT.md`、`CLAUDE.md`、`PROGRESS.md`、`README.md`，只增量完善；实施获准后创建 `LICENSE`、`.gitignore`、`moon.mod`、包级 `moon.pkg`、`references.lock.json`、`scripts/toolchain.lock.json`、`scripts/toolchain.mjs`、`scripts/build.mjs`、`scripts/check.mjs`、`run_check.ps1/.sh`。check先提供真实工具链/基本构建与task选择入口，后续任务逐项扩充，禁止未实现任务返回假PASS。
 
-**Interfaces:** 后续所有脚本通过工具链入口解析实际 moon/moonc，不依赖全局旧版本。公开模块建议 `AlexenderSokolov/moonmetamath`，尚未发布；G0 前核实命名，无冲突再固定。
+**Interfaces:** 所有脚本通过工具链入口解析实际moon/moonc，不依赖全局旧版本。公开模块已确定并发布为 `AlexenderSokolov/moonmetamath@0.1.0`。
 
 - [ ] 读取CLAUDE/PROJECT/PROGRESS和本资料包；目标目录已准备规划文档，确认实际内容并保留，不因目录已存在重复创建或清空。记录父仓库已有 dirty/untracked 状态。
 - [ ] 用户明确授权实施后，在已准备目录内开始实现，增量完善 `PROJECT.md`；只有获得本地 Git 授权时，初始化该目录内独立仓库，默认分支 `codex/metamath-v0.1`。验证 `git rev-parse --show-toplevel` 正好是新项目。

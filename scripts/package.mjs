@@ -17,10 +17,13 @@ run(python,['-c','import sys,zipfile,pathlib; src=pathlib.Path(sys.argv[1]); z=z
 const unpack=mkdtempSync(join(out,'unpacked-'));
 run(python,['-c','import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])',zip,unpack]);
 const extracted=join(unpack,`moonmetamath-${version}`),checks=[];
-for(const args of [['--version'],['verify','tests/fixtures/upstream/set-mm/hol.mm']]){
+writeFileSync(join(unpack,'mini.mm'),'$c |- a $. ax $a |- a $. th $p |- a $= ax $.');
+writeFileSync(join(unpack,'actions.json'),JSON.stringify({schema_version:1,actions:[{operation:'apply_label',label:'ax'},{operation:'finish'}]}));
+for(const args of [['--help'],['--version'],['verify','tests/fixtures/upstream/set-mm/hol.mm'],['session',join(unpack,'mini.mm'),'--theorem','th','--actions',join(unpack,'actions.json'),'--export',join(unpack,'candidate.mm')],['verify',join(unpack,'candidate.mm')]]){
  const r=spawnSync(process.execPath,['bin/moonmetamath.mjs',...args],{cwd:extracted,env:{...process.env,MOON_HOME:'unavailable',PATH:join(out,'no-compiler')},encoding:'utf8'});
  checks.push({args,exitCode:r.status,stdout:r.stdout,stderr:r.stderr});if(r.error||r.status!==0)throw new Error('Unpacked compiler-free CLI failed: '+(r.error?.message||r.stderr));
- if(args[0]==='verify'){const response=JSON.parse(r.stdout);if(response.outcome!=='valid'||response.data.verified_count!==151)throw new Error('Unpacked HOL verdict mismatch');}
+ if(args[0]==='verify'){const response=JSON.parse(r.stdout);const expected=args[1].includes('hol.mm')?151:1;if(response.outcome!=='valid'||response.data.verified_count!==expected)throw new Error('Unpacked proof verdict mismatch');}
+ if(args[0]==='session'){const response=JSON.parse(r.stdout);if(response.outcome!=='valid'||response.operation!=='export')throw new Error('Unpacked session/export did not succeed');}
 }
 const sha256=createHash('sha256').update(readFileSync(zip)).digest('hex');writeFileSync(join(out,'SHA256SUMS.txt'),`${sha256}  ${zip.split(/[\\/]/).at(-1)}\n`);
 const result={schema_version:1,version,pass:true,archive:relative(root,zip),sha256,checks};writeFileSync(join(out,'result.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

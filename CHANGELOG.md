@@ -2,7 +2,7 @@
 
 ## 0.1.0 · 2026-10-23
 
-首个可运行版本。以下为本地实现与验收结果；公开发布、CI、Mooncakes 注册表安装与发布地址由发布流程补充，不由版本号推定完成。
+首个公开版本。Mooncakes0.1.0构建成功且未撤回，全新注册表消费者在两后端通过；Windows/Linux远端检查与GitHub Pages真实浏览器使用通过。源码、演示及发行包入口见README。
 
 - MoonBit 原生 ASCII Metamath 扫描、声明、作用域与 include 解析；普通/压缩证明共用执行器，检查必要假设次序、同时代换与不交变量条件。
 - 按声明次序验证数据库，区分 verified、invalid、incomplete、not_checked，不信任无效或未检查依赖。

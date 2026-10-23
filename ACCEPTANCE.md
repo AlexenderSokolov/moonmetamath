@@ -1,6 +1,6 @@
 # 验收、运行与发布全流程
 
-状态：**本地G0–G4已实际通过，公开G5进行中**。下列入口均已实现；本地完整结果见artifacts/acceptance-release/result.json，实时发布结果见PROGRESS.md。本文保留验收设计及门槛，不能从预期文字推断结果。
+状态：**本地G0–G4、公开G5已实际通过**。下列入口均已实现；本地完整结果见artifacts/acceptance-release/result.json，实时发布结果见PROGRESS.md。本文保留验收设计及门槛，不能从预期文字推断结果。
 
 ## 1. 门槛与结果口径
 
@@ -159,10 +159,10 @@ node scripts/oracle.mjs verify --file artifacts/candidate.mm --engine metamath-e
 
 1. 用户批准公开仓库/推送等具体动作后执行，核对目标仓库与提交，保留现有历史。
 2. 等待精确候选提交的实际CI结果；未运行或失败不等于通过。
-3. `moon publish --dry-run`检查包内容，仅是预检；正式`moon publish`需单独授权。
+3. `moon publish --dry-run`检查包内容，仅是预检；正式`moon publish`已获本轮用户明确授权，不重复申请。
 4. 查询当时有效的官方manifest端点，核对expected version、has_package、build_status、yanked等字段；缺字段标未知，HTTP202不当成功。
 5. 在全新目录从registry `moon add <已确认模块>@<版本>`，实际执行core/session调用。不能workspace偷渡替代registry。
-6. 发布可用不等于完成报名；部署若需外部服务另行批准。
+6. 发布可用不等于完成报名；本项目GitHub Pages部署已获授权，额外服务依实际范围另行判断。
 
 **G6：** 用户亲自定稿人工一页申报；真实提交后记录回执。初审通过、验收通过、进入评选、获奖和付款分开，不由技术报告推断。十个有效commits来自真实阶段，不补造。
 
