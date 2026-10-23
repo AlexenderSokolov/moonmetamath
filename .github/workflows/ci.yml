@@ -40,6 +40,8 @@ jobs:
         run: node scripts/consumer.mjs
       - name: Run the three real product scenarios
         run: node scripts/demo.mjs --oracle
+      - name: Rules, new goals and saved-work replay with independent export
+        run: node scripts/workbench-demo.mjs --oracle
       - name: Portable release archive runs without a compiler
         run: node scripts/package.mjs
       - name: Independent C checker accepts and rejects known proofs

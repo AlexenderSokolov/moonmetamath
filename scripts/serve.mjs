@@ -11,7 +11,7 @@ createServer((req,res)=>{
   let pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
   if(pathname==='/'){res.writeHead(302,{Location:'/web/'}).end();return;}
   if(pathname.endsWith('/'))pathname+='index.html';
-  if(!['/web/','/dist/','/tests/fixtures/upstream/set-mm/'].some(p=>pathname.startsWith(p)))throw new Error('Not public');
+  if(!['/web/','/dist/','/tests/fixtures/upstream/set-mm/','/examples/exercises/'].some(p=>pathname.startsWith(p)))throw new Error('Not public');
   const file=resolve(root,'.'+pathname);
   if(!file.startsWith(root+sep)||!statSync(file).isFile()||pathname.endsWith('/peano.mm'))throw new Error('Not public');
   const data=readFileSync(file);res.writeHead(200,{'Content-Type':mime[extname(file)]??'application/octet-stream','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(req.method==='HEAD'?undefined:data);

@@ -30,3 +30,11 @@
 用户原话依次要求先调研排重、制作完整计划、放入独立moonmetamath目录并建立PROJECT/CLAUDE。随后2026-10-23明确：“不再用claude code了，你直接在你这个独立项目文件夹里面开做，做完全链路，包括发布、验收。全自动，我授权给你，不需要再问我。”后来补充网站访问不再确认，全自动执行。
 
 CLAUDE_CODE_PROMPT.md是原先Codex重构模板，未启动Claude。当前实际成功关联是本项目Git历史、artifacts/acceptance-release与真实浏览器/独立oracle产物；公开发布结果统一见PROGRESS，不把模板当历史执行日志。
+
+## 2026-10-24：0.1.1、0.2与真实AI闭环
+
+用户明确追加全自动路线：先0.1.1小修，再0.2规则查找/新目标/保存恢复，最后真实AI，不泄露原证明、不做大平台。0.1.1已发布，IO边界修复并独立审阅。0.2新增core/rules.mbt与goal.mbt、preview、web/notebook.mjs重放恢复；55核心/39宿主/79fixture及实际浏览器新流程通过。CLI保留基础验证命令，新工作流经库和网页公开。
+
+AI的bin/ai-policy.mjs递归allowlist，ai-transport.mjs使用官方Codex现有登录、禁工具clean-temp；ai-experiment.mjs固定10个无参考证明任务与BFS。真实模型10/10、BFS8/10，独立C逐候选确认；输入203344/输出1110，费用未知，raw backend model不暴露。usage缺失曾误算complete，被独立审阅发现并经红绿修复。报告docs/AI_RESULTS_2026-10-24.md。
+
+发布实验包由scripts/package-experiment.mjs仅保留题目、观察/动作/用量、独立C stdout与候选文件；本机路径告警/凭据不公开。产品NodeZIP不包含需要开发oracle的AI命令，AI从源码运行。来源输入包括以前证明的notebook/create_goal.sources绝不能给模型，legacy list保持有proof的兼容接口。公开状态以PROGRESS/正式Release为准，未宣称外部人类用户或获奖。

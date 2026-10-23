@@ -11,9 +11,7 @@ under those declared axioms; they make no new mathematics claim. A model may kno
 classic results and their proof patterns from training.
 
 The experiment is separate from the interactive browser and has no server,
-training process or persistent scheduler. Implemented and locally tested does not
-mean the real model experiment has run. Actual results are the dated artifact
-directory produced by the command below, including failures.
+training process or persistent scheduler. The first genuine fixed ten-task model run completed on 2026-10-24: model10/10, bounded BFS8/10, all claimed successes independently C-verified. See [the actual result report](AI_RESULTS_2026-10-24.md). The run is functional evidence on small self-authored tasks, not a standardized benchmark.
 
 ## Information boundary
 
@@ -146,3 +144,5 @@ schema, native execution and independent verifier failures.
 An interrupted run has no final summary; its declaration and completed task files
 remain evidence of that incomplete attempt. Re-running uses a new directory and
 is a separate declared experiment, never an invisible continuation.
+
+The portable Node24 product archive contains the verifier and browser lab. Run this optional experiment from a source checkout, where scripts/oracle.mjs and acquired independent checker are available; it is not a compiler-free archive command. Public experiment artifacts omit raw machine-path warnings and credentials.

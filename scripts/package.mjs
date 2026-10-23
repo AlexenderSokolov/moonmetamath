@@ -6,12 +6,15 @@ import {root,version,run} from './common.mjs';
 const at=process.argv.indexOf('--out'),out=resolve(root,at<0?'artifacts/package-'+Date.now():process.argv[at+1]);mkdirSync(out,{recursive:true});
 const stage=join(out,`moonmetamath-${version}`);mkdirSync(stage,{recursive:true});
 function copy(source,destination){mkdirSync(destination,{recursive:true});for(const e of readdirSync(source,{withFileTypes:true})){const s=join(source,e.name),d=join(destination,e.name);if(e.isDirectory())copy(s,d);else copyFileSync(s,d);}}
-for(const dir of ['bin','dist','web','LICENSES','docs'])copy(join(root,dir),join(stage,dir));
+for(const dir of ['dist','web','LICENSES','docs'])copy(join(root,dir),join(stage,dir));
+mkdirSync(join(stage,'bin'),{recursive:true});
+for(const file of ['host.mjs','moonmetamath.mjs'])copyFileSync(join(root,'bin',file),join(stage,'bin',file));
+copy(join(root,'examples'),join(stage,'examples'));
 for(const file of ['LICENSE','README.md','CHANGELOG.md'])copyFileSync(join(root,file),join(stage,file));
 const fixtures=join(stage,'tests/fixtures/upstream/set-mm');mkdirSync(fixtures,{recursive:true});
 for(const name of ['demo0','miu','hol'])copyFileSync(join(root,`tests/fixtures/upstream/set-mm/${name}.mm`),join(fixtures,name+'.mm'));
 copyFileSync(join(root,'tests/fixtures/upstream/set-mm/LICENSE'),join(fixtures,'LICENSE'));
-writeFileSync(join(stage,'USAGE.txt'),`MoonMetamath ${version}\nRequires Node.js 24. No MoonBit compiler or model API is needed.\nnode bin/moonmetamath.mjs --help\nnode bin/moonmetamath.mjs verify tests/fixtures/upstream/set-mm/hol.mm\nFor browser use the public demo or serve this folder with a static HTTP server.\nSee docs/THIRD_PARTY.md for retained licenses.\n`);
+writeFileSync(join(stage,'USAGE.txt'),`MoonMetamath ${version}\nRequires Node.js 24. No MoonBit compiler or model API is needed.\nnode bin/moonmetamath.mjs --help\nnode bin/moonmetamath.mjs verify tests/fixtures/upstream/set-mm/hol.mm\nFor browser use the public demo or serve this folder with a static HTTP server.\nThe optional AI experiment runs from a source checkout with its independent C checker; see docs/AI_EXPERIMENT.md. It is not a compiler-free CLI command in this archive.\nSee docs/THIRD_PARTY.md for retained licenses.\n`);
 const zip=join(out,`moonmetamath-${version}-node24.zip`),python=process.env.PYTHON||'python';
 run(python,['-c','import sys,zipfile,pathlib; src=pathlib.Path(sys.argv[1]); z=zipfile.ZipFile(sys.argv[2],"w",zipfile.ZIP_DEFLATED); [(z.write(p,p.relative_to(src.parent))) for p in sorted(src.rglob("*")) if p.is_file()]; z.close()',stage,zip]);
 const unpack=mkdtempSync(join(out,'unpacked-'));

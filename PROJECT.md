@@ -1,6 +1,6 @@
 # MoonMetamath 项目说明
 
-更新：2026-10-23。版本0.1.0；本地产品验收G0–G4和公开交付G5通过。正式分支main，开发历史保留codex/metamath-v0.1。实时证据见[PROGRESS.md](PROGRESS.md)。
+更新：2026-10-24。0.1.1已公开交付；当前源码0.2.0本地与实际浏览器验收通过，公开交付正在验收。正式分支main，开发历史保留codex/metamath-v0.1。实时证据见[PROGRESS.md](PROGRESS.md)。
 
 ## 当前扩展路线
 
@@ -8,7 +8,7 @@
 
 ## 目标与授权
 
-MoonBit原生Metamath `.mm`验证与逐步证明执行库，附Node CLI和浏览器实验室。面向需要可嵌入检查器的MoonBit开发者、学习形式证明的使用者，以及把外部证明动作接到确定性检查器的AI4Math工程。本项目尚无真实外部用户验证，也没有模型调用或新数学成果。
+MoonBit原生Metamath `.mm`验证与逐步证明执行库，附Node CLI和浏览器实验室。面向需要可嵌入检查器的MoonBit开发者、学习形式证明的使用者，以及把外部证明动作接到确定性检查器的AI4Math工程。当前已有一次无原证明输入的固定10题真实模型补全实验，成功10/10；没有真实外部人类用户或新数学成果。
 
 用户2026-10-23明确将原“只做文档、交Claude Code”改为“Codex在独立目录全自动实现、发布、验收，不重复确认”。最新授权包括本项目必要依赖、本地Git、公开仓库、CI、Mooncakes及静态站发布。禁止删除、破坏其他项目、伪造用户反馈或赛事回执。独立Git顶层就是本目录，父目录MoonFlowGraph不是本仓库。
 
@@ -32,7 +32,8 @@ MoonBit原生Metamath `.mm`验证与逐步证明执行库，附Node CLI和浏览
 | src/core/dispatch.mbt、根api.mbt | schema 1严格JSON协议、opaque句柄与根公共入口 |
 | src/js_bridge | 同一核心的薄桥接，不复制数学语义 |
 | bin/host.mjs、moonmetamath.mjs | 受限源文件解析、Node Worker CLI和退出码 |
-| web | 独立Worker、构造/回放两模式、真实上传/取消/下载 |
+| web | 独立Worker、规则预览、新目标、保存/隔离恢复、构造/回放、上传/取消/下载 |
+| bin/ai-*.mjs、examples/ai | 本地无工具策略适配、固定十题、有限搜索与独立C复核；不向模型提供原proof/source |
 | scripts | 固定工具链、编译、fixtures、独立oracle、检查、消费者、演示、打包、验收 |
 | tests/fixtures/manifest.json | 固定上游版本、字节哈希、预期状态与逐文件许可 |
 | artifacts（忽略） | 实际运行输出、失败记录、下载、审阅和发布证据 |
@@ -65,10 +66,10 @@ run_check、run_demo、run_acceptance同时提供.ps1/.sh。完整本地验收�
 
 ```sh
 node scripts/acceptance.mjs --phase local
-node scripts/acceptance.mjs --phase publication --ref v0.1.0 --receipt artifacts/publication.json
+node scripts/acceptance.mjs --phase publication --ref v0.2.0 --receipt artifacts/publication.json
 ```
 
-本地验收记录artifacts/acceptance-final/result.json。47项MoonBit测试在JS/wasm-gc通过，14项宿主集成测试通过，79外部样例与mmreference匹配；官方C四个真实数据库及浏览器下载候选通过，完整边界集有7项已解释差异。peano是120声明、0证明，不宣传为算术证明结果。完整set.mm和Mac/ARM未验证。
+0.2本地验收记录artifacts/v02-acceptance-local/result.json。55项MoonBit测试在JS/wasm-gc通过，39项宿主集成测试通过，79外部样例与mmreference匹配；官方C四个真实数据库及浏览器下载候选通过，完整边界集有7项已解释差异。peano是120声明、0证明，不宣传为算术证明结果。完整set.mm和Mac/ARM未验证。
 
 ## 长期方向与赛事边界
 

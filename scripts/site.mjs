@@ -5,6 +5,7 @@ const at=process.argv.indexOf('--out');
 const out=resolve(root,at<0?'artifacts/site':process.argv[at+1]);
 function copy(source,destination){mkdirSync(destination,{recursive:true});for(const e of readdirSync(source,{withFileTypes:true})){const s=join(source,e.name),d=join(destination,e.name);if(e.isDirectory())copy(s,d);else copyFileSync(s,d);}}
 copy(join(root,'web'),join(out,'web'));
+copy(join(root,'examples/exercises'),join(out,'examples/exercises'));
 mkdirSync(join(out,'dist'),{recursive:true});
 copyFileSync(join(root,'dist/moonmetamath-core.mjs'),join(out,'dist/moonmetamath-core.mjs'));
 const fixtures=join(out,'tests/fixtures/upstream/set-mm');mkdirSync(fixtures,{recursive:true});

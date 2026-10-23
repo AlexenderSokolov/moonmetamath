@@ -52,6 +52,16 @@ SOFTWARE.
 
 `peano.mm` 与历史 `peano-fixed.mm` 的文件头仍含 GPL 说明，与相应仓库级 CC0/MIT 声明冲突。本项目不把它们认定为 CC0：它们仅由固定获取脚本作为外部测试材料取得，已被 gitignore，**不提交、不随包分发、不由网页服务器提供**。manifest 保留文件级许可、仓库级许可与冲突说明；验收中“peano 0 个证明”不意味着其许可已获澄清。
 
+## 自编教学练习
+
+以下小型练习为本项目自行编写，文件头逐份声明 **CC0-1.0**，与自有实现代码的 MIT 许可分别标注：
+
+- [01-first-steps.mm](../examples/exercises/01-first-steps.mm)：两步证明与基本规则应用。
+- [02-essential-hypothesis.mm](../examples/exercises/02-essential-hypothesis.mm)：必要假设的栈次序。
+- [03-disjoint.mm](../examples/exercises/03-disjoint.mm)：不交变量诊断与继承上下文。
+
+练习目标故意包含 `?`，供使用者从空栈构造；这些短例展示给定公理/假设下的操作语义，不声称新数学结论。工作文件保存源文本，生成的新目标/导出文件也可能保留此前的声明和证明，原材料的许可声明仍须保留；保存或导出不会改变其许可。
+
 ## 独立官方 C 检查器
 
 独立对照使用 [metamath/metamath-exe](https://github.com/metamath/metamath-exe/tree/9898f5d1bb27045d764dd01672862a1c2a3b4f5e)，固定 commit `9898f5d1bb27045d764dd01672862a1c2a3b4f5e`，**GPL-2.0-or-later**。源码与本地编译产物位于忽略的 `.references/metamath-exe/`，仅作为开发测试中的独立进程运行；没有链接进 MoonBit、CLI 或 Web 产品，也不随本项目包分发。

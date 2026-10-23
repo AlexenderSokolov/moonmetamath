@@ -31,6 +31,7 @@ writeFileSync(join(consumer, 'moon.work'), `members = ${JSON.stringify(registry 
 writeFileSync(join(consumer, 'moon.pkg'), `import {\n  "${moduleName}",\n  "moonbitlang/core/json",\n}\noptions(is_main: true)\n`);
 const load = { schema_version: 1, request_id: 'consumer-load', operation: 'load', entry: 'consumer.mm', sources: [{ source_id: 'consumer.mm', text: '$c |- a $. ax $a |- a $. th $p |- a $= ax $.' }] };
 const exportLabel = `consumer-export-${Date.now()}`;
+const workbench = requestedVersion.split('.').slice(0,2).map(Number).some((n,i)=>i===0?n>0:n>=2);
 writeFileSync(join(consumer, 'main.mbt'), `///|
 fn field(value : Json, key : String) -> Json {
   match value {
@@ -50,9 +51,13 @@ fn send(request : Json) -> Json {
 }
 
 ///|
+let request_counter : Array[Int] = [0]
+
+///|
 fn action(operation : String, fields : Array[(String, Json)]) -> Json {
+  request_counter[0] = request_counter[0] + 1
   fields.push(("schema_version", Json::number(1.0)))
-  fields.push(("request_id", Json::string("consumer-" + operation)))
+  fields.push(("request_id", Json::string("consumer-" + operation + "-" + request_counter[0].to_string())))
   fields.push(("operation", Json::string(operation)))
   send(Json::object(Map(fields)))
 }
@@ -69,6 +74,18 @@ fn main {
   let _ = action("apply_label", [("session_id", session_id), ("label", Json::string("ax"))])
   let _ = action("finish", [("session_id", session_id)])
   let _ = action("export", [("session_id", session_id), ("new_label", Json::string(${JSON.stringify(exportLabel)}))])
+${workbench ? `  let _ = action("rules", [("database_id", database_id), ("target_label", Json::string("th")), ("query", Json::string("ax"))])
+  let _ = action("rewind", [("session_id", session_id), ("successful_step_count", Json::number(0.0))])
+  let _ = action("preview", [("session_id", session_id), ("label", Json::string("ax"))])
+  let _ = action("inspect", [("session_id", session_id)])
+  let created = action("create_goal", [("database_id", database_id), ("context_label", Json::string("th")), ("new_label", Json::string("consumer-goal")), ("goal", Json::array([Json::string("|-"), Json::string("a")]))])
+  let goal_db = field(field(created, "data"), "database_id")
+  let goal_started = action("start", [("database_id", goal_db), ("target_label", Json::string("consumer-goal"))])
+  let goal_session = field(field(goal_started, "data"), "session_id")
+  let _ = action("apply_label", [("session_id", goal_session), ("label", Json::string("ax"))])
+  let _ = action("finish", [("session_id", goal_session)])
+  let _ = action("export", [("session_id", goal_session), ("new_label", Json::string("consumer-new-export"))])
+` : ''}
 }
 `);
 let failure = null, outputs = [];
@@ -78,12 +95,12 @@ try {
     invoke(`${target}-check`, tc.moon, ['check', '--target', target, '--deny-warn'], consumer);
     const text = invoke(`${target}-run`, tc.moon, ['run', '.', '--target', target, '--deny-warn'], consumer);
     const records = text.trim().split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line));
-    const operations = ['load', 'verify', 'start', 'apply_label', 'finish', 'export'];
-    assert.equal(records.length, operations.length, `${target}: expected six actual responses`);
+    const operations = ['load', 'verify', 'start', 'apply_label', 'finish', 'export', ...(workbench?['rules','rewind','preview','inspect','create_goal','start','apply_label','finish','export']:[])];
+    assert.equal(records.length, operations.length, `${target}: expected ${operations.length} actual responses`);
     for (const [index, operation] of operations.entries()) {
       const record = records[index];
       assert.equal(record.schema_version, 1); assert.equal(record.operation, operation);
-      assert.equal(record.request_id, `consumer-${operation}`); assert.equal(record.status, 'ok');
+      assert.equal(record.request_id, index===0?'consumer-load':`consumer-${operation}-${index}`); assert.equal(record.status, 'ok');
       assert.deepEqual(record.diagnostics, []);
       assert.equal(record.outcome, ['verify', 'finish', 'export'].includes(operation) ? 'valid' : null);
     }
@@ -103,6 +120,16 @@ try {
     assert.match(exported?.text, new RegExp(`(?:^|\\n)${exportLabel} \\$p \\|- a \\$= ax \\$\\.`));
     assert.doesNotMatch(exported.text, /\bth\s+\$p/);
     writeFileSync(join(work, `${target}-export.mm`), exported.text);
+    if(workbench){
+      assert.equal(records[6].data.rules.length,1);assert.equal(records[6].data.rules[0].label,'ax');assert.deepEqual(records[6].data.rules[0].conclusion,['|-','a']);
+      assert.equal(JSON.stringify(records[6]).includes('"proof"'),false);
+      assert.equal(records[8].data.event.label,'ax');assert.deepEqual(records[8].data.view.stack,[['|-','a']]);
+      assert.deepEqual(records[9].data.view.stack,[]);assert.equal(records[9].data.view.successful_step_count,0);
+      assert.equal(records[10].data.target_label,'consumer-goal');assert.deepEqual(records[10].data.goal,['|-','a']);
+      assert.equal(records[11].data.view.target_label,'consumer-goal');assert.equal(records[13].data.view.state,'complete');
+      assert.match(records[14].data.text,/consumer-new-export \$p \|- a \$= ax \$\./);assert.doesNotMatch(records[14].data.text,/\bconsumer-goal\s+\$p/);
+      writeFileSync(join(work,`${target}-new-goal-export.mm`),records[14].data.text);
+    }
     outputs.push({ target, records });
   }
   if (JSON.stringify(outputs[0].records) !== JSON.stringify(outputs[1].records)) throw new Error('Consumer JS and wasm-gc outputs differ.');

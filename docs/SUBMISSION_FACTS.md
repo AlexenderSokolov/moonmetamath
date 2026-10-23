@@ -9,7 +9,7 @@ MoonMetamath：MoonBit原生Metamath证明验证与逐步执行库。用户可�
 ## 三个可实际演示的场景
 
 1. 学习形式证明：打开网页加载demo0，从活动假设与断言开始构造th1，错误标签会报错且不改变状态，可以撤回和重新开始；原证明回放有单独界面。
-2. 程序化证明动作检查：外部程序通过公共JSON接口或CLI动作文件逐步提交apply_label，完成后导出.mm，再用官方C检查器独立验证。当前示范是确定性动作，未调用LLM。
+2. 程序化证明动作检查：外部程序通过公共JSON接口或CLI动作文件逐步提交apply_label，完成后导出.mm，再用官方C检查器独立验证。现已附真实模型补全固定10题实验：策略只看目标/规则/栈，无原证明输入，模型10/10、有限搜索8/10，全部成功经独立C复核；这是小题功能验证，不是标准评测优势。
 3. 真实库批量验证：CLI/网页检查MIU和HOL固定库，HOL151个证明通过；库作者可从Mooncakes安装公共MoonBit入口。
 
 ## 差异与价值边界
@@ -25,11 +25,11 @@ MoonMetamath：MoonBit原生Metamath证明验证与逐步执行库。用户可�
 - 发布：https://github.com/AlexenderSokolov/moonmetamath/releases
 - 包：https://mooncakes.io/docs/AlexenderSokolov/moonmetamath
 - CI：https://github.com/AlexenderSokolov/moonmetamath/actions
-- 47核心测试两后端、79固定外部样例、独立C四库与导出候选，详细数字以PROGRESS及正式Release为准。
+- 55核心测试两后端、39宿主集成、79固定外部样例、独立C四库与导出候选，详细数字以PROGRESS及正式Release为准。
 
 ## 长期维护里程碑
 
-第一阶段完善格式兼容并收集真实下游接入问题；第二阶段建立完整set.mm容量/速度/内存基线，依据瓶颈决定增量验证；第三阶段提供薄模型动作适配器，以真实调用与独立可核验新证明为验收。无需先扩建通用Agent平台。
+第一阶段完善格式兼容并收集真实下游接入问题；第二阶段建立完整set.mm容量/速度/内存基线，依据瓶颈决定增量验证；第三阶段的薄模型适配器与首次真实补全闭环已完成；后续以真实使用反馈和更有代表性的任务扩展为依据，不将小题成功冒称新数学发现。无需先扩建通用Agent平台。
 
 ## 尚未发生的赛事事件
 

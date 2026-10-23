@@ -1,8 +1,12 @@
 # MoonMetamath 0.2 browser acceptance
 
-Status: NOT RUN by the frontend implementer. Integration owner must record the
-actual browser, built core, origin, outcomes and any saved/exported evidence.
-This checklist is a procedure, not a claim that browser acceptance has passed.
+Status: Required desktop product flows PASS in actual Chromium, 2026-10-24.
+The integration owner ran the browser at localhost:4173, saved receipt at
+artifacts/browser-v02/receipt.json, and independently verified the downloaded
+new-goal-export.mm with the fixed official C checker (independent-c/result.json).
+The original procedures below are retained. Narrow390px viewport and actual
+denied/full localStorage are NOT RUN; control lacks viewport emulation, and the
+storage failure fallback was reviewed in source only. Neither is claimed passed.
 
 1. Load each of `examples/exercises/01-first-steps.mm`,
    `02-essential-hypothesis.mm`, `03-disjoint.mm` through the built-in selector.
@@ -50,9 +54,16 @@ This checklist is a procedure, not a claim that browser acceptance has passed.
 
 ## Evidence to fill after running
 
-- Browser / version:
-- Origin / build commit:
-- Date:
-- Passed checks:
-- Failures / limitations:
-- Independent export verification:
+- Browser: ChatGPT in-app Chromium.
+- Origin: http://127.0.0.1:4173/web/; native55 tests and host39 tests passed.
+- Date: 2026-10-24 (session began2026-10-23).
+- Passed: three exercises, label/conclusion/type search, HOL pagination21–40/240,
+  preview atomicity, new swapped-variable goal with inherited `$d`, partial save
+  after rewind, refresh/local recovery, completed import, four failed imports
+  preserving original state, 2.2MiB download without overwriting smaller local
+  save, cancellation during10000-action restore/no resurrection, reload, MIU1
+  and HOL151, include upload, BOM rejection, original replay/manual isolation,
+  Enter keyboard search/application, actual proof download.
+- Limits: narrow viewport and denied/full storage not live tested as above.
+- Independent export: artifacts/browser-v02/independent-c/result.json is valid;
+  screenshot artifacts/browser-v02/new-goal-restored.png.

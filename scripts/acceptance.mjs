@@ -18,10 +18,11 @@ try{
   execute('four-independent-databases',process.execPath,['scripts/oracle.mjs','fixtures','--manifest',manifest,'--out',join(out,'four-databases')]);
   execute('independent-79',process.execPath,['scripts/oracle.mjs','fixtures','--engine','mmreference','--out',join(out,'independent-79')]);
   execute('three-scenarios',process.execPath,['scripts/demo.mjs','--oracle','--out',join(out,'demo')]);
+  execute('workbench-scenarios',process.execPath,['scripts/workbench-demo.mjs','--oracle','--out',join(out,'workbench')]);
   execute('portable-package',process.execPath,['scripts/package.mjs','--out',join(out,'package')]);
-  const receipt=resolve(root,option('--browser-receipt','artifacts/browser/receipt.json'));
+  const receipt=resolve(root,option('--browser-receipt','artifacts/browser-v02/receipt.json'));
   if(!existsSync(receipt))throw new Error('G3 pending: actual browser receipt is required. See tests/web/manual-checklist.md.');
-  const browser=JSON.parse(readFileSync(receipt,'utf8'));for(const key of ['load','atomic_error','rewind','separate_replay','construct','download_independent','real_databases','multi_file_include','encoding_error','cancel_reload'])if(browser.checks?.[key]!==true)throw new Error(`G3 browser check missing: ${key}`);
+  const browser=JSON.parse(readFileSync(receipt,'utf8'));for(const key of ['load','atomic_error','rewind','separate_replay','construct','download_independent','real_databases','multi_file_include','encoding_error','cancel_reload','rule_lookup','preview','new_goal','partial_restore','failed_restore_preserves_work','exercises'])if(browser.checks?.[key]!==true)throw new Error(`G3 browser check missing: ${key}`);
   const downloaded=JSON.parse(readFileSync(resolve(root,browser.independent_result),'utf8'));if(downloaded.status!=='valid')throw new Error('Downloaded proof was not independently accepted');
  }else{
   const ref=option('--ref','HEAD');
