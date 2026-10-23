@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { POLICY_INSTRUCTIONS, RESPONSE_SCHEMA } from './ai-policy.mjs';
+import { POLICY_INSTRUCTIONS, RESPONSE_SCHEMA, usageComplete } from './ai-policy.mjs';
 
 export function codexInvocation({cli, directory, model='gpt-6.1-sol',env=process.env}) {
   if(!cli)throw new Error('Pass --codex-js with the installed official Codex CLI JavaScript entry');
@@ -31,7 +31,7 @@ export function parseCodexEvents(events) {
     else if(!['thread.started','turn.started'].includes(event.type))throw new Error('Unexpected Codex event');
   }
   if(!completed||response===undefined)throw new Error('No completed structured model response');
-  return {response,usage:usage??{},warnings};
+  return {response,usage,usage_complete:usageComplete(usage),warnings};
 }
 
 // Only the sanitized observation crosses stdin. Clean temp contains policy + schema,

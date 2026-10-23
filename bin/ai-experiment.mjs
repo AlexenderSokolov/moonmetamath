@@ -4,7 +4,7 @@ import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { coreClient } from './host.mjs';
-import { observe, validateResponse, LIMITS, POLICY_INSTRUCTIONS } from './ai-policy.mjs';
+import { observe, validateResponse, LIMITS, POLICY_INSTRUCTIONS, isTokenCount, usageComplete } from './ai-policy.mjs';
 import { codexPolicy } from './ai-transport.mjs';
 import { verify } from '../scripts/oracle.mjs';
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),'..');
@@ -67,8 +67,8 @@ export async function runModelTask(task,policy,options={}){
         Promise.resolve().then(()=>policy(observation,{signal:controller.signal,timeout_ms:Math.min(limits.call_timeout_ms,remaining)})),
         new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();const e=new Error('Model call deadline');e.code='TIMEOUT';reject(e);},Math.min(limits.call_timeout_ms,remaining));}),
       ]);
-      record.response=result.response;record.usage=result.usage??{};record.provenance=result.provenance??{transport:'injected-test-policy'};record.warnings=result.warnings??[];
-      for(const key of Object.keys(usage))if(Number.isFinite(result.usage?.[key])&&result.usage[key]>=0)usage[key]+=result.usage[key];
+      record.response=result.response;record.usage=result.usage??null;record.usage_complete=usageComplete(result.usage);record.provenance=result.provenance??{transport:'injected-test-policy'};record.warnings=result.warnings??[];
+      for(const key of Object.keys(usage))if(isTokenCount(result.usage?.[key]))usage[key]+=result.usage[key];
       let actions;
       try{
         actions=validateResponse(result.response,new Set(observation.available_rules.map(r=>r.label)));
@@ -103,7 +103,7 @@ export async function runModelTask(task,policy,options={}){
       status=error.code==='TIMEOUT'?'timeout':'transport_error';break;
     }finally{clearTimeout(timer);record.duration_ms=Date.now()-callStarted;}
   }
-  return {success:false,status,calls,invalid_batches,invalid_actions,rejected_actions,attempted_actions,applied_actions,usage,usage_complete:calls.every(c=>c.usage!==undefined),duration_ms:Date.now()-started,
+  return {success:false,status,calls,invalid_batches,invalid_actions,rejected_actions,attempted_actions,applied_actions,usage,usage_complete:calls.every(c=>c.usage_complete===true),duration_ms:Date.now()-started,
     budgets:limits,monetary_cost:{status:'unknown',reason:'ChatGPT subscription transport does not expose per-request monetary cost'}};
 }
 

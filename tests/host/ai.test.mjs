@@ -124,3 +124,39 @@ test('model task deadline aborts policy once and never retries a timeout', async
   const result=await engine.runModelTask(opened,async(_observation,{signal})=>{calls++;signal.addEventListener('abort',()=>{aborted=true;});return new Promise(()=>{});},{call_timeout_ms:10,task_timeout_ms:20});
   assert.equal(result.status,'timeout');assert.equal(calls,1);assert.equal(aborted,true);assert.equal(result.applied_actions,0);
 });
+
+test('usage completeness requires valid input and output counts while preserving every legal counter', async () => {
+  const task={observation:()=>({available_rules:[]}),view:{goal:['x'],stack:[]}};
+  const cases=[
+    {usage:undefined,complete:false,input:0,output:0},
+    {usage:null,complete:false,input:0,output:0},
+    {usage:{},complete:false,input:0,output:0},
+    {usage:{input_tokens:7},complete:false,input:7,output:0},
+    {usage:{output_tokens:3},complete:false,input:0,output:3},
+    ...[-1,NaN,Infinity,1.5,'4',true,{},[],Number.MAX_SAFE_INTEGER+1].flatMap(invalid=>[
+      {usage:{input_tokens:invalid,output_tokens:3,cached_input_tokens:2},complete:false,input:0,output:3,cached:2},
+      {usage:{input_tokens:7,output_tokens:invalid,reasoning_output_tokens:1},complete:false,input:7,output:0,reasoning:1},
+    ]),
+    {usage:{input_tokens:0,output_tokens:0},complete:true,input:0,output:0},
+    {usage:{input_tokens:7,output_tokens:3,cached_input_tokens:2,reasoning_output_tokens:1},complete:true,input:7,output:3,cached:2,reasoning:1},
+    {usage:{input_tokens:7,output_tokens:3,cached_input_tokens:-1,reasoning_output_tokens:'1'},complete:true,input:7,output:3},
+  ];
+  for(const row of cases){
+    const result=await engine.runModelTask(task,async()=>({response:{actions:[]},usage:row.usage}),{max_calls:1});
+    assert.equal(result.usage_complete,row.complete,`usage=${String(row.usage)}`);
+    assert.equal(result.usage.input_tokens,row.input);assert.equal(result.usage.output_tokens,row.output);
+    assert.equal(result.usage.cached_input_tokens,row.cached??0);assert.equal(result.usage.reasoning_output_tokens,row.reasoning??0);
+  }
+});
+
+test('production Codex parser preserves missing or partial usage as incomplete accounting', () => {
+  const message={type:'item.completed',item:{type:'agent_message',text:'{"actions":[]}'}};
+  const missing=transport.parseCodexEvents([message,{type:'turn.completed'}]);
+  assert.equal(missing.usage,undefined);assert.equal(missing.usage_complete,false);
+  for(const usage of [{input_tokens:5},{input_tokens:5,output_tokens:-1},{input_tokens:'5',output_tokens:1}]){
+    const result=transport.parseCodexEvents([message,{type:'turn.completed',usage}]);
+    assert.deepEqual(result.usage,usage);assert.equal(result.usage_complete,false);
+  }
+  const valid=transport.parseCodexEvents([message,{type:'turn.completed',usage:{input_tokens:5,output_tokens:0}}]);
+  assert.equal(valid.usage_complete,true);
+});

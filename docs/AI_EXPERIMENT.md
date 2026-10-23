@@ -52,7 +52,11 @@ the task; there are no automatic transport retries. An invalid action batch or
 native application may use the remaining second call. Every declared task is
 retained; failures are never dropped from the denominator. A timeout may consume
 tokens even if the CLI never reports usage, so `usage_complete: false` means the
-recorded token totals are partial.
+recorded token totals are partial. Complete accounting requires both
+`input_tokens` and `output_tokens` to be nonnegative safe integers. Missing,
+partial or invalid required counts make completeness false. Valid reported
+fields are still accumulated individually; optional cached/reasoning counts do
+not determine completeness, and invalid optional values are excluded from totals.
 
 The simple baseline is breadth-first search over the same public rule labels and
 native stack transitions. It sees no reference proof. Its fixed caps are 5,000

@@ -6,6 +6,10 @@ const tokens = value => {
 const hypothesis = value => ({label:String(value.label),expression:tokens(value.expression)});
 const ruleHypothesis = value => ({label:String(value.label),kind:String(value.kind),expression:tokens(value.expression)});
 export const LIMITS = Object.freeze({max_calls:2,max_actions_per_call:64,call_timeout_ms:120000,task_timeout_ms:240000});
+export const isTokenCount = value => Number.isSafeInteger(value)&&value>=0;
+// Input/output are required for complete accounting. Cached/reasoning counters
+// are optional; their valid values are retained without claiming they were given.
+export const usageComplete = usage => usage!==null&&typeof usage==='object'&&!Array.isArray(usage)&&isTokenCount(usage.input_tokens)&&isTokenCount(usage.output_tokens);
 export const RESPONSE_SCHEMA = Object.freeze({
   type:'object',additionalProperties:false,required:['actions'],properties:{actions:{type:'array',maxItems:64,items:{
     type:'object',additionalProperties:false,required:['operation','label'],properties:{operation:{type:'string',enum:['apply_label']},label:{type:'string'}}
