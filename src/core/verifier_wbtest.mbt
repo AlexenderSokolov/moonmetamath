@@ -139,3 +139,24 @@ test "native proof APIs reject negative resource limits" {
   assert_eq(report.diagnostics[0].code, "invalid_limits")
   assert_true(start_proof(db, "th", limits) is Err(_))
 }
+
+///|
+test "ordinary unknown marker cannot hide invalid labels" {
+  for proof in ["? missing", "? th", "? later", "missing ?"] {
+    let db = proof_fixture(
+      "$c |- $. ax $a |- $. th $p |- $= " + proof + " $. later $p |- $= ax $.",
+    )
+    assert_eq(verify_database(db, default_limits()).outcome, "invalid")
+  }
+}
+
+///|
+test "verification does not retain event history" {
+  let db = proof_fixture(
+    "$c wff a $. $v x $. fx $f wff x $. seed $a wff $. grow $a wff x a $. th $p wff a a a $= seed grow grow grow $.",
+  )
+  let session = new_session(db, db.labels["th"], default_limits(), "verify")
+  assert_true(execute_proof(session) is Ok(_))
+  assert_eq(session.operations, 4)
+  assert_eq(session.events.length(), 0)
+}

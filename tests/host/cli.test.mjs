@@ -36,3 +36,10 @@ test('wire failures are atomic and completed export is independent of original t
  assert.equal(client({operation:'finish',session_id:sid}).outcome,'valid');
  assert.equal(client({operation:'export',session_id:sid,new_label:'candidate'}).outcome,'valid');
 });
+test('batch verification stays within a 64 MiB heap for a growing proof',()=>{
+ const source='$c t c $. $v x $. wx $f t x $. base $a t c $. grow $a t x c $. p $p t '+Array(4001).fill('c').join(' ')+' $= base '+Array(4000).fill('grow').join(' ')+' $.';
+ const file=join(dir,'growth.mm');writeFileSync(file,source);
+ const code=`import {coreClient,readBundle} from './bin/host.mjs';const c=await coreClient();const l=c({operation:'load',...readBundle(${JSON.stringify(file)})});const r=c({operation:'verify',database_id:l.data.database_id});console.log(JSON.stringify(r));if(r.outcome!=='valid')process.exitCode=1;`;
+ const r=spawnSync(process.execPath,['--max-old-space-size=64','--input-type=module','-e',code],{cwd:root,encoding:'utf8',timeout:30000});
+ assert.equal(r.status,0,r.stderr);assert.equal(JSON.parse(r.stdout).data.verified_count,1);
+});

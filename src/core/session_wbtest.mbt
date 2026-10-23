@@ -109,3 +109,19 @@ test "step events do not expose internal stack or retained event log" {
   assert_eq(session.stack[0][0], "|-")
   assert_eq(session.events[0].result[0], "|-")
 }
+
+///|
+test "retained event token budget rejects atomically" {
+  let db = proof_fixture("$c |- a $. ax $a |- a $. th $p |- a $= ax $.")
+  let session = match
+    start_proof(db, "th", { ..default_limits(), max_tokens: 3, }) {
+    Ok(session) => session
+    Err(err) => abort(err.message)
+  }
+  assert_applied(session, "ax")
+  let before = inspect_session(session)
+  assert_true(apply_label(session, "ax") is Err(_))
+  assert_eq(inspect_session(session).stack, before.stack)
+  assert_eq(session.operations, 1)
+  assert_eq(session.events.length(), 1)
+}

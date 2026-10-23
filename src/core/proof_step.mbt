@@ -87,6 +87,67 @@ fn checked_label(
   Ok(decl)
 }
 
+// Retained trace metadata is separately bounded. Verification never needs a trace.
+// Count each event label, hypothesis label, substitution variable/value, and result
+// token against max_tokens; use subtraction to avoid signed integer overflow.
+
+///|
+fn event_retention_budget(
+  session : MMSession,
+  result : Array[String],
+  substitutions : Array[(String, Array[String])],
+  hypotheses : Int,
+) -> Result[Int, MMError] {
+  if session.mode == "verify" {
+    return Ok(session.retained_tokens)
+  }
+  let target = session.db.statements[session.target_index]
+  let mut remaining = session.limits.max_tokens - session.retained_tokens
+  if remaining < 1 {
+    return Err(
+      proof_error(
+        target, "ResourceLimit", "Retained proof-event token limit exceeded",
+      ),
+    )
+  }
+  remaining = remaining - 1
+  if hypotheses > remaining {
+    return Err(
+      proof_error(
+        target, "ResourceLimit", "Retained proof-event token limit exceeded",
+      ),
+    )
+  }
+  remaining = remaining - hypotheses
+  for pair in substitutions {
+    if remaining < 1 {
+      return Err(
+        proof_error(
+          target, "ResourceLimit", "Retained proof-event token limit exceeded",
+        ),
+      )
+    }
+    remaining = remaining - 1
+    if pair.1.length() > remaining {
+      return Err(
+        proof_error(
+          target, "ResourceLimit", "Retained proof-event token limit exceeded",
+        ),
+      )
+    }
+    remaining = remaining - pair.1.length()
+  }
+  if result.length() > remaining {
+    return Err(
+      proof_error(
+        target, "ResourceLimit", "Retained proof-event token limit exceeded",
+      ),
+    )
+  }
+  remaining = remaining - result.length()
+  Ok(session.limits.max_tokens - remaining)
+}
+
 // All validation, allocation bounds, substitution, and DV checks precede mutation.
 
 ///|
@@ -107,6 +168,7 @@ fn execute_op(
       proof_error(target, "ResourceLimit", "Proof operation limit exceeded"),
     )
   }
+  let mut retained_tokens = session.retained_tokens
   let event = match op {
     SaveTop => {
       if session.stack.is_empty() {
@@ -122,6 +184,10 @@ fn execute_op(
         )
       }
       let expr = session.stack[session.stack.length() - 1].copy()
+      retained_tokens = match event_retention_budget(session, expr, [], 0) {
+        Ok(value) => value
+        Err(err) => return Err(err)
+      }
       session.saved.push(expr)
       {
         label: "save_top",
@@ -146,6 +212,10 @@ fn execute_op(
         )
       }
       let expr = session.saved[index].copy()
+      retained_tokens = match event_retention_budget(session, expr, [], 0) {
+        Ok(value) => value
+        Err(err) => return Err(err)
+      }
       session.stack.push(expr)
       {
         label: "reuse_saved",
@@ -169,6 +239,11 @@ fn execute_op(
               target, "ResourceLimit", "Proof stack or expression limit exceeded",
             ),
           )
+        }
+        retained_tokens = match
+          event_retention_budget(session, decl.expression, [], 0) {
+          Ok(value) => value
+          Err(err) => return Err(err)
         }
         session.stack.push(decl.expression.copy())
         {
@@ -287,6 +362,11 @@ fn execute_op(
             proof_error(target, "ResourceLimit", "Proof stack limit exceeded"),
           )
         }
+        retained_tokens = match
+          event_retention_budget(session, result, substitutions, count) {
+          Ok(value) => value
+          Err(err) => return Err(err)
+        }
         while session.stack.length() > base {
           let _ = session.stack.pop()
         }
@@ -303,13 +383,16 @@ fn execute_op(
     }
   }
   session.operations = session.operations + 1
-  session.events.push({
-    label: event.label,
-    hypotheses: event.hypotheses.copy(),
-    substitutions: event.substitutions.map(pair => (pair.0, pair.1.copy())),
-    popped: event.popped,
-    pushed: event.pushed,
-    result: event.result.copy(),
-  })
+  if session.mode != "verify" {
+    session.retained_tokens = retained_tokens
+    session.events.push({
+      label: event.label,
+      hypotheses: event.hypotheses.copy(),
+      substitutions: event.substitutions.map(pair => (pair.0, pair.1.copy())),
+      popped: event.popped,
+      pushed: event.pushed,
+      result: event.result.copy(),
+    })
+  }
   Ok(event)
 }

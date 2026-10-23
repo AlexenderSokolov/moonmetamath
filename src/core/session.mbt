@@ -10,6 +10,7 @@ pub struct MMSession {
   priv mut events : Array[MMStepEvent]
   priv mut labels : Array[String]
   priv mut operations : Int
+  priv mut retained_tokens : Int
 }
 
 ///|
@@ -41,6 +42,7 @@ fn new_session(
     events: [],
     labels: [],
     operations: 0,
+    retained_tokens: 0,
   }
 }
 
@@ -176,6 +178,7 @@ pub fn rewind(
   session.events = replay.events
   session.labels = replay.labels
   session.operations = replay.operations
+  session.retained_tokens = replay.retained_tokens
   Ok(inspect_session(session))
 }
 

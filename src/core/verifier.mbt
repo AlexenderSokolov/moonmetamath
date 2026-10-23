@@ -14,13 +14,23 @@ pub(all) struct MMReport {
 ///|
 fn execute_proof(session : MMSession) -> Result[Unit, MMError] {
   let target = session.db.statements[session.target_index]
-  if target.proof.contains("?") {
-    return Err(proof_error(target, "IncompleteProof", "Proof contains ?"))
-  }
   if !target.proof.is_empty() && target.proof[0] == "(" {
     return execute_compressed(session, target.proof)
   }
+  // Validate every label before executing up to the first unknown step.
+  // An unknown marker does not make malformed labels or forward references legal.
   for label in target.proof {
+    if label != "?" {
+      match checked_label(session, label) {
+        Ok(_) => ()
+        Err(err) => return Err(err)
+      }
+    }
+  }
+  for label in target.proof {
+    if label == "?" {
+      return Err(proof_error(target, "IncompleteProof", "Proof contains ?"))
+    }
     match execute_op(session, ApplyLabel(label)) {
       Ok(_) => ()
       Err(err) => return Err(err)

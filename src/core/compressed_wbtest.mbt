@@ -45,3 +45,19 @@ test "compressed explicit table rejects mandatory hypotheses" {
   assert_eq(report.outcome, "invalid")
   assert_eq(report.diagnostics[0].code, "MandatoryLabelInCompressedTable")
 }
+
+///|
+test "unknown marker cannot mask malformed compressed syntax" {
+  for code in ["U?", "U ?", "?!", "? !", "? U", "? UZ"] {
+    let db = proof_fixture(
+      "$c |- $. ax $a |- $. th $p |- $= ( ax ) " + code + " $.",
+    )
+    assert_eq(verify_database(db, default_limits()).outcome, "invalid")
+  }
+  for code in ["?", "A?", "?A"] {
+    let db = proof_fixture(
+      "$c |- $. ax $a |- $. th $p |- $= ( ax ) " + code + " $.",
+    )
+    assert_eq(verify_database(db, default_limits()).outcome, "incomplete")
+  }
+}
