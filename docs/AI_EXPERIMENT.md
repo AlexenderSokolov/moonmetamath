@@ -117,9 +117,16 @@ CLI installation. The installed CLI is a trusted local dependency.
 First build the native core and run focused tests:
 
 ```powershell
+node scripts/toolchain.mjs install
+node scripts/fixtures.mjs fetch --profile october
 node scripts/build.mjs
 node --test tests/host/ai.test.mjs
 ```
+
+The fixture step acquires and builds the independent C checker required for
+success verification: use gcc on Linux or an installed MSVC developer environment
+on Windows (the script builds upstream C in x86 mode). Python is used only for
+independent developer reference tests. Product verification itself remains MoonBit.
 
 Run all ten fixed tasks once, using a fresh output directory:
 
@@ -146,3 +153,5 @@ remain evidence of that incomplete attempt. Re-running uses a new directory and
 is a separate declared experiment, never an invisible continuation.
 
 The portable Node24 product archive contains the verifier and browser lab. Run this optional experiment from a source checkout, where scripts/oracle.mjs and acquired independent checker are available; it is not a compiler-free archive command. Public experiment artifacts omit raw machine-path warnings and credentials.
+
+The stated call limit counts policy subprocess invocations. The wrapper does not retry a failed transport, while internal CLI connectivity retries are opaque and bounded by the subprocess deadline. The CLI exposes completed-turn token totals, not individual backend HTTP attempts.

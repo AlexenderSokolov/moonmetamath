@@ -35,7 +35,7 @@ try{
   const manifestResponse=await fetch('https://mooncakes.io/api/v0/manifest/AlexenderSokolov/moonmetamath',{signal:AbortSignal.timeout(30000)});if(!manifestResponse.ok)throw new Error('Registry manifest unavailable');
   const registry=await manifestResponse.json();writeFileSync(join(out,'registry-manifest.json'),JSON.stringify(registry,null,2));if(registry.version!==version||registry.latest_version!==version||registry.yanked!==false||registry.build_status!=='success'||registry.has_package!==true)throw new Error('Registry version is not successfully published');
   const response=await fetch('https://alexendersokolov.github.io/moonmetamath/web/',{signal:AbortSignal.timeout(30000)});if(!response.ok||!(await response.text()).includes('MoonMetamath'))throw new Error('Public proof lab unavailable');
-  const assets=['web/app.mjs','web/worker.mjs','dist/moonmetamath-core.mjs','tests/fixtures/upstream/set-mm/demo0.mm','tests/fixtures/upstream/set-mm/miu.mm','tests/fixtures/upstream/set-mm/hol.mm'];
+  const assets=['web/app.mjs','web/worker.mjs','web/notebook.mjs','web/style.css','dist/moonmetamath-core.mjs','tests/fixtures/upstream/set-mm/demo0.mm','tests/fixtures/upstream/set-mm/miu.mm','tests/fixtures/upstream/set-mm/hol.mm','examples/exercises/01-first-steps.mm','examples/exercises/02-essential-hypothesis.mm','examples/exercises/03-disjoint.mm'];
   // Windows and Linux compilers format equivalent exponent literals differently.
   // Compare raw deployed bytes with the exact successful CI's uploaded Linux site,
   // never normalize code or accept an unrelated local-platform binary as a match.

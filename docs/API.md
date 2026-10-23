@@ -2,7 +2,7 @@
 
 公共根包 `AlexenderSokolov/moonmetamath` 暴露 `dispatch_json(String) -> String`。它接受一个 JSON 请求并返回一个 JSON 响应；数学语义由 MoonBit 核心执行。JS 构建产物 `dist/moonmetamath-core.mjs` 导出同名函数。根包与 `src/core` 的实际导出分别见 `pkg.generated.mbti`、`src/core/pkg.generated.mbti`。
 
-本文包含 0.2.0 候选版新增的 `rules`、`preview`、`create_goal`；schema 版本仍为 1。公开稳定版为 0.1.1，新增接口尚未完成 0.2 注册表发布验收。
+本文包含0.2.0新增的 `rules`、`preview`、`create_goal`；schema版本仍为1。0.2.0已从Mooncakes安装，并经独立消费者在JS/wasm-gc完成包含新增接口的15操作验收。
 
 ## 请求与响应
 

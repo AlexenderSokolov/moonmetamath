@@ -2,9 +2,9 @@
 
 MoonBit 原生的 Metamath `.mm` 验证与逐步证明库，附 Node CLI 和浏览器证明实验室。解析、代换、不交变量检查、普通/压缩证明、交互会话与导出都由同一个 MoonBit 核心执行；运行产品无需 Python、C 检查器或模型凭据。
 
-**0.1.1 已公开交付：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.1.1) · [Windows/Linux CI](https://github.com/AlexenderSokolov/moonmetamath/actions)。模块名为 `AlexenderSokolov/moonmetamath`。注册表构建成功，独立消费者已从注册表安装并在JS、wasm-gc实际运行；网页使用MoonBit生成的JavaScript。
+**0.2.0 已公开交付：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.2.0) · [Windows/Linux CI](https://github.com/AlexenderSokolov/moonmetamath/actions)。模块名为 `AlexenderSokolov/moonmetamath`。注册表构建成功，独立消费者已从注册表安装并在JS、wasm-gc实际运行；网页使用MoonBit生成的JavaScript。
 
-当前源码为 **0.2.0 候选版**：加入规则查找、单步预览、继承上下文的新目标及保存恢复。下文说明候选版能力；0.2 的本地与新版浏览器验收已完成，公开发布和注册表安装正在验收，不能用 0.1.1 的公开结果代替。
+**0.2.0** 已完成规则查找、单步预览、继承上下文的新目标、保存恢复和首次真实AI补全实验。本地、实际浏览器、双平台CI、注册表安装与公共接口均已验收。
 
 ## 可以做什么
 
@@ -36,10 +36,10 @@ node bin/moonmetamath.mjs --help
 公开稳定版的注册表安装与公共入口调用已在独立消费者中完成验收：
 
 ```sh
-moon add AlexenderSokolov/moonmetamath@0.1.1
+moon add AlexenderSokolov/moonmetamath@0.2.0
 ```
 
-0.2.0 候选源码的模块版本为 `0.2.0`。待正式发布和注册表验收后，使用 `moon add AlexenderSokolov/moonmetamath@0.2.0`；此处尚不表示该版本已能从注册表安装。现在可从当前源码构建并用 `node scripts/consumer.mjs` 检查本地消费者。
+Mooncakes已发布0.2.0，可运行 `moon add AlexenderSokolov/moonmetamath@0.2.0`。独立注册表消费者已在两个后端验证15个操作，覆盖原子预览、新目标和独立导出。
 
 ## CLI：检查一个真实库
 
@@ -96,7 +96,7 @@ fn main {
 }
 ```
 
-`load` 返回数据库句柄，随后用同一实例调用 `verify`、`start` 等操作。完整原生 API、响应与会话约束见 [API.md](docs/API.md)。独立 workspace 消费者验收入口为 `node scripts/consumer.mjs`，注册表验收入口为 `node scripts/consumer.mjs --registry --version 0.1.1`；后者须在发布后运行。
+`load` 返回数据库句柄，随后用同一实例调用 `verify`、`start` 等操作。完整原生 API、响应与会话约束见 [API.md](docs/API.md)。独立 workspace 消费者验收入口为 `node scripts/consumer.mjs`，注册表验收入口为 `node scripts/consumer.mjs --registry --version 0.2.0`；后者须在发布后运行。
 
 JavaScript 宿主直接导入构建产物：
 
@@ -121,7 +121,7 @@ console.log(response);
 | 0.2 保存恢复 | 11 项针对性宿主测试通过；核心及保存恢复独立审查通过 |
 | 0.2 组合工作流 | 脚本实际完成规则查找、原子预览、新目标、部分恢复、完成和导出；候选文件由官方 C 接受 |
 | 0.1.x 实际浏览器 | 本地及公网站点完成 demo0 34 步构造；公网下载文件由独立官方 C 接受；MIU/HOL、include 上传、BOM 拒绝、取消重载均实测。0.2规则预览、新目标、刷新/文件恢复、失败导入保留、2MiB回退和取消恢复实际通过 |
-| 0.1.1 公开交付 | Windows/Linux CI、Mooncakes 0.1.1 manifest 成功、独立注册表消费者两后端实际运行；0.2 公开交付待完成 |
+| 0.2.0 公开交付 | Windows/Linux CI、Mooncakes 0.2.0 manifest 成功、独立注册表消费者两后端实际运行；0.2公开交付完成，新增接口已从注册表实际运行 |
 
 官方 C 对整套外部材料有 **7 项已记录分歧**，并非 79/79 全过；细节见 [兼容性](docs/COMPATIBILITY.md)。上述验证不等于完整 set.mm、所有 Metamath 扩展或所有平台兼容，也没有对实现本身作形式化认证。
 
