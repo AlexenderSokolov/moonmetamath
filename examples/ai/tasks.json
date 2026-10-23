@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "description": "Fixed ten self-authored incomplete propositional exercises. Declared before model runs; no reference proofs.",
+  "tasks": [
+    {"id":"01-direct","file":"01-direct.mm","target_label":"goal","category":"direct axiom"},
+    {"id":"02-substitution","file":"02-substitution.mm","target_label":"goal","category":"substitution"},
+    {"id":"03-compound","file":"03-compound.mm","target_label":"goal","category":"compound substitution"},
+    {"id":"04-hypothesis","file":"04-hypothesis.mm","target_label":"goal","category":"active essential hypothesis"},
+    {"id":"05-modus-ponens","file":"05-modus-ponens.mm","target_label":"goal","category":"essential hypothesis matching"},
+    {"id":"06-chain","file":"06-chain.mm","target_label":"goal","category":"two inference chain"},
+    {"id":"07-nested","file":"07-nested.mm","target_label":"goal","category":"nested implication substitution"},
+    {"id":"08-swap","file":"08-swap.mm","target_label":"goal","category":"substitution and essential hypothesis"},
+    {"id":"09-identity","file":"09-identity.mm","target_label":"goal","category":"Hilbert identity"},
+    {"id":"10-composition","file":"10-composition.mm","target_label":"goal","category":"implication composition"}
+  ]
+}
