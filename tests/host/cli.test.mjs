@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {root,readBundle,coreClient} from '../../bin/host.mjs';
+import {root,readBundle,coreClient,exitFor} from '../../bin/host.mjs';
 const dir=join(root,'artifacts','host-tests-'+Date.now());mkdirSync(dir,{recursive:true});
 const good=join(dir,'good.mm'),bad=join(dir,'bad.mm'),unknown=join(dir,'unknown.mm');
 writeFileSync(good,'$c |- a b $. ax $a |- a $. ok $p |- a $= ax $.');
@@ -17,6 +17,45 @@ test('CLI genuinely distinguishes valid, invalid, incomplete and host error',()=
 test('session cannot exit success with an unfinished stack',()=>{
  const actions=join(dir,'empty.json');writeFileSync(actions,JSON.stringify({schema_version:1,actions:[]}));
  const r=cli(['session',good,'--theorem','ok','--actions',actions]);assert.notEqual(r.status,0);
+});
+
+test('CLI replay and session use a legal target prefix despite later unfinished or invalid proofs',()=>{
+ const fixture=join(root,'tests/fixtures/upstream/mm-verifier-tests/unknown-tests/test001.mm');
+ const actions=join(dir,'prefix-actions.json');writeFileSync(actions,JSON.stringify([{operation:'apply_label',label:'wph'},{operation:'finish'}]));
+ const laterInvalid=join(dir,'later-invalid.mm');writeFileSync(laterInvalid,readFileSync(fixture,'utf8').replace('? th1','wph'));
+ for(const file of [fixture,laterInvalid]){
+  const replay=cli(['replay',file,'--theorem','th1']);
+  assert.equal(replay.status,0,replay.stdout+replay.stderr);assert.equal(replay.json.operation,'replay');
+  const session=cli(['session',file,'--theorem','th1','--actions',actions]);
+  assert.equal(session.status,0,session.stdout+session.stderr);assert.equal(session.json.outcome,'valid');
+ }
+ const future=cli(['replay',fixture,'--theorem','th2']);assert.notEqual(future.status,0);assert.notEqual(future.json.outcome,'valid');
+});
+
+test('load resource and missing-source errors retain their distinct host exit codes',async()=>{
+ const client=await coreClient();client({operation:'reset'});
+ const limited=client({operation:'load',entry:'small.mm',sources:[{source_id:'small.mm',text:'$c a $.'}],limits:{max_file_bytes:1}});
+ assert.equal(limited.status,'error');assert.equal(limited.diagnostics[0].code,'resource_limit');assert.equal(exitFor(limited),5);
+ const missing=client({operation:'load',entry:'absent.mm',sources:[]});
+ assert.equal(missing.status,'error');assert.equal(missing.diagnostics[0].code,'missing_source');assert.equal(exitFor(missing),3);
+});
+
+test('missing action files are host IO errors while malformed JSON remains an input error',()=>{
+ const absent=cli(['session',good,'--theorem','ok','--actions',join(dir,'absent-actions.json')]);
+ assert.equal(absent.status,3,absent.stdout+absent.stderr);assert.equal(absent.json.diagnostics[0].code,'HOST_IO');
+ const actions=join(dir,'malformed-actions.json');writeFileSync(actions,'{"schema_version":1,"actions":[');
+ const malformed=cli(['session',good,'--theorem','ok','--actions',actions]);
+ assert.equal(malformed.status,2);assert.equal(malformed.json.diagnostics[0].code,'INPUT_ERROR');
+});
+
+test('host source byte and count quotas are resource errors using small explicit limits',()=>{
+ for(const limits of [{max_file_bytes:1},{max_sources:0}]){
+  let failure;
+  try{readBundle(good,dir,limits);}catch(error){failure=error;}
+  assert.ok(failure,'Expected the real source reader to enforce its quota');
+  assert.equal(failure.code,'resource_limit');
+  assert.equal(exitFor({status:'error',outcome:null,diagnostics:[{code:failure.code}]}),5);
+ }
 });
 test('session exports the actual checked proof and refuses overwrite',()=>{
  const actions=join(dir,'proof.json'),out=join(dir,'candidate.mm');writeFileSync(actions,JSON.stringify({schema_version:1,actions:[{operation:'apply_label',label:'ax'},{operation:'finish'}]}));

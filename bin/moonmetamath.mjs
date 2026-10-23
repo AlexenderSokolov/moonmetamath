@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import {readFileSync,writeFileSync,existsSync,realpathSync} from 'node:fs';
 import {resolve,join} from 'node:path';
-import {readBundle,coreClient,exitFor,root,HostError} from './host.mjs';
+import {readBundle,coreClient,exitFor,root,HostError,ResourceLimitError} from './host.mjs';
 import {Worker,isMainThread,workerData} from 'node:worker_threads';
 const args=isMainThread?process.argv.slice(2):workerData.args;
 const version=existsSync(join(root,'dist','build.json'))?JSON.parse(readFileSync(join(root,'dist','build.json'),'utf8')).version:readFileSync(join(root,'moon.mod'),'utf8').match(/version\s*=\s*"([^"]+)"/)[1];
@@ -66,12 +66,14 @@ try{
    if(operation==='list')result=client({operation:'list',database_id});
    else{
     result=client({operation:'verify',database_id});
-    if(result.outcome==='valid'&&operation!=='verify'){
+    if(result.status!=='error'&&operation!=='verify'){
      if(!opts['--theorem'])throw new Error('--theorem LABEL is required.');
      if(operation==='replay')result=client({operation:'replay',database_id,target_label:opts['--theorem']});
      else{
       if(!opts['--actions'])throw new Error('--actions ACTIONS.json is required.');
-      const actionFile=JSON.parse(readFileSync(opts['--actions'],'utf8'));
+      let actionText;
+      try{actionText=readFileSync(opts['--actions'],'utf8');}catch(error){throw new HostError(`Cannot read actions file: ${error.message}`);}
+      const actionFile=JSON.parse(actionText);
       const actions=validateActions(actionFile);
       result=client({operation:'start',database_id,target_label:opts['--theorem']});
       const session_id=result.data?.session_id;
@@ -94,7 +96,8 @@ try{
   process.exitCode=exitFor(result);
  }
 }catch(error){
- console.log(JSON.stringify({schema_version:1,operation:args[0]??'help',status:'error',outcome:null,data:null,diagnostics:[{code:error instanceof HostError?'HOST_IO':'INPUT_ERROR',message:error.message}]}));
- process.exitCode=error instanceof HostError?3:2;
+ const resourceLimit=error instanceof ResourceLimitError;
+ console.log(JSON.stringify({schema_version:1,operation:args[0]??'help',status:'error',outcome:resourceLimit?'resource_limit':null,data:null,diagnostics:[{code:resourceLimit?'resource_limit':error instanceof HostError?'HOST_IO':'INPUT_ERROR',message:error.message}]}));
+ process.exitCode=resourceLimit?5:error instanceof HostError?3:2;
 }
 }

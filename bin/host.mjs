@@ -3,8 +3,10 @@ import {resolve,dirname,relative,sep,basename} from 'node:path';
 import {pathToFileURL,fileURLToPath} from 'node:url';
 export const root=dirname(dirname(fileURLToPath(import.meta.url)));
 export class HostError extends Error {constructor(message){super(message);this.code='HOST_IO';}}
+export class ResourceLimitError extends Error {constructor(message){super(message);this.code='resource_limit';}}
 // Only resolves source files. Grammar and mathematical validity stay in MoonBit.
-export function readBundle(file,allowedRoot=dirname(resolve(file))){
+export function readBundle(file,allowedRoot=dirname(resolve(file)),{max_file_bytes=67108864,max_sources=1000}={}){
+ if(!Number.isSafeInteger(max_file_bytes)||max_file_bytes<0||!Number.isSafeInteger(max_sources)||max_sources<0)throw new Error('Source reader limits must be nonnegative safe integers.');
  const base=realpathSync(allowedRoot),sources=[],seen=new Set();
  function add(path){
   let canonical;
@@ -14,9 +16,9 @@ export function readBundle(file,allowedRoot=dirname(resolve(file))){
   const id=rel.split(sep).join('/');
   if(seen.has(canonical))return id;
   seen.add(canonical);
-  if(seen.size>1000)throw new HostError('Source file limit exceeded.');
+  if(seen.size>max_sources)throw new ResourceLimitError('Source file limit exceeded.');
   let buffer;try{buffer=readFileSync(canonical);}catch(e){throw new HostError(e.message);}
-  if(buffer.length>67108864)throw new HostError('Source exceeds 64 MiB: '+id);
+  if(buffer.length>max_file_bytes)throw new ResourceLimitError('Source exceeds max_file_bytes: '+id);
   const text=buffer.toString('latin1');sources.push({source_id:id,text});
   const tokens=text.replace(/\$\([\s\S]*?\$\)/g,' ').match(/\S+/g)??[];
   for(let i=0;i<tokens.length;i++)if(tokens[i]==='$['&&tokens[i+2]==='$]')add(resolve(dirname(canonical),tokens[i+1]));
@@ -33,10 +35,11 @@ export async function coreClient(){
 }
 export function exitFor(result){
  const outcome=result.outcome;
+ if(outcome==='resource_limit'||outcome==='cancelled')return 5;
  if(result.status==='error'){
   const code=result.diagnostics?.[0]?.code??'';
-  if(/LIMIT|RESOURCE|ResourceLimit/.test(code))return 5;
-  if(/IO|SOURCE_MISSING/.test(code))return 3;
+  if(/LIMIT|RESOURCE|ResourceLimit/.test(code)||code==='resource_limit')return 5;
+  if(/IO|SOURCE_MISSING/.test(code)||code==='missing_source')return 3;
   if(/Incomplete|EmptyFinalStack|ExtraFinalStack|GoalMismatch/.test(code))return 4;
   if(/Disjoint|ForwardReference|Inactive|UnknownLabel|StackUnderflow|Mismatch|UnverifiedDependency/.test(code))return 1;
   return 2;
