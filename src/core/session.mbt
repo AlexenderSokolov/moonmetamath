@@ -144,6 +144,31 @@ pub fn apply_label(
 }
 
 ///|
+/// Apply a hypothetical label to a private session copy, including copied budgets.
+pub fn preview_label(
+  session : MMSession,
+  label : String,
+) -> Result[(MMStepEvent, MMSessionView), MMError] {
+  let copy : MMSession = {
+    db: session.db,
+    target_index: session.target_index,
+    limits: session.limits,
+    mode: session.mode,
+    state: session.state,
+    stack: session.stack.map(expr => expr.copy()),
+    saved: session.saved.map(expr => expr.copy()),
+    events: session.events.copy(),
+    labels: session.labels.copy(),
+    operations: session.operations,
+    retained_tokens: session.retained_tokens,
+  }
+  match apply_label(copy, label) {
+    Ok(event) => Ok((event, inspect_session(copy)))
+    Err(err) => Err(err)
+  }
+}
+
+///|
 pub fn rewind(
   session : MMSession,
   successful_step_count : Int,

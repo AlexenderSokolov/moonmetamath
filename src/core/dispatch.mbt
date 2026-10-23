@@ -182,7 +182,11 @@ fn event_json(event : MMStepEvent) -> Json {
 
 ///|
 fn view_json(session : MMSession) -> Json {
-  let v = inspect_session(session)
+  session_view_json(inspect_session(session))
+}
+
+///|
+fn session_view_json(v : MMSessionView) -> Json {
   jobject([
     ("target_label", jstring(v.target_label)),
     ("goal", jstrings(v.goal)),
@@ -202,6 +206,42 @@ fn view_json(session : MMSession) -> Json {
 }
 
 ///|
+fn rules_json(page : MMRulePage) -> Json {
+  jobject([
+    (
+      "rules",
+      Json::array(
+        page.rules.map(rule => {
+          jobject([
+            ("label", jstring(rule.label)),
+            ("kind", jstring(rule.kind)),
+            ("conclusion", jstrings(rule.conclusion)),
+            (
+              "mandatory_hypotheses",
+              Json::array(
+                rule.mandatory_hypotheses.map(h => {
+                  jobject([
+                    ("label", jstring(h.label)),
+                    ("kind", jstring(h.kind)),
+                    ("expression", jstrings(h.expression)),
+                  ])
+                }),
+              ),
+            ),
+            (
+              "disjoint",
+              Json::array(rule.disjoint.map(p => jstrings([p.0, p.1]))),
+            ),
+          ])
+        }),
+      ),
+    ),
+    ("total", jnumber(page.total)),
+    ("offset", jnumber(page.offset)),
+  ])
+}
+
+///|
 fn dispatch_request(
   req : Json,
 ) -> Result[(Json, Json, Array[MMError]), MMError] {
@@ -213,7 +253,11 @@ fn dispatch_request(
     "load" => ["entry", "sources", "limits"]
     "verify" | "list" => ["database_id", "limits"]
     "start" | "replay" => ["database_id", "target_label", "limits"]
-    "apply_label" => ["session_id", "label"]
+    "rules" =>
+      ["database_id", "target_label", "query", "typecode", "offset", "limit"]
+    "create_goal" =>
+      ["database_id", "context_label", "new_label", "goal", "limits"]
+    "apply_label" | "preview" => ["session_id", "label"]
     "rewind" => ["session_id", "successful_step_count"]
     "export" => ["session_id", "new_label"]
     "inspect" | "finish" => ["session_id"]
@@ -304,7 +348,7 @@ fn dispatch_request(
       ),
     )
   }
-  if ["verify", "list", "start", "replay"].contains(op) {
+  if ["verify", "list", "start", "replay", "rules", "create_goal"].contains(op) {
     let id = match field_string(req, "database_id") {
       Ok(v) => v
       Err(e) => return Err(e)
@@ -315,6 +359,126 @@ fn dispatch_request(
         return Err(
           wire_error("UnknownDatabase", "Unknown or expired database handle"),
         )
+    }
+    if op == "rules" {
+      let target = match field_string(req, "target_label") {
+        Ok(v) => v
+        Err(e) => return Err(e)
+      }
+      let query = match json_field(req, "query") {
+        None => ""
+        Some(_) =>
+          match field_string(req, "query") {
+            Ok(v) => v
+            Err(e) => return Err(e)
+          }
+      }
+      let typecode = match json_field(req, "typecode") {
+        None => ""
+        Some(_) =>
+          match field_string(req, "typecode") {
+            Ok(v) => v
+            Err(e) => return Err(e)
+          }
+      }
+      let offset = match json_field(req, "offset") {
+        None => 0
+        Some(_) =>
+          match field_int(req, "offset") {
+            Ok(v) => v
+            Err(e) => return Err(e)
+          }
+      }
+      let limit = match json_field(req, "limit") {
+        None => 20
+        Some(_) =>
+          match field_int(req, "limit") {
+            Ok(v) => v
+            Err(e) => return Err(e)
+          }
+      }
+      let page = match
+        search_rules(db, target, query, typecode, offset, limit) {
+        Ok(p) => p
+        Err(e) => return Err(e)
+      }
+      return Ok((rules_json(page), Json::null(), []))
+    }
+    if op == "create_goal" {
+      if wire_databases.length() >= 16 {
+        return Err(
+          wire_error(
+            "ResourceLimit", "Database handle limit reached; reset context",
+          ),
+        )
+      }
+      let context = match field_string(req, "context_label") {
+        Ok(v) => v
+        Err(e) => return Err(e)
+      }
+      let label = match field_string(req, "new_label") {
+        Ok(v) => v
+        Err(e) => return Err(e)
+      }
+      let goal : Array[String] = []
+      match json_field(req, "goal") {
+        Some(Array(tokens)) =>
+          for token in tokens {
+            match token {
+              String(s) => goal.push(s)
+              _ =>
+                return Err(
+                  wire_error("InputError", "goal must be an array of strings"),
+                )
+            }
+          }
+        _ =>
+          return Err(
+            wire_error("InputError", "goal must be an array of strings"),
+          )
+      }
+      let created = match create_goal(db, context, label, goal, limits) {
+        Ok(c) => c
+        Err(e) => return Err(e)
+      }
+      wire_serial[0] = wire_serial[0] + 1
+      let id = "db-" + wire_serial[0].to_string()
+      wire_databases[id] = created.database
+      return Ok(
+        (
+          jobject([
+            ("database_id", jstring(id)),
+            ("target_label", jstring(created.target_label)),
+            ("entry", jstring(created.entry)),
+            (
+              "sources",
+              Json::array(
+                created.sources.map(p => {
+                  jobject([("source_id", jstring(p.0)), ("text", jstring(p.1))])
+                }),
+              ),
+            ),
+            ("goal", jstrings(created.goal)),
+            (
+              "active_hypotheses",
+              Json::array(
+                created.active_hypotheses.map(p => {
+                  jobject([
+                    ("label", jstring(p.0)),
+                    ("expression", jstrings(p.1)),
+                  ])
+                }),
+              ),
+            ),
+            (
+              "disjoint",
+              Json::array(created.disjoint.map(p => jstrings([p.0, p.1]))),
+            ),
+          ]),
+          Json::null(),
+          [],
+        ),
+      )
     }
     if op == "verify" {
       let report = verify_database(db, limits)
@@ -395,10 +559,26 @@ fn dispatch_request(
         wire_error("UnknownSession", "Unknown or expired session handle"),
       )
   }
-  if op == "apply_label" {
+  if op == "apply_label" || op == "preview" {
     let label = match field_string(req, "label") {
       Ok(v) => v
       Err(e) => return Err(e)
+    }
+    if op == "preview" {
+      let (event, view) = match preview_label(session, label) {
+        Ok(p) => p
+        Err(e) => return Err(e)
+      }
+      return Ok(
+        (
+          jobject([
+            ("event", event_json(event)),
+            ("view", session_view_json(view)),
+          ]),
+          Json::null(),
+          [],
+        ),
+      )
     }
     let event = match apply_label(session, label) {
       Ok(v) => v

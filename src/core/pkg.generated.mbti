@@ -8,6 +8,8 @@ import {
 // Values
 pub fn apply_label(MMSession, String) -> Result[MMStepEvent, MMError]
 
+pub fn create_goal(MMDatabase, String, String, Array[String], Limits) -> Result[MMCreatedGoal, MMError]
+
 pub fn default_limits() -> Limits
 
 pub fn dispatch_json(String) -> String
@@ -22,11 +24,15 @@ pub fn parse_sources(String, Array[(String, String)]) -> Result[MMDatabase, MMEr
 
 pub fn parse_sources_with_limits(String, Array[(String, String)], Limits) -> Result[MMDatabase, MMError]
 
+pub fn preview_label(MMSession, String) -> Result[(MMStepEvent, MMSessionView), MMError]
+
 pub fn replay_proof(MMDatabase, String, Limits) -> Result[MMSession, MMError]
 
 pub fn rewind(MMSession, Int) -> Result[MMSessionView, MMError]
 
 pub fn scan_source(String, String, Limits) -> Result[Array[MMToken], MMError]
+
+pub fn search_rules(MMDatabase, String, String, String, Int, Int) -> Result[MMRulePage, MMError]
 
 pub fn start_proof(MMDatabase, String, Limits) -> Result[MMSession, MMError]
 
@@ -47,6 +53,16 @@ pub struct Limits {
 pub fn Limits::equal(Self, Self) -> Bool
 pub fn Limits::not_equal(Self, Self) -> Bool
 pub fn Limits::to_repr(Self) -> @debug.Repr
+
+pub(all) struct MMCreatedGoal {
+  database : MMDatabase
+  target_label : String
+  entry : String
+  sources : Array[(String, String)]
+  goal : Array[String]
+  active_hypotheses : Array[(String, Array[String])]
+  disjoint : Array[(String, String)]
+}
 
 pub struct MMDatabase {
   // private fields
@@ -87,6 +103,26 @@ pub(all) struct MMReport {
   incomplete_count : Int
   not_checked_count : Int
   diagnostics : Array[MMError]
+}
+
+pub(all) struct MMRule {
+  label : String
+  kind : String
+  conclusion : Array[String]
+  mandatory_hypotheses : Array[MMRuleHypothesis]
+  disjoint : Array[(String, String)]
+}
+
+pub(all) struct MMRuleHypothesis {
+  label : String
+  kind : String
+  expression : Array[String]
+}
+
+pub(all) struct MMRulePage {
+  rules : Array[MMRule]
+  total : Int
+  offset : Int
 }
 
 pub struct MMSession {
