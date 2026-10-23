@@ -39,7 +39,9 @@ jobs:
       - name: Fresh workspace consumer through the public API
         run: node scripts/consumer.mjs
       - name: Run the three real product scenarios
-        run: node scripts/demo.mjs
+        run: node scripts/demo.mjs --oracle
+      - name: Portable release archive runs without a compiler
+        run: node scripts/package.mjs
       - name: Independent C checker accepts and rejects known proofs
         run: node scripts/oracle.mjs self-test --out artifacts/ci-oracle-self-test
       - name: Select the four required official databases
@@ -55,6 +57,37 @@ jobs:
           name: verification-${{ matrix.os }}
           path: artifacts/
           if-no-files-found: warn
+
+  pages:
+    name: Publish checked browser lab
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/codex/metamath-v0.1'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/toolchain.mjs install
+      - run: node scripts/build.mjs
+      - run: node scripts/site.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: artifacts/site
+      - name: Deploy verified sources
+        id: deployment
+        uses: actions/deploy-pages@v4
 
 # The pinned official C tool has seven documented differences on R6 boundary
 # tests. Its full 79-case result is retained locally as diagnostic evidence;
