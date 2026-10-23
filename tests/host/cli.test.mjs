@@ -24,6 +24,33 @@ test('session exports the actual checked proof and refuses overwrite',()=>{
  assert.match(readFileSync(out,'ascii'),/moonmm-session-1 \$p \|- a \$= ax/);assert.equal(cli(['verify',out]).status,0);
  assert.equal(cli(['session',good,'--theorem','ok','--actions',actions,'--export',out]).status,3);
 });
+
+test('session action files accept only versioned wrappers or compatible action arrays',()=>{
+ const valid=[{operation:'apply_label',label:'ax'},{operation:'rewind',successful_step_count:0},{operation:'apply_label',label:'ax'},{operation:'finish'}];
+ for(const [name,value] of [['array',valid],['wrapper',{schema_version:1,actions:valid}]]){
+  const actions=join(dir,`${name}-valid.json`);writeFileSync(actions,JSON.stringify(value));
+  const r=cli(['session',good,'--theorem','ok','--actions',actions]);
+  assert.equal(r.status,0,r.stdout+r.stderr);assert.equal(r.json.outcome,'valid');
+ }
+ const wrappers=[null,{}, {actions:valid},{schema_version:2,actions:valid},{schema_version:'1',actions:valid},{schema_version:1,actions:{}},{schema_version:1,actions:valid,request_id:'injected'}];
+ for(const [index,value] of wrappers.entries()){
+  const actions=join(dir,`wrapper-invalid-${index}.json`);writeFileSync(actions,JSON.stringify(value));
+  const r=cli(['session',good,'--theorem','ok','--actions',actions]);
+  assert.equal(r.status,2,r.stdout+r.stderr);assert.equal(r.json.diagnostics[0].code,'INPUT_ERROR');
+ }
+});
+
+test('session action files reject privileged operations, injected fields and malformed arguments',()=>{
+ const invalid=[null,[],{}, {operation:'reset'},{operation:'load',entry:'other.mm',sources:[]},{operation:'export',new_label:'injected'},{operation:'inspect'},{operation:'apply_label',label:1},{operation:'apply_label',label:'ax',session_id:'session-999'},{operation:'apply_label',label:'ax',request_id:'injected'},{operation:'apply_label',label:'ax',schema_version:1},{operation:'rewind',successful_step_count:-1},{operation:'rewind',successful_step_count:0.5},{operation:'rewind',successful_step_count:'0'},{operation:'rewind',successful_step_count:Number.MAX_SAFE_INTEGER+1},{operation:'rewind',successful_step_count:0,extra:true},{operation:'finish',label:'ax'},{operation:'finish',operation_override:'reset'}];
+ for(const [index,action] of invalid.entries()){
+  const actions=join(dir,`action-invalid-${index}.json`);writeFileSync(actions,JSON.stringify({schema_version:1,actions:[{operation:'apply_label',label:'ax'},action]}));
+  const r=cli(['session',good,'--theorem','ok','--actions',actions]);
+  assert.equal(r.status,2,`case ${index}: ${r.stdout}${r.stderr}`);assert.equal(r.json.diagnostics[0].code,'INPUT_ERROR');
+ }
+ const actions=join(dir,'rewind-out-of-range.json');writeFileSync(actions,JSON.stringify([{operation:'rewind',successful_step_count:1}]));
+ const r=cli(['session',good,'--theorem','ok','--actions',actions]);
+ assert.notEqual(r.status,0);assert.equal(r.json.status,'error');
+});
 test('wire failures are atomic and completed export is independent of original target',async()=>{
  const client=await coreClient();client({operation:'reset'});
  const db=client({operation:'load',...readBundle(good)}).data.database_id;

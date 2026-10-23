@@ -6,6 +6,34 @@ import {Worker,isMainThread,workerData} from 'node:worker_threads';
 const args=isMainThread?process.argv.slice(2):workerData.args;
 const version=existsSync(join(root,'dist','build.json'))?JSON.parse(readFileSync(join(root,'dist','build.json'),'utf8')).version:readFileSync(join(root,'moon.mod'),'utf8').match(/version\s*=\s*"([^"]+)"/)[1];
 function help(){console.log(`MoonMetamath ${version}\nUsage:\n  moonmetamath verify FILE [--format json|text] [--timeout-ms N]\n  moonmetamath list FILE [--format json]\n  moonmetamath replay FILE --theorem LABEL\n  moonmetamath session FILE --theorem LABEL --actions ACTIONS.json --export OUT.mm\n  moonmetamath --version\nFiles are read-only. Session export never overwrites existing files.\nCLI workers have a 512 MiB heap and default 120000 ms deadline.`);}
+function validateActions(value){
+ const object=item=>item!==null&&typeof item==='object'&&!Array.isArray(item);
+ const exactFields=(item,fields)=>Object.keys(item).length===fields.length&&Object.keys(item).every(key=>fields.includes(key));
+ let actions;
+ if(Array.isArray(value))actions=value;
+ else{
+  if(!object(value)||!exactFields(value,['schema_version','actions'])||value.schema_version!==1||!Array.isArray(value.actions))throw new Error('Actions wrapper must contain only schema_version:1 and an actions array.');
+  actions=value.actions;
+ }
+ // Validate the complete file before starting a session or applying any prefix.
+ return actions.map((action,index)=>{
+  const invalid=message=>{throw new Error(`Invalid action at index ${index}: ${message}`);};
+  if(!object(action))invalid('expected an action object.');
+  if(action.operation==='apply_label'){
+   if(!exactFields(action,['operation','label'])||typeof action.label!=='string')invalid('apply_label requires only operation and a string label.');
+   return {operation:'apply_label',label:action.label};
+  }
+  if(action.operation==='rewind'){
+   if(!exactFields(action,['operation','successful_step_count'])||!Number.isSafeInteger(action.successful_step_count)||action.successful_step_count<0)invalid('rewind requires only operation and a nonnegative safe integer successful_step_count.');
+   return {operation:'rewind',successful_step_count:action.successful_step_count};
+  }
+  if(action.operation==='finish'){
+   if(!exactFields(action,['operation']))invalid('finish permits only operation.');
+   return {operation:'finish'};
+  }
+  invalid('operation must be apply_label, rewind or finish.');
+ });
+}
 if(isMainThread&&args.length&&!args.includes('--help')&&!args.includes('--version')){
  const timeoutAt=args.indexOf('--timeout-ms');
  const timeout=timeoutAt<0?120000:Number(args[timeoutAt+1]);
@@ -44,8 +72,7 @@ try{
      else{
       if(!opts['--actions'])throw new Error('--actions ACTIONS.json is required.');
       const actionFile=JSON.parse(readFileSync(opts['--actions'],'utf8'));
-      const actions=Array.isArray(actionFile)?actionFile:actionFile.actions;
-      if(!Array.isArray(actions))throw new Error('Actions must be an array or {schema_version:1,actions:[...]}.');
+      const actions=validateActions(actionFile);
       result=client({operation:'start',database_id,target_label:opts['--theorem']});
       const session_id=result.data?.session_id;
       if(session_id){for(const action of actions){result=client({...action,session_id});if(result.status==='error')break;}}
