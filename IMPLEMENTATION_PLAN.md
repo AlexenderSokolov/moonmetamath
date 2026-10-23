@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
-> 执行方式已由用户选定为 **Claude Code**。若其环境没有上述技能，按本文任务与审阅门槛等价执行即可，不安装技能、不另建控制面、不重复询问执行方式。技能不提供额外提交、发布或外发权限。
+> 最新执行方式为用户明确授权的 **Codex自主全链路实现与发布**；此前Claude Code安排已撤回。本文保留原任务分解，实际完成状态统一见PROGRESS.md。原计划勾选项不作为未完成或已完成的独立状态源。
 
 **Goal:** 在独立项目中实现 MoonBit 原生 `.mm` 验证与逐步执行库，交付 CLI、网页实验器、真实数据库验证和可审查的十月发布材料。
 

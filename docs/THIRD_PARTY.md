@@ -40,7 +40,7 @@ SOFTWARE.
 
 编译器与标准库是官方 MoonBit 归档，按锁定来源取得，不把它们重标为本项目 MIT。开发者应保留工具链发行包自带许可。
 
-分发的 `dist/moonmetamath-core.mjs` 包含编译后的 MoonBit 标准库代码，标准库 `moonbitlang/core` 的 Apache-2.0 条款继续适用，完整许可在 `LICENSES/Apache-2.0.txt`。MoonBit 标准库来源和固定版本见工具链锁文件；编译器二进制本身不随 Node 发布包分发。
+分发的 `dist/moonmetamath-core.mjs` 包含编译后的 MoonBit 标准库代码，标准库 `moonbitlang/core` 的 Apache-2.0 条款继续适用，Copyright 2025 International Digital Economy Academy，完整许可在 `LICENSES/Apache-2.0.txt`。MoonBit 标准库来源和固定版本见工具链锁文件；编译器二进制本身不随 Node 发布包分发。
 
 ## 外部数据库与测试
 

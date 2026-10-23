@@ -1,70 +1,73 @@
-# MoonMetamath 项目背景与接手入口
+# MoonMetamath 项目说明
 
-更新：2026-10-23。阶段：**用户已明确授权Codex自主实现、发布与验收；正在执行。**
+更新：2026-10-23。版本0.1.0；本地产品验收G0–G4通过，公开发布G5正在执行。实时结果见[PROGRESS.md](PROGRESS.md)。
 
-## 1. 当前事实与授权
+## 目标与授权
 
-用户本次要求把计划放进独立目录、建立PROJECT与CLAUDE，且明确“先别写实现代码”。本目录当前只有文档，没有`.mbt`、`moon.mod`、构建脚本、依赖、测试运行、Git初始化或发布结果。
+MoonBit原生Metamath `.mm`验证与逐步证明执行库，附Node CLI和浏览器实验室。面向需要可嵌入检查器的MoonBit开发者、学习形式证明的使用者，以及把外部证明动作接到确定性检查器的AI4Math工程。本项目尚无真实外部用户验证，也没有模型调用或新数学成果。
 
-本地目录：`D:\Study_Works\MoonBit\moonmetamath`。它是独立项目目录，但**尚不是独立Git仓库**；父目录属于MoonFlowGraph。执行者不得误用父仓库提交、分支或工作区。
+用户2026-10-23明确将原“只做文档、交Claude Code”改为“Codex在独立目录全自动实现、发布、验收，不重复确认”。最新授权包括本项目必要依赖、本地Git、公开仓库、CI、Mooncakes及静态站发布。禁止删除、破坏其他项目、伪造用户反馈或赛事回执。独立Git顶层就是本目录，父目录MoonFlowGraph不是本仓库。
 
-最新直接指令已授权在此独立目录完成实现、必要依赖、Git、公开发布与验收，不再使用Claude Code，也不重复请求已授予权限。原文档准备状态保留为历史，不限制当前执行。实时进展以PROGRESS为准。
+## 阅读顺序
 
-## 2. 目标与技术定位
+- [README.md](README.md)：产品与实际使用方法。
+- [PROGRESS.md](PROGRESS.md)：当前事实、证据及剩余工作。
+- [docs/API.md](docs/API.md)：实际公开接口、资源与错误语义。
+- [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)、[docs/THIRD_PARTY.md](docs/THIRD_PARTY.md)：兼容与许可边界。
+- [DESIGN_AND_SCOPE.md](DESIGN_AND_SCOPE.md)、[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)、[ACCEPTANCE.md](ACCEPTANCE.md)：原规格、任务和验收设计；实际布局以本文件/API为准。
+- [REFERENCES.md](REFERENCES.md)：固定来源、规范和生态排重证据。
+- [notes/PROJECT_REUSE.md](notes/PROJECT_REUSE.md)：模块复用和提示词来源。
 
-构建MoonBit原生Metamath `.mm` 证明验证与逐步执行库，附CLI与网页实验器。主要参考MIT的mmverify.py；依据Metamath规范实现，不机械继承参考实现限制。
+## 实际结构与数据流
 
-十月目标是完整的受限产品交付：库可复用、证明可逐步操作、真实数据库与外部检查器验收、发布材料可审查。长期依据兼容、性能和真实下游接入持续维护与评选。奖励、用户采用、数学新结果都不是当前事实。
-
-## 3. 权威文件与阅读顺序
-
-| 文件 | 职责 |
+| 路径 | 职责 |
 |---|---|
-| [CLAUDE.md](CLAUDE.md) | Claude接手规则、当前权限、不可放宽的边界 |
-| [PROGRESS.md](PROGRESS.md) | 唯一进度入口、未完成单元、责任与停止条件 |
-| [README.md](README.md) | 调研结论、当前环境、排期及整体导航 |
-| [DESIGN_AND_SCOPE.md](DESIGN_AND_SCOPE.md) | 权威规格：核心语义、API、状态、宿主与取消/导出边界 |
-| [REFERENCES.md](REFERENCES.md) | 7个固定参考提交、许可、测试、规范和排重来源 |
-| [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) | T0–T12任务、依赖、文件、测试与完成定义 |
-| [ACCEPTANCE.md](ACCEPTANCE.md) | G0–G6、实际命令的预期接口、真实使用与发布验收 |
-| [CLAUDE_CODE_PROMPT.md](CLAUDE_CODE_PROMPT.md) | 用户未来可直接发送的实施提示；不是自动执行命令 |
+| src/core/types.mbt、lexer.mbt、parser.mbt | ASCII词法、声明、作用域与include展开 |
+| src/core/proof.mbt等 | 普通/压缩证明的统一执行、代换与不交变量约束 |
+| src/core/session.mbt、export.mbt | 原声明上下文的构造、原子失败、回退、完成与自足导出 |
+| src/core/dispatch.mbt、根api.mbt | schema 1严格JSON协议、opaque句柄与根公共入口 |
+| src/js_bridge | 同一核心的薄桥接，不复制数学语义 |
+| bin/host.mjs、moonmetamath.mjs | 受限源文件解析、Node Worker CLI和退出码 |
+| web | 独立Worker、构造/回放两模式、真实上传/取消/下载 |
+| scripts | 固定工具链、编译、fixtures、独立oracle、检查、消费者、演示、打包、验收 |
+| tests/fixtures/manifest.json | 固定上游版本、字节哈希、预期状态与逐文件许可 |
+| artifacts（忽略） | 实际运行输出、失败记录、下载、审阅和发布证据 |
 
-当前状态以PROGRESS为准，规格以DESIGN_AND_SCOPE为准。任务与验收变更应同步相关文件，不留两个不同版本。
+原计划的core/wire纯组织拆分合并到单一core包，避免公开内部可变结构；根包仅导出dispatch_json。数学判断全部在MoonBit进行，参考Python和C仅参与开发验收。
 
-## 4. 核心设计约束
+## 不可放宽的正确性
 
-- 全部数学语义由MoonBit执行；Python/C/Rust只作参考检查。
-- 普通、压缩与交互路径共用执行器；parse、verify、可使用前提状态分开。
-- 重做已有定理按原声明位置与上下文，禁止自身、未来定理和未验证前提；活动假设和显式公理按规范使用。
-- 正确处理假设声明顺序、同时代换、合法空代换、类型码、`$d`和作用域。
-- 一步失败不污染会话；只有最终单项等于目标才完成。未完成、取消、超限不返回通过。
-- 十月普通导出仅支持ApplyLabel构造会话；压缩replay不强行展开导出。
-- 同步验证的网页取消采用terminate Worker；重启须重建上下文，不假装能即时postMessage中断或恢复内部状态。
-- 不做完整Lean、TeX证明认证、训练模型或通用Agent平台。
+加载不等于验证。未验证、目标自身和未来定理不可作为可信前提；合法活动假设与公理可用。普通、压缩与交互共用执行器，处理声明顺序、同时代换、合法空代换、类型码、作用域与不交变量约束。
 
-具体类型、接口和测试以规格/验收文件为准，本入口不复制完整契约。
+错误步骤不改变会话。最终栈恰好一项且等于目标才完成。未完成、超限与取消不能返回Valid。首版只导出完成的普通ApplyLabel构造会话；原压缩证明回放只读。网页取消实际terminate Worker，重新加载才能恢复新句柄。
 
-## 5. 结构与复现入口
+原生数据内部字段私有化；验证不保存事件，交互/回放的累计事件令牌预算受限。CLI Worker设置512MiB old-generation heap和默认120秒截止，不承诺该值等于进程总内存上限。
 
-当前结构仅为根目录文档及 `notes/PROJECT_REUSE.md`。未来源码布局见规格第3节：`src/core`、`src/wire`、`src/js_bridge`、`bin`、`web`、`scripts`、`tests`、`examples`。
+## 运行与验收
 
-规划中的运行入口是 `run_check.ps1/.sh`、`run_demo.ps1/.sh`、`run_acceptance.ps1/.sh`。**当前尚不存在，不能现在执行后把缺文件算作实现故障。** 实现获准后按ACCEPTANCE创建并实测；成功日志才是通过依据。
+Node24，固定compiler v0.10.14+7d59c7ec9、moon0.1.20260920。构建脚本支持Windows x64/Linux x64；不修改全局工具链。源码首次执行：
 
-10/23前一轮只读核实：全局MoonBit为v0.10.3，MoonPortCheck隔离工具链为v0.10.14，Node24、Python3.14；这些是快照，开始实现时验证实际版本。只读使用已有隔离工具，不改旧项目或全局环境。
+```sh
+node scripts/toolchain.mjs install
+node scripts/fixtures.mjs fetch --profile october
+node scripts/build.mjs
+node scripts/check.mjs
+node scripts/consumer.mjs
+node scripts/demo.mjs --oracle
+node scripts/serve.mjs --port 4173
+```
 
-## 6. 验收与日期
+run_check、run_demo、run_acceptance同时提供.ps1/.sh。完整本地验收需真实浏览器receipt，不能仅创建空文件：
 
-- G0：开始实现后48小时内验证语义垂直链，发现健全性问题优先修复，不放宽核心检查。
-- G1–G4：完整语义、真实数据库/导出、CLI/网页、独立消费者与本地候选。
-- G5：获准后实际公开CI、Mooncakes发布与全新安装；本地通过不等于公开通过。
-- G6：真实报名、初审、验收和奖励结果分别记录。
+```sh
+node scripts/acceptance.mjs --phase local
+node scripts/acceptance.mjs --phase publication --receipt artifacts/publication.json
+```
 
-官网10/31与章程旧10/24/九月文字存在冲突；按10/31编排是条件计划。启动日期如晚于文档日期，重新排剩余任务，保留原事实，不把过期计划视为已完成。不保证十月审核或奖金。
+本地验收记录artifacts/acceptance-release/result.json。47项MoonBit测试在JS/wasm-gc通过，79外部样例与mmreference匹配；官方C四个真实数据库及浏览器下载候选通过，完整边界集有7项已解释差异。peano是120声明、0证明，不宣传为算术证明结果。完整set.mm和Mac/ARM未验证。
 
-## 7. 历史决定与下一步
+## 长期方向与赛事边界
 
-图论猜想平台基础功能与GraphTea高度相近；实根分析在MoonBit已有Symbit接口，故均不再作为本项目目标。Metamath于10/23公开排重未发现直接实现，但实施/申报前须刷新，不保证私有或未索引项目不存在。
+优先维护格式兼容、真实下游接入、可复现性能基线，再考虑模型适配器与增量验证。先拿实际采用证据，不做通用Agent平台。图论平台与GraphTea重叠、实根方向已有Symbit，因此未采用；10/23生态排重未发现直接MoonBit Metamath实现，不能证明私有或未索引项目不存在。
 
-**下一单元：等待用户明确启动实施；届时从T0核实已准备目录、工具链、来源和Git权限开始，不重新覆盖本目录。** 当前负责人是用户决定何时交给Claude，后续Claude为主实现者，独立审阅者仅负责约定门槛。
-
-阶段交接与提示词来源见 [notes/PROJECT_REUSE.md](notes/PROJECT_REUSE.md)。
+G5只由真实远端CI、注册表发布及干净消费者通过确认；G6报名、初审、验收、奖金须分别有主办方回执。官网10/31与旧章程日期不一致仍需保留。技术发布不保证获奖，AI起草材料不冒称人工撰写。

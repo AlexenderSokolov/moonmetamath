@@ -1,4 +1,4 @@
-# Claude Code 接手规则
+# Agent 接手规则（兼容 Claude 文件名）
 
 ## 当前阶段与授权
 
@@ -20,11 +20,11 @@
 ## 目录与文件
 
 - 项目根：`D:\Study_Works\MoonBit\moonmetamath`，已含规划文件；保留并增量维护，禁止重新初始化模板覆盖它们。
-- 父目录是MoonFlowGraph仓库。目前本目录没有独立`.git`。授权本地Git后，确认新仓库顶层正好为本目录；禁止在父仓库批量add/commit或切分支。
+- 父目录是MoonFlowGraph仓库。本目录已建立独立`.git`，分支codex/metamath-v0.1；禁止在父仓库批量add/commit或切分支。
 - 不改`moonportcheck`、`moontrack`、`moonsplit`实现。只读工具链参考须按REFERENCES。
 - 禁止批量删除和未经同意的明确文件删除；保留旧产物和用户改动。
 
-## 实施获准后的工作方式
+## 当前工作方式
 
 - 简短报告现场与第一单元，再按T0–T12持续推进已授权目标；每项验收通过衔接下一项，不把派出任务、跑通工具链或完成一回合当作全项目完成。
 - `PROGRESS.md`记录版本、实际命令/输出、结果、限制、下一单元和责任者；未执行标PENDING。重大判断、T5/T7与最终交付安排独立review。

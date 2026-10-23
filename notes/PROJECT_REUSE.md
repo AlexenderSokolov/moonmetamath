@@ -1,27 +1,32 @@
-# MoonMetamath 规划与交接复用卡片
+# MoonMetamath 实现与复用卡片
 
-状态：2026-10-23，仅文档准备完成；无实现代码、Git、测试运行、用户采用、发布或赛事结果。
+更新2026-10-23。原规划已由Codex实现，G0–G4本地验收通过；公开发布状态见PROGRESS.md，不从此卡片推断外部审核。
 
 ## 最小阅读路径
 
-先读[PROJECT.md](../PROJECT.md)、[CLAUDE.md](../CLAUDE.md)与[PROGRESS.md](../PROGRESS.md)，再读[权威规格](../DESIGN_AND_SCOPE.md)、[实施任务](../IMPLEMENTATION_PLAN.md)、[验收](../ACCEPTANCE.md)。[完整启动提示](../CLAUDE_CODE_PROMPT.md)只在用户亲自发送后成为实施指令。
+先PROJECT.md、PROGRESS.md，再docs/API.md和COMPATIBILITY.md。核心入口src/core/dispatch.mbt与根api.mbt；消费者脚本scripts/consumer.mjs展示真实公共调用。
 
-## 实际结构与复用内容
+## 可复用模块与接口
 
-六份完整计划位于项目根；固定来源、规范、许可、七个commit和工具链参考见[REFERENCES.md](../REFERENCES.md)。没有源码模块可复用，只有已经完成的规格与交接决策。
+- src/core：MoonBit纯数学语义，源集合→数据库→验证状态→受控构造/回放会话→自足普通证明。普通、压缩、交互共用proof_step；内部可变数据私有。
+- dispatch_json：schema_version1/request_id/operation，成功请求与数学outcome分层。根Mooncakes包公开此单入口；句柄reset/Worker终止后失效。
+- bin/host.mjs：只负责有根目录边界的include读取，不参与数学判断。CLI以Worker提供取消/截止/old-generation heap额度。
+- web：独立Worker；构造、原证明回放分开；原子失败与回退；本地上传源集合；实际取消使句柄失效。
+- scripts/fixtures.mjs与oracle.mjs：固定来源/字节/许可、独立C三态自测、真正VERIFY PROOF及输出分类；不能只READ或搜索verified字样。
+- scripts/check.mjs、consumer.mjs、package.mjs：双后端、独立workspace/registry消费者、无编译器ZIP解压验证；公开发布与本地候选分开。
 
-值得复用的设计：公开目录/API排重与失败响应分离；parse/verify/可用前提分层；重做目标锚定原声明位置；普通/压缩/交互共用执行器；失败原子化；include按规范仅首次展开；普通导出限ApplyLabel构造会话；同步Worker的取消与重建边界。
+## 实际验证与限制
 
-已核实的旧环境只作快照，不当新项目构建证据。官方截止日期冲突保留，未以规划推断奖励。
+47核心测试在JS/wasm-gc通过，79外部样例与mmreference全部匹配，官方C四真实数据库通过。C完整边界集有7项已保留差异。浏览器34步构造、实际下载独立C有效、MIU/HOL、include上传、编码拒绝、取消重载均实测。
 
-## 迁移与验证
+健全性审阅发现并修复内部别名、事件累计内存和压缩表边界；宿主审阅修复未来未完成定理不应阻断前缀目标、资源/IO分类。原始失败在artifacts保留。完整set.mm、Mac/ARM、压缩导出、模型搜索尚未交付；没有真实外部人类用户或新数学成果。
 
-原六个文件从父目录`docs/superpowers/plans/2026-10-23-metamath-moonbit`逐文件移入；移动时内容校验一致，随后更新位置和阶段。旧位置仅留短指引，不再维护正文。根PROJECT/CLAUDE/PROGRESS由用户本次明确要求创建，T0–T12仍待实施。
+## 关键取舍与教训
 
-本阶段检查仅覆盖文档链接、编号、权限和无实现文件；不代表Metamath语义、工具链、网页或发布已通过。
+核心单包替代纯组织wire拆包，减少内部暴露；不机械照抄参考工具偏差。verify不保留事件，交互事件设累计预算，避免栈快照二次内存增长。Windows官方C需MSVC x86，Win64上游long-pointer表示会崩溃。peano文件级GPL与仓库级CC0冲突，保留外部获取测试，不提交或随包分发。已通过的精确SHA双平台CI、注册表manifest与真实消费者分别取证，HTTP202/dry-run不等于已发布。
 
 ## 提示词来源
 
-- 用户先要求：“你写好一个详细计划文档，拿参考资源、规划、验收步骤等等全流程详细的先规划好，我准备交给claude code去做。”
-- 当前迁移要求：“把这些计划文档和交接提示放进 moonmetamath 独立目录，建好 PROJECT.md 和 CLAUDE.md，方便我直接让 Claude Code 接手，先别写实现代码。”
-- CLAUDE_CODE_PROMPT是Codex根据上述讨论重构的未来模板，未启动Claude，无成功运行关联。不要把其中授权文字当作单纯读文件就获得的权限。
+用户原话依次要求先调研排重、制作完整计划、放入独立moonmetamath目录并建立PROJECT/CLAUDE。随后2026-10-23明确：“不再用claude code了，你直接在你这个独立项目文件夹里面开做，做完全链路，包括发布、验收。全自动，我授权给你，不需要再问我。”后来补充网站访问不再确认，全自动执行。
+
+CLAUDE_CODE_PROMPT.md是原先Codex重构模板，未启动Claude。当前实际成功关联是本项目Git历史、artifacts/acceptance-release与真实浏览器/独立oracle产物；公开发布结果统一见PROGRESS，不把模板当历史执行日志。

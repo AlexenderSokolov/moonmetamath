@@ -1,6 +1,6 @@
 # MoonBit Metamath：规格与设计边界
 
-版本：规划 v1，2026-10-23。项目目录 `D:\Study_Works\MoonBit\moonmetamath` 已建立并包含规划资料；实现代码尚未开始。
+版本：规格v1，2026-10-23。用户已授权Codex自主实现发布；核心/CLI/Web已实现，本地G0–G4通过。实际结构与状态见PROJECT/PROGRESS，实际接口见docs/API.md。原计划core/wire组织拆分已合并为单一core包，数学语义边界保持。
 
 ## 1. 产品与成功标准
 

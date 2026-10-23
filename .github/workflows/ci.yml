@@ -60,7 +60,7 @@ jobs:
 
   pages:
     name: Publish checked browser lab
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/codex/metamath-v0.1'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: verify
     runs-on: ubuntu-latest
     permissions:
