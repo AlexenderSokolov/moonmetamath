@@ -7,7 +7,8 @@ export class ResourceLimitError extends Error {constructor(message){super(messag
 // Only resolves source files. Grammar and mathematical validity stay in MoonBit.
 export function readBundle(file,allowedRoot=dirname(resolve(file)),{max_file_bytes=67108864,max_sources=1000}={}){
  if(!Number.isSafeInteger(max_file_bytes)||max_file_bytes<0||!Number.isSafeInteger(max_sources)||max_sources<0)throw new Error('Source reader limits must be nonnegative safe integers.');
- const base=realpathSync(allowedRoot),sources=[],seen=new Set();
+ let base;try{base=realpathSync(allowedRoot);}catch(error){throw new HostError(`Cannot access source root: ${error.message}`);}
+ const sources=[],seen=new Set();
  function add(path){
   let canonical;
   try{canonical=realpathSync(path);}catch(e){throw new HostError(`Cannot read ${path}: ${e.message}`);}

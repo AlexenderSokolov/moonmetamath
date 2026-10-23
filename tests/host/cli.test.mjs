@@ -19,6 +19,16 @@ test('session cannot exit success with an unfinished stack',()=>{
  const r=cli(['session',good,'--theorem','ok','--actions',actions]);assert.notEqual(r.status,0);
 });
 
+test('unavailable source roots and export destinations are host IO failures',()=>{
+ const missing=cli(['verify',join(dir,'absent-parent','input.mm')]);
+ assert.equal(missing.status,3,missing.stdout+missing.stderr);assert.equal(missing.json.diagnostics[0].code,'HOST_IO');
+ const actions=join(dir,'export-io.json');writeFileSync(actions,JSON.stringify([{operation:'apply_label',label:'ax'}]));
+ for(const out of [join(dir,'absent-parent','candidate.mm'),dir]){
+  const r=cli(['session',good,'--theorem','ok','--actions',actions,'--export',out]);
+  assert.equal(r.status,3,r.stdout+r.stderr);assert.equal(r.json.diagnostics[0].code,'HOST_IO');
+ }
+});
+
 test('CLI replay and session use a legal target prefix despite later unfinished or invalid proofs',()=>{
  const fixture=join(root,'tests/fixtures/upstream/mm-verifier-tests/unknown-tests/test001.mm');
  const actions=join(dir,'prefix-actions.json');writeFileSync(actions,JSON.stringify([{operation:'apply_label',label:'wph'},{operation:'finish'}]));

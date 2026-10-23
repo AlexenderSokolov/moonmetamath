@@ -2,7 +2,7 @@
 
 构建制品说明：固定0.10.14工具链在Windows/Linux生成的JavaScript仅有数值指数拼写差异（例如`1e+012`与`1e+12`），原始哈希不能跨构建平台直接比较。公网验收下载同一精确源码CI的实际Linux Pages制品并逐字节核对；Node发行ZIP单独按SHA256SUMS验证，不把两种产物混作同一个文件。`acceptance --phase publication --ref v0.1.0`可选择已发布标签，默认仍检验HEAD；该复核需要对应CI的Pages制品仍可下载，长期记录同时附在Release资源哈希文件中。
 
-本版为 `AlexenderSokolov/moonmetamath` 0.1.0。运行语义全部来自 MoonBit；CLI 使用 Node 24，网页使用 Web Worker 内的 MoonBit 生成 JavaScript。核心 JS 与 wasm-gc 两后端均已运行测试，网页没有把 WebAssembly 作为实际演示路径。
+维护版本为 `AlexenderSokolov/moonmetamath` 0.1.1。数学语义与0.1.0一致；0.1.1修复源目录和导出目的路径的IO分类。CLI使用Node24，网页使用Web Worker内MoonBit生成的JavaScript。核心JS与wasm-gc两后端均已运行测试，网页没有把WebAssembly作为实际演示路径。
 
 ## 输入与证明
 
@@ -68,4 +68,4 @@ MoonMetamath 与固定 mmreference 在这套材料上符合上游预期。上述
 
 产品无 npm、Python 或 C 运行依赖。重新取得参考测试材料和编译官方 C 时需要网络及编译器；Windows 使用 MSVC x86，Linux 脚本使用 gcc。Windows 上游 C 的 long/指针表示不适合本次 Win64 构建，已保留失败记录并改用未修改源码的 x86 构建。
 
-公开发布、CI 和注册表消费者安装尚需发布流程验收；本地成功不能替代这些状态。没有真实 LLM 调用、外部用户采用或新数学成果。
+0.1.0的公开发布、双平台CI、注册表消费者及公网站点已经实际验收；后续版本状态统一见PROGRESS.md。没有真实LLM调用、外部用户采用或新数学成果的旧版本记录不能借版本升级自动改写。

@@ -84,7 +84,7 @@ try{
        if(result.status!=='error'){
         const destination=resolve(opts['--export']);
         if(existsSync(destination)||destination===resolve(file))throw new HostError('Refuse to overwrite export destination.');
-        writeFileSync(destination,result.data.text,{flag:'wx',encoding:'ascii'});
+        try{writeFileSync(destination,result.data.text,{flag:'wx',encoding:'ascii'});}catch(error){throw new HostError(`Cannot write export: ${error.message}`);}
         result.data.export_path=destination;
        }
       }
