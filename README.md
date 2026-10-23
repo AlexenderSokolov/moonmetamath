@@ -2,7 +2,7 @@
 
 MoonBit 原生的 Metamath `.mm` 验证与逐步证明库，附 Node CLI 和浏览器证明实验室。解析、代换、不交变量检查、普通/压缩证明、交互会话与导出都由同一个 MoonBit 核心执行；运行产品无需 Python、C 检查器或模型凭据。
 
-**0.1.0 已公开交付：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.1.0) · [Windows/Linux CI](https://github.com/AlexenderSokolov/moonmetamath/actions)。模块名为 `AlexenderSokolov/moonmetamath`。注册表构建成功，独立消费者已从注册表安装并在JS、wasm-gc实际运行；网页使用MoonBit生成的JavaScript。
+**0.1.1 已公开交付：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.1.1) · [Windows/Linux CI](https://github.com/AlexenderSokolov/moonmetamath/actions)。模块名为 `AlexenderSokolov/moonmetamath`。注册表构建成功，独立消费者已从注册表安装并在JS、wasm-gc实际运行；网页使用MoonBit生成的JavaScript。
 
 ## 可以做什么
 
@@ -31,7 +31,7 @@ node bin/moonmetamath.mjs --help
 MoonBit 消费者可使用下面的固定版本安装命令；注册表安装与公共入口调用已在独立消费者中完成验收：
 
 ```sh
-moon add AlexenderSokolov/moonmetamath@0.1.0
+moon add AlexenderSokolov/moonmetamath@0.1.1
 ```
 
 ## CLI：检查一个真实库
@@ -85,7 +85,7 @@ fn main {
 }
 ```
 
-`load` 返回数据库句柄，随后用同一实例调用 `verify`、`start` 等操作。完整原生 API、响应与会话约束见 [API.md](docs/API.md)。独立 workspace 消费者验收入口为 `node scripts/consumer.mjs`，注册表验收入口为 `node scripts/consumer.mjs --registry --version 0.1.0`；后者须在发布后运行。
+`load` 返回数据库句柄，随后用同一实例调用 `verify`、`start` 等操作。完整原生 API、响应与会话约束见 [API.md](docs/API.md)。独立 workspace 消费者验收入口为 `node scripts/consumer.mjs`，注册表验收入口为 `node scripts/consumer.mjs --registry --version 0.1.1`；后者须在发布后运行。
 
 JavaScript 宿主直接导入构建产物：
 
@@ -107,9 +107,9 @@ console.log(response);
 | 固定外部测试材料 | 79/79 符合预期：22 valid、55 invalid、2 incomplete |
 | 独立 mmreference | 同一 79 项全部符合上游预期 |
 | 官方小库 | demo0 1 个证明、MIU 1 个证明、HOL 151 个证明通过；peano 只有声明，0 个证明 |
-| 宿主集成 | 14项通过，包括目标前缀、动作严格校验、资源/IO分类、超时、导出排他写入 |
+| 宿主集成 | 15项通过，包括目标前缀、动作严格校验、资源/IO分类、超时、导出排他写入 |
 | 实际浏览器 | 本地及公网站点完成demo0 34步构造；公网下载文件由独立官方C检查器接受；MIU/HOL、include上传、BOM拒绝、取消重载均实测 |
-| 公开交付 | Windows/Linux CI、Mooncakes0.1.0 manifest成功、独立注册表消费者两后端实际运行 |
+| 公开交付 | Windows/Linux CI、Mooncakes0.1.1 manifest成功、独立注册表消费者两后端实际运行 |
 
 官方 C 对整套外部材料有 **7 项已记录分歧**，并非 79/79 全过；细节见 [兼容性](docs/COMPATIBILITY.md)。上述验证不等于完整 set.mm、所有 Metamath 扩展或所有平台兼容，也没有对实现本身作形式化认证。
 
