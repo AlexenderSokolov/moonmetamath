@@ -62,6 +62,39 @@ fn source_start(source : String) -> MMToken {
 }
 
 ///|
+fn next_parse_chunk(scanner : MMScanner) -> Result[Array[MMToken], MMError] {
+  let first = match scan_next(scanner) {
+    Ok(Some(token)) => token
+    Ok(None) => return Ok([])
+    Err(error) => return Err(error)
+  }
+  let tokens = [first]
+  if first.text == "${" || first.text == "$}" {
+    return Ok(tokens)
+  }
+  // An include needs exactly two tokens of lookahead. Other declarations end at
+  // $.; scopes, comments and error positions still belong to the original file.
+  let is_include = first.text == "$["
+  if first.text == "$." {
+    return Ok(tokens)
+  }
+  while true {
+    match scan_next(scanner) {
+      Ok(Some(token)) => {
+        tokens.push(token)
+        if (is_include && tokens.length() == 3) ||
+          (!is_include && token.text == "$.") {
+          break
+        }
+      }
+      Ok(None) => break
+      Err(error) => return Err(error)
+    }
+  }
+  Ok(tokens)
+}
+
+///|
 fn parse_file(
   state : MMParseState,
   source : String,
@@ -90,20 +123,28 @@ fn parse_file(
       )
   }
   state.visited.set(source, true)
-  let tokens = match scan_source(source, text, state.limits) {
-    Ok(tokens) => tokens
+  let (scanner, token_count) = match
+    prepare_scanner(source, text, state.limits) {
+    Ok(value) => value
     Err(error) => return Err(error)
   }
-  if tokens.length() > state.limits.max_tokens - state.token_count {
+  if token_count > state.limits.max_tokens - state.token_count {
     return Err(
       token_error(include_at, "resource_limit", "Bundle exceeds max_tokens"),
     )
   }
-  state.token_count = state.token_count + tokens.length()
+  state.token_count = state.token_count + token_count
   let env = state.env
   let scopes : Array[(Int, Int, Int, MMToken)] = []
-  let mut i = 0
-  while i < tokens.length() {
+  while true {
+    let tokens = match next_parse_chunk(scanner) {
+      Ok(tokens) => tokens
+      Err(error) => return Err(error)
+    }
+    if tokens.is_empty() {
+      break
+    }
+    let mut i = 0
     let first = tokens[i]
     let mut kind = first.text
     let mut label = ""

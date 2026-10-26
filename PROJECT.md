@@ -2,6 +2,10 @@
 
 更新：2026-10-26。0.3.0长期使用基础、独立下游、实际浏览器及公开交付验收完成；正式main，发布标签v0.3.0，源码e99a812。事实与证据见[PROGRESS.md](PROGRESS.md)。
 
+## 第二阶段：真实规模性能（当前）
+
+用户于2026-10-26授权第二阶段全链路。固定数据库与预算见[测量计划](docs/superpowers/plans/2026-10-26-v04-performance.md)，输入锁见benchmarks/databases.lock.json，操作入口见[benchmark说明](benchmarks/README.md)。只按实测瓶颈优化；不预设增量验证，不改变统一执行器/旧API，不修改全局工具链。正式状态仍看PROGRESS。
+
 ## 0.3长期使用基础
 
 2026-10-26用户批准第一阶段长期使用基础及独立下游示例，包括测试、独立审查、发布与验收，全自动推进。规格见[长期使用基础](docs/superpowers/specs/2026-10-26-long-term-foundation.md)，计划见[0.3实施计划](docs/superpowers/plans/2026-10-26-v03-foundation.md)，实际完成度以PROGRESS为准。

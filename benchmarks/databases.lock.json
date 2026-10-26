@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "source": {
+    "repo": "metamath/set.mm",
+    "commit": "b4c3130f3b8081e1e4a33b47321141359e3380ae",
+    "license": "CC0-1.0",
+    "license_path": ".references/performance/LICENSE",
+    "license_sha256": "8a5f6a2b110cdecd3543c2b18c4d17fa2f08d16ca61c1fe0a1e41b1343464b5c"
+  },
+  "files": [
+    {
+      "id": "hol",
+      "tier": "small",
+      "path": ".references/performance/hol.mm",
+      "url": "https://raw.githubusercontent.com/metamath/set.mm/b4c3130f3b8081e1e4a33b47321141359e3380ae/hol.mm",
+      "bytes": 96899,
+      "sha256": "47a1e96538143ff382be54425beceddbd656e1105553f395c9bd9a4c1b6c3cde",
+      "git_blob_sha": "07b4b67c93630137fad8bde3317ba298fd3daf7a",
+      "expected_proofs": 151,
+      "workload": {
+        "target_label": "axun",
+        "actions": [
+          {
+            "operation": "apply_label",
+            "label": "hal"
+          }
+        ],
+        "query": "ax"
+      },
+      "license": "CC0-1.0; preserve upstream file notice"
+    },
+    {
+      "id": "nf",
+      "tier": "medium",
+      "path": ".references/performance/nf.mm",
+      "url": "https://raw.githubusercontent.com/metamath/set.mm/b4c3130f3b8081e1e4a33b47321141359e3380ae/nf.mm",
+      "bytes": 2985101,
+      "sha256": "3298459d03635e5cdb9d8505d13919eff014b65a5bece1825b0c4f754a0554d1",
+      "git_blob_sha": "9efa5b4cd8b84d63258f6b929601b150212c24ed",
+      "expected_proofs": 5976,
+      "workload": {
+        "target_label": "conventions",
+        "actions": [
+          {
+            "operation": "apply_label",
+            "label": "wph"
+          }
+        ],
+        "query": "id"
+      },
+      "license": "CC0-1.0; preserve upstream file notice"
+    },
+    {
+      "id": "set",
+      "tier": "large",
+      "path": ".references/performance/set.mm",
+      "url": "https://raw.githubusercontent.com/metamath/set.mm/b4c3130f3b8081e1e4a33b47321141359e3380ae/set.mm",
+      "bytes": 51737997,
+      "sha256": "8c81fab8f2fdbfc62340fa281010957d57d15e0d102149e6d4afe569e5ad2f5e",
+      "git_blob_sha": "46b769253d0bdf22581eefc2aface8ca34276948",
+      "expected_proofs": 48097,
+      "workload": {
+        "target_label": "young2d",
+        "actions": [
+          {
+            "operation": "apply_label",
+            "label": "wph"
+          }
+        ],
+        "query": "id"
+      },
+      "license": "CC0-1.0; preserve upstream file notice"
+    }
+  ],
+  "selection": "Whole real official databases in three size tiers; target is last declared theorem, initial action is first global floating hypothesis. Selected before runtime benchmarks; no proof text changes."
+}

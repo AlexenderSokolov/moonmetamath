@@ -178,3 +178,34 @@ test "snapshot invalidation follows nested pop and variable redeclaration" {
   assert_eq(end.active_hypotheses, ["fx"])
   assert_eq(end.active_disjoint, [])
 }
+
+///|
+test "parent lexical preflight and aggregate count precede included parsing" {
+  let sources = [
+    ("root.mm", "$[ child.mm $] $z"),
+    ("child.mm", "$c wff $. bad $a wff x $."),
+  ]
+  match parse_sources("root.mm", sources) {
+    Err(error) => {
+      assert_eq(error.code, "invalid_keyword")
+      assert_eq(error.source, "root.mm")
+      assert_eq(error.start, 15)
+    }
+    Ok(_) => fail("parent lexical failure hidden by include")
+  }
+  let limits = { ..default_limits(), max_tokens: 7, }
+  match
+    parse_sources_with_limits(
+      "root.mm",
+      [("root.mm", "$[ child.mm $] $c a $."), ("child.mm", "$c b $.")],
+      limits,
+    ) {
+    Err(error) => {
+      assert_eq(error.code, "resource_limit")
+      assert_eq(error.message, "Bundle exceeds max_tokens")
+      assert_eq(error.source, "root.mm")
+      assert_eq(error.start, 3)
+    }
+    Ok(_) => fail("parent suffix not counted before included source")
+  }
+}

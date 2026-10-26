@@ -71,3 +71,8 @@ SOFTWARE.
 ## 规范与项目定位
 
 Metamath 语言规范与背景参考见原始 [REFERENCES.md](../REFERENCES.md)。Metamath、MoonBit 及上游项目名称属于各自作者/组织。本项目没有声称首创 Web 证明器、首创 AI 数学验证或得到上游背书；格式与语义兼容范围以实际测试为准。
+
+
+## Optional 0.4 performance corpus
+
+benchmarks/databases.lock.json pins complete hol.mm, nf.mm and set.mm to the already fixed metamath/set.mm commit. Original headers and CC0-1.0 license are preserved by scripts/fetch-performance-data.mjs. Large corpus bytes remain in ignored .references/performance and are not included in the product archive. Published benchmark records contain input identities, measured phase data and counts, not a replacement copy of the databases. The independent official C checker remains development-only.

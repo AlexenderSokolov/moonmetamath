@@ -21,8 +21,14 @@ export function readBundle(file,allowedRoot=dirname(resolve(file)),{max_file_byt
   let buffer;try{buffer=readFileSync(canonical);}catch(e){throw new HostError(e.message);}
   if(buffer.length>max_file_bytes)throw new ResourceLimitError('Source exceeds max_file_bytes: '+id);
   const text=buffer.toString('latin1');sources.push({source_id:id,text});
-  const tokens=text.replace(/\$\([\s\S]*?\$\)/g,' ').match(/\S+/g)??[];
-  for(let i=0;i<tokens.length;i++)if(tokens[i]==='$['&&tokens[i+2]==='$]')add(resolve(dirname(canonical),tokens[i+1]));
+  const stripped=text.replace(/\$\([\s\S]*?\$\)/g,' '),tokens=/\S+/g;
+  let first=null,second=null;
+  for(let token=tokens.exec(stripped);token!==null;token=tokens.exec(stripped)){
+   if(first==='$['&&token[0]==='$]')add(resolve(dirname(canonical),second));
+   first=second;second=token[0];
+  }
+  // V8's legacy RegExp cache otherwise retains the stripped source during core load.
+  /(?:)/.test('');
   return id;
  }
  const entry=add(resolve(file));return {entry,sources};

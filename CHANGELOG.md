@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 · 2026-10-26
+
+- Add locked complete hol/nf/set database benchmarks with bounded subprocesses, separate dispatch/IO/serialization timings and honest OOM/timeout records.
+- Avoid the eager source-character array and repeated unchanged scope snapshots; parse with private statement-sized token buffers after a complete lexical preflight.
+- Preserve the public scanner array API, schema 1, operation limits, source diagnostics and unified proof executor.
+- Scan host include tokens incrementally and release the legacy RegExp input cache, preserving reader semantics and CLI limits.
+- Publish matched-budget measurements, including 48,097 set proofs under explicit 100m operation budget and the remaining large create_goal memory limit. No incremental verification or model experiment added.
+
+
 ## 0.3.0 · 2026-10-26
 
 - Add opaque native Engine and JavaScript create_dispatcher factory while preserving the legacy dispatcher and schema 1.

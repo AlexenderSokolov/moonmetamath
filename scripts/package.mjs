@@ -6,7 +6,7 @@ import {root,version,run} from './common.mjs';
 const at=process.argv.indexOf('--out'),out=resolve(root,at<0?'artifacts/package-'+Date.now():process.argv[at+1]);mkdirSync(out,{recursive:true});
 const stage=join(out,`moonmetamath-${version}`);mkdirSync(stage,{recursive:true});
 function copy(source,destination){mkdirSync(destination,{recursive:true});for(const e of readdirSync(source,{withFileTypes:true})){const s=join(source,e.name),d=join(destination,e.name);if(e.isDirectory())copy(s,d);else copyFileSync(s,d);}}
-for(const dir of ['dist','web','LICENSES','docs'])copy(join(root,dir),join(stage,dir));
+for(const dir of ['dist','web','LICENSES','docs','benchmarks'])copy(join(root,dir),join(stage,dir));
 mkdirSync(join(stage,'bin'),{recursive:true});
 for(const file of ['host.mjs','moonmetamath.mjs'])copyFileSync(join(root,'bin',file),join(stage,'bin',file));
 copy(join(root,'examples'),join(stage,'examples'));

@@ -2,11 +2,17 @@
 
 MoonBit 原生的 Metamath `.mm` 验证与逐步证明库，附 Node CLI 和浏览器证明实验室。解析、代换、不交变量检查、普通/压缩证明、交互会话与导出都由同一个 MoonBit 核心执行；运行产品无需 Python、C 检查器或模型凭据。
 
-**0.3.0 已公开交付（长期使用基础）：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.3.0)。发布与验收的实际状态见 [PROGRESS.md](PROGRESS.md)。
+**0.4.0 真实性能基线与加载内存优化：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.4.0)。发布与验收的实际状态见 [PROGRESS.md](PROGRESS.md)。
 
 新增独立 Engine / JavaScript dispatcher factory、单会话关闭与数据库卸载；旧 schema 1 和 dispatch_json 保持兼容。网页在目标切换、上传和恢复成功后才采用新状态，失败保留原工作。较小预算的重复验证不会撤销不可变数据库此前的有效证明依据。
 
 [独立下游示例](examples/downstream/README.md)仅导入根公开接口，演示隔离引擎、80次会话释放复用及实际证明导出。四份冻结的0.2.0工作文件持续检查旧格式兼容；Chromium回归覆盖生命周期、失败切换、恢复、取消与下载，验收记录绑定实际受测资源。
+
+## 0.4性能范围
+
+[性能报告](docs/PERFORMANCE.md)与[逐样本数据](benchmarks/results/v0.4.0.json)固定小、中、大三份真实库，保留成功、OOM和预算超限。通过去掉整份字符数组、共享私有不可变上下文及按声明消费token，降低加载驻留内存；公开接口与统一证明执行器保持不变。
+
+完整set.mm的48,097个证明已在512MiB V8 old-space及**明确100m操作预算**下完成三次验证。默认10m操作预算不变，仍会报告超限；该堆额度不是总RSS上限。完整set的新目标工作流在已测512/2048MiB配置下仍未完成，不宣称整个大库工作台可用。详见报告的同预算表、失败阶段及限制。
 
 ## 可以做什么
 
@@ -38,10 +44,10 @@ node bin/moonmetamath.mjs --help
 公开稳定版的注册表安装与公共入口调用已在独立消费者中完成验收：
 
 ```sh
-moon add AlexenderSokolov/moonmetamath@0.3.0
+moon add AlexenderSokolov/moonmetamath@0.4.0
 ```
 
-Mooncakes0.3.0已实际安装验收，可运行 `moon add AlexenderSokolov/moonmetamath@0.3.0`。独立注册表消费者已在两个后端验证15个操作，覆盖原子预览、新目标和独立导出。
+正式发布验收后可运行 `moon add AlexenderSokolov/moonmetamath@0.4.0`。独立注册表消费者已在两个后端验证15个操作，覆盖原子预览、新目标和独立导出。
 
 ## CLI：检查一个真实库
 
