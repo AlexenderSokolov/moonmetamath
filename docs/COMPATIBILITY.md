@@ -4,7 +4,7 @@
 
 旧schema 1/dispatch_json/src/core接口继续支持；新Engine实例隔离，关闭会话与卸载数据库不会连带清空别的资源。验证报告计数属于本次运行，私有不可变来源的历史verified依据保留。四份固定0.2.0工作文件持续重放恢复；工作文件格式不变。
 
-本轮基线为61项核心双后端、47项宿主、79项外部样例；最终实际结果见PROGRESS与0.3验收receipt。Chromium开发回归使用锁定Playwright，覆盖生命周期/候选失败/恢复/取消/导出。未据此宣称Firefox/WebKit、完整set.mm或新模型性能。
+0.3实际通过61项核心双后端、47项宿主、79项外部样例，以及本地/公网各12项Chromium流程；Windows/Linux CI及正式registry消费者通过，精确结果见PROGRESS与0.3验收receipt。Chromium开发回归使用锁定Playwright，覆盖生命周期/候选失败/恢复/取消/导出。未据此宣称Firefox/WebKit、完整set.mm或新模型性能。
 
 浏览器receipt绑定受测的12项实际资源及原始Playwright结果，下载证明须独立C有效。旧布尔receipt不能用于新验收。`node scripts/browser-check.mjs`运行本地；显式设置`MOONMM_WEB_URL`为完整公网web入口时，测试与资源摘要均来自该公网地址。
 

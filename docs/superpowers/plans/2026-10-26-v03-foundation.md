@@ -27,27 +27,27 @@
 
 Files: src/core/dispatch.mbt, verifier.mbt and focused tests; api.mbt, moon.pkg; generated .mbti; src/js_bridge if needed.
 Produces: root opaque Engine/new_engine/dispatch_engine; JS create_dispatcher factory; close_session and unload_database per spec. Keep old default dispatcher.
-- [ ] Add failing tests for independent engines, cross/expired handles, release/reuse beyond64, busy database, reset isolation, resource classification, reverify/export.
-- [ ] Implement smallest core owner and lifecycle operations; preserve immutable verification evidence while reports reflect current run.
-- [ ] Update generated interfaces, run format/check/test both backends, build JS and legacy tests once integrated. Record exact red/green evidence.
-- [ ] Self-review and return owned-file diff plus evidence; root owns commits/release.
+- [x] Add failing tests for independent engines, cross/expired handles, release/reuse beyond64, busy database, reset isolation, resource classification, reverify/export.
+- [x] Implement smallest core owner and lifecycle operations; preserve immutable verification evidence while reports reflect current run.
+- [x] Update generated interfaces, run format/check/test both backends, build JS and legacy tests once integrated. Record exact red/green evidence.
+- [x] Self-review and return owned-file diff plus evidence; root owns commits/release.
 
 ### Task 2: Host/UI integration and browser regression
 
 Files: bin/host.mjs, web/app.mjs, web/worker.mjs, tests/host/lifecycle.test.mjs, tests/web/foundation.spec.mjs, playwright.config.mjs, package.json/package-lock.json.
 Consumes: JS create_dispatcher returns function; lifecycle operations from T1. Produces npm run test:web and actual browser evidence under artifacts/browser-v03.
-- [ ] Add failing tests for coreClient isolation and repeated/failed target switch.
-- [ ] Make coreClient isolated, add atomic target/new-goal ownership transitions with cleanup and epoch checks.
-- [ ] Add Playwright dev-only pinned dependency and real DOM/Worker tests for >64 restarts, failed switch preserves work, save/restore including bad document, cancellation/late response and downloaded valid proof.
-- [ ] Run focused tests and browser suite after core build; preserve failures and evidence; no source-shape-only tests.
-- [ ] Return owned-file diff/evidence, root owns CI/acceptance/scripts/commits.
+- [x] Add failing tests for coreClient isolation and repeated/failed target switch.
+- [x] Make coreClient isolated, add atomic target/new-goal ownership transitions with cleanup and epoch checks.
+- [x] Add Playwright dev-only pinned dependency and real DOM/Worker tests for >64 restarts, failed switch preserves work, save/restore including bad document, cancellation/late response and downloaded valid proof.
+- [x] Run focused tests and browser suite after core build; preserve failures and evidence; no source-shape-only tests.
+- [x] Return owned-file diff/evidence, root owns CI/acceptance/scripts/commits.
 
 ### Task 3: Frozen compatibility, independent consumer, release evidence
 
 Files: tests/fixtures/notebooks/v0.2.0, tests/host/compatibility.test.mjs, examples/downstream, scripts/downstream.mjs, scripts/browser-receipt.mjs, scripts/acceptance.mjs, scripts/package.mjs, CI, run_* wrappers, README/API/COMPATIBILITY/CHANGELOG/PROJECT/PROGRESS and reuse notes.
-- [ ] Generate frozen notebook samples using git-tagged0.2.0 writer, retain provenance and expected state; run old-format replay and independent export checks.
-- [ ] Build standalone public-API consumer, run local workspace and JS/wasm-gc, later registry exact0.3.0; include source/example in release.
-- [ ] Bind browser receipt to tested assets with mismatch negative-control test; wire automated browser gate before Pages. Keep historical release check separate from current latest checks where needed.
-- [ ] Run integrated checks/consumer/browser/independent oracle/package, resolve independent task and whole-branch review findings.
-- [ ] Commit reviewed version0.3.0; publish original repo, Mooncakes, Release/Pages; verify actual CI, registry, downloaded archive and public assets/browser.
-- [ ] Update PROGRESS/PROJECT/reuse only from actual receipts, stop temporary services and finish.
+- [x] Generate frozen notebook samples using git-tagged0.2.0 writer, retain provenance and expected state; run old-format replay and independent export checks.
+- [x] Build standalone public-API consumer, run local workspace and JS/wasm-gc, later registry exact0.3.0; include source/example in release.
+- [x] Bind browser receipt to tested assets with mismatch negative-control test; wire automated browser gate before Pages. Keep historical release check separate from current latest checks where needed.
+- [x] Run integrated checks/consumer/browser/independent oracle/package, resolve independent task and whole-branch review findings.
+- [x] Commit reviewed version0.3.0; publish original repo, Mooncakes, Release/Pages; verify actual CI, registry, downloaded archive and public assets/browser.
+- [x] Update PROGRESS/PROJECT/reuse only from actual receipts, stop temporary services and finish.

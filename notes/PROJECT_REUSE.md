@@ -42,3 +42,20 @@ AI的bin/ai-policy.mjs递归allowlist，ai-transport.mjs使用官方Codex现有�
 0.2公开验收：CI39986871533成功，Mooncakes0.2.0 build_status success/has_package true/yanked false，独立registry消费者vAhhzH完成15操作两后端。公网站点public-swap经规则预览、新目标、部分保存、刷新恢复、finish及下载，public-independent-c为valid。整分支review6d88dbf通过并独立核对全部10题观察/动作及18候选；最终标签/资产见Release，正式字节比较以对应CI Pages制品为准。
 
 正式0.2.0 Release已完成：标签97190c3 / CI39987977412，运行包178402字节和实验包23521字节已从GitHub下载、SHA匹配并解压验收。公网11文件与对应CI Linux制品逐字一致。初次TLS网络失败保留，串行本机TLS恢复，无模型重跑。完整进度/artifactreceipt见PROGRESS。临时服务已停，未增加持久任务。
+
+
+## 2026-10-26：0.3长期运行基础与独立下游
+
+完成第一阶段并正式发布0.3.0，源码e99a812，CI40271500241，公开验收与Release归档清单见PROGRESS和artifacts/publication-v03.json。
+
+可复用入口：api.mbt公开Engine/new_engine/dispatch_engine及JS create_dispatcher；src/core/dispatch.mbt管理实例内资源和不复用句柄，close_session后再unload_database，活动引用拒绝卸载。verify_database针对不可变数据库保留已成功验证证据，报告仍按当前尝试计数；不把保存状态当证据。
+
+web/app.mjs的候选会话/数据库/Worker先成功后提交、失败清候选、成功清旧资源及epoch/任务序号处理，可用于长期编辑器。独立review发现真实Worker错误被epoch隐藏，已通过实际Worker抛错的红绿回归修复。
+
+兼容资产：tests/fixtures/notebooks/v0.2.0来自对应Git标签原写入器，manifest记录来源；tests/host/compatibility.test.mjs不依赖当前writer生成预期文件。examples/downstream为可复制独立MoonBit模块；scripts/downstream.mjs分别在新workspace和纯registry目录跑两个后端，导出交官方C复核，不宣称外部采用。
+
+发布证据：scripts/browser-check.mjs执行真实Playwright并对实际受测本地/公网资源做前后绑定、原报告摘要及下载C复核；scripts/browser-receipt.mjs拒绝错构建、缺项、skip/flaky记录。CI发布直接采用受测Linux站点制品。当前publication与历史版本归档区分，Release清单长期保留工具链、源码、资源及验收摘要。
+
+验证：61核心/后端、47宿主、79外部与独立参考、4官方小库、本地及公网各12浏览器、独立下游workspace/registry双后端、实际发行ZIP下载与HOL151通过。源码/宿主/整分支review完成且发现关闭。原红测保留；无大库性能、训练、外部采用、Firefox/WebKit或Mac/ARM结论。
+
+提示词来源：2026-10-26本次对话用户原文：“那就按你推荐的路线推进，先把第一阶段的长期使用基础做完，并准备一个独立下游接入示例。保持统一内核和旧接口兼容，完成测试、独立审查、发布与验收，全自动推进，不用反复问我，也别扩成大平台。”对应规格/计划、发布提交和以上验收构成成功关联；没有创建新模型实验或持久后台任务。

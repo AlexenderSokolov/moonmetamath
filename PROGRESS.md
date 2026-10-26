@@ -1,10 +1,24 @@
 # MoonMetamath 当前进度
 
-## 2026-10-26：0.3长期使用基础（实施中）
+更新：2026-10-26。0.3.0第一阶段长期使用基础、独立下游、发布与验收全部完成；没有活动后台任务。
 
-用户批准第一阶段、独立下游、测试/独立审查/发布/验收，全自动推进。规格与计划见docs/superpowers/specs/2026-10-26-long-term-foundation.md及对应plans；恢复ledger为.superpowers/sdd/v03-foundation/progress.md。
+## 0.3.0 已交付
 
-当前核心61测试双后端通过，集成47宿主与79fixture通过；独立下游workspace两后端实际导出并由C接受。核心Task1独立审查PASS。最终网页12项Chromium流程及独立C下载复核通过；完整本地G0–G4验收artifacts/v03-acceptance-local/result.json为PASS。Task2审查PASS，其worker故障提示P3已红绿修复。0.3尚未发布，责任为本chat根执行者；下一单元为整分支审查、完整本地验收、正式发布与实际下载验收。没有新模型实验。
+用户本轮批准“第一阶段长期使用基础+独立下游示例”，包含测试、独立审查、发布与验收，全自动执行；不扩平台。规格与计划见docs/superpowers/specs/2026-10-26-long-term-foundation.md及对应plans。实现来源为v0.3.0/e99a812944b59802ecb90ce8284750947c13e3ec，原0.1/0.2标签保持不变。
+
+- 核心：独立Engine/new_engine/dispatch_engine、JS create_dispatcher、close_session/unload_database、不可变来源已验证依据保留、资源错误outcome归类。旧schema1/dispatch_json/src/core接口保留。
+- 网页：目标/新目标/上传/恢复的候选资源成功后才接管，失败保留当前证明，成功回收旧资源；取消与迟到结果隔离，真实Worker故障保持可见。
+- 兼容与下游：四份由0.2.0原版writer生成的工作文件持续恢复；examples/downstream只导入根API，在workspace及registry安装下的JS/wasm-gc运行80次会话复用与实际证明导出，全部独立C有效。示例不构成外部采用证据。
+- 验证：61核心测试/后端、47宿主、79外部样例、79独立参考对照、4官方小库、12本地Chromium流程通过。完整本地G0–G4为artifacts/v03-acceptance-local/result.json PASS；源码/宿主/整分支独立review PASS，无未解决发现。
+- 发布：Mooncakes0.3.0 build_status=success/has_package=true/yanked=false；正式Release及Pages已发布。CI40271500241的Windows/Linux与Pages均success，Pages部署的是受测Linux制品。旧15操作registry消费者及新独立下游均通过。
+- 公网：G5 artifacts/v03-publication-final/result.json PASS；12项公共资源与上述成功CI实际制品逐字节一致；公网12项Chromium流程和下载证明独立C均通过，见artifacts/v03-public-browser/receipt.json。
+- 发行包：实际下载、SHA256一致，解压后不依赖MoonBit/Python/C运行CLI，HOL151证明通过，JS实例隔离与下游文件包含检查通过。archive SHA256为30efd2334e6f69ae99c2eec52ccced7f80b992024cf0fb143c912cbb2401a784；证据artifacts/release-v03/download-7sUGrL/result.json。Release附release-manifest.json、local/publication/download-verification及SHA256SUMS，保留源码/工具链/制品/验收摘要。
+
+发布入口：https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.3.0 ；在线：https://alexendersokolov.github.io/moonmetamath/web/ 。汇总artifacts/publication-v03.json；复用说明notes/PROJECT_REUSE.md。
+
+本轮失败保留：生命周期/资源分类的核心红测、客户端和UI红测、浏览器receipt负对照、Worker故障提示回归红测。两个审查问题已关闭：Worker错误提示以及历史ref文档矛盾。没有新增模型调用、训练、完整set.mm性能或外部采用结论；Firefox/WebKit、Mac/ARM不在本轮验证范围。临时浏览器服务器随测试结束退出，无持久监控。责任根执行者已完成全部约定目标，后续阶段不自动启动。
+
+## 0.2及更早版本历史
 
 更新2026-10-24。唯一进度入口；历史规划不覆盖本页当前事实。
 

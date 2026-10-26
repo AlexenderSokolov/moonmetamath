@@ -1,8 +1,8 @@
 # MoonMetamath 项目说明
 
-更新：2026-10-24。0.1.1已公开交付；当前0.2.0本地、实际浏览器与公开交付验收通过。正式分支main，开发历史保留codex/metamath-v0.1。实时证据见[PROGRESS.md](PROGRESS.md)。
+更新：2026-10-26。0.3.0长期使用基础、独立下游、实际浏览器及公开交付验收完成；正式main，发布标签v0.3.0，源码e99a812。事实与证据见[PROGRESS.md](PROGRESS.md)。
 
-## 0.3当前实施入口
+## 0.3长期使用基础
 
 2026-10-26用户批准第一阶段长期使用基础及独立下游示例，包括测试、独立审查、发布与验收，全自动推进。规格见[长期使用基础](docs/superpowers/specs/2026-10-26-long-term-foundation.md)，计划见[0.3实施计划](docs/superpowers/plans/2026-10-26-v03-foundation.md)，实际完成度以PROGRESS为准。
 

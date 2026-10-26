@@ -2,7 +2,7 @@
 
 MoonBit 原生的 Metamath `.mm` 验证与逐步证明库，附 Node CLI 和浏览器证明实验室。解析、代换、不交变量检查、普通/压缩证明、交互会话与导出都由同一个 MoonBit 核心执行；运行产品无需 Python、C 检查器或模型凭据。
 
-**0.3.0 长期使用基础：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.3.0)。发布与验收的实际状态见 [PROGRESS.md](PROGRESS.md)。
+**0.3.0 已公开交付（长期使用基础）：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.3.0)。发布与验收的实际状态见 [PROGRESS.md](PROGRESS.md)。
 
 新增独立 Engine / JavaScript dispatcher factory、单会话关闭与数据库卸载；旧 schema 1 和 dispatch_json 保持兼容。网页在目标切换、上传和恢复成功后才采用新状态，失败保留原工作。较小预算的重复验证不会撤销不可变数据库此前的有效证明依据。
 
@@ -41,7 +41,7 @@ node bin/moonmetamath.mjs --help
 moon add AlexenderSokolov/moonmetamath@0.3.0
 ```
 
-注册表版本验收后可运行 `moon add AlexenderSokolov/moonmetamath@0.3.0`。独立注册表消费者已在两个后端验证15个操作，覆盖原子预览、新目标和独立导出。
+Mooncakes0.3.0已实际安装验收，可运行 `moon add AlexenderSokolov/moonmetamath@0.3.0`。独立注册表消费者已在两个后端验证15个操作，覆盖原子预览、新目标和独立导出。
 
 ## CLI：检查一个真实库
 
