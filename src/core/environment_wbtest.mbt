@@ -117,3 +117,64 @@ test "negative limits are rejected as configuration errors" {
     Ok(_) => fail("scanner accepted negative limits")
   }
 }
+
+///|
+test "unchanged private context snapshots reuse storage independently" {
+  let db = parse_ok(
+    "$c wff |- $. $v x y $. fx $f wff x $. fy $f wff y $. a $a |- x $. b $a |- y $. ex $e |- x $. c $a |- y $. $d x y $. d $a |- y $. $d x y $. e $a |- x $. ${ $v z $. fz $f wff z $. inner $a |- z $. $} outer $a |- x $.",
+  )
+  let a = db.statements[db.labels["a"]]
+  let b = db.statements[db.labels["b"]]
+  let c = db.statements[db.labels["c"]]
+  let d = db.statements[db.labels["d"]]
+  let e = db.statements[db.labels["e"]]
+  let inner = db.statements[db.labels["inner"]]
+  let outer = db.statements[db.labels["outer"]]
+  // Representation guards for the measured retained-array allocation problem.
+  // Mathematical semantics never depend on physical identity.
+  assert_true(physical_equal(a.active_variables, b.active_variables))
+  assert_true(physical_equal(a.active_hypotheses, b.active_hypotheses))
+  assert_true(physical_equal(a.active_disjoint, b.active_disjoint))
+  assert_true(physical_equal(b.active_variables, c.active_variables))
+  assert_false(physical_equal(b.active_hypotheses, c.active_hypotheses))
+  assert_true(physical_equal(b.active_disjoint, c.active_disjoint))
+  assert_true(physical_equal(c.active_variables, d.active_variables))
+  assert_true(physical_equal(c.active_hypotheses, d.active_hypotheses))
+  assert_false(physical_equal(c.active_disjoint, d.active_disjoint))
+  assert_true(physical_equal(d.active_disjoint, e.active_disjoint))
+  assert_eq(a.active_variables, ["x", "y"])
+  assert_eq(a.active_hypotheses, ["fx", "fy"])
+  assert_eq(a.active_disjoint, [])
+  assert_eq(inner.active_variables, ["x", "y", "z"])
+  assert_eq(inner.active_hypotheses, ["fx", "fy", "ex", "fz"])
+  assert_eq(outer.active_variables, ["x", "y"])
+  assert_eq(outer.active_hypotheses, ["fx", "fy", "ex"])
+  assert_eq(outer.active_disjoint, [("x", "y")])
+}
+
+///|
+test "snapshot invalidation follows nested pop and variable redeclaration" {
+  let db = parse_ok(
+    "$c wff |- $. $v x $. fx $f wff x $. before $a |- x $. ${ $v y $. fy $f wff y $. $d x y $. ${ $v z $. fz $f wff z $. $d y z $. deep $a |- z $. $} middle $a |- y $. $} after $a |- x $. ${ $v y $. gy $f wff y $. again $a |- y $. $} end $a |- x $.",
+  )
+  let deep = db.statements[db.labels["deep"]]
+  let middle = db.statements[db.labels["middle"]]
+  let after = db.statements[db.labels["after"]]
+  let again = db.statements[db.labels["again"]]
+  let end = db.statements[db.labels["end"]]
+  assert_eq(deep.active_variables, ["x", "y", "z"])
+  assert_eq(deep.active_hypotheses, ["fx", "fy", "fz"])
+  assert_eq(deep.active_disjoint, [("x", "y"), ("y", "z")])
+  assert_eq(middle.active_variables, ["x", "y"])
+  assert_eq(middle.active_hypotheses, ["fx", "fy"])
+  assert_eq(middle.active_disjoint, [("x", "y")])
+  assert_eq(after.active_variables, ["x"])
+  assert_eq(after.active_hypotheses, ["fx"])
+  assert_eq(after.active_disjoint, [])
+  assert_eq(again.active_variables, ["x", "y"])
+  assert_eq(again.active_hypotheses, ["fx", "gy"])
+  assert_eq(again.active_disjoint, [])
+  assert_eq(end.active_variables, ["x"])
+  assert_eq(end.active_hypotheses, ["fx"])
+  assert_eq(end.active_disjoint, [])
+}

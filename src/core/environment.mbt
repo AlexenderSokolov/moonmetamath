@@ -6,6 +6,11 @@ priv struct MMEnv {
   variables : Array[String]
   hypotheses : Array[Int]
   disjoint : Array[(String, String)]
+  // Snapshots are private, immutable after publication, and independent of the
+  // mutable environment arrays. Only the changed component is invalidated.
+  mut variables_snapshot : Array[String]?
+  mut hypotheses_snapshot : Array[String]?
+  mut disjoint_snapshot : Array[(String, String)]?
   statements : Array[MMDecl]
   labels : Map[String, Int]
 }
@@ -19,8 +24,47 @@ fn new_env() -> MMEnv {
     variables: [],
     hypotheses: [],
     disjoint: [],
+    variables_snapshot: None,
+    hypotheses_snapshot: None,
+    disjoint_snapshot: None,
     statements: [],
     labels: Map([]),
+  }
+}
+
+///|
+fn snapshot_variables(env : MMEnv) -> Array[String] {
+  match env.variables_snapshot {
+    Some(snapshot) => snapshot
+    None => {
+      let snapshot = env.variables.copy()
+      env.variables_snapshot = Some(snapshot)
+      snapshot
+    }
+  }
+}
+
+///|
+fn snapshot_hypotheses(env : MMEnv) -> Array[String] {
+  match env.hypotheses_snapshot {
+    Some(snapshot) => snapshot
+    None => {
+      let snapshot = env.hypotheses.map(idx => env.statements[idx].label)
+      env.hypotheses_snapshot = Some(snapshot)
+      snapshot
+    }
+  }
+}
+
+///|
+fn snapshot_disjoint(env : MMEnv) -> Array[(String, String)] {
+  match env.disjoint_snapshot {
+    Some(snapshot) => snapshot
+    None => {
+      let snapshot = env.disjoint.copy()
+      env.disjoint_snapshot = Some(snapshot)
+      snapshot
+    }
   }
 }
 
@@ -192,9 +236,9 @@ fn add_decl(
     order: index,
     hypotheses: mandatory,
     disjoint: mandatory_d,
-    active_disjoint: env.disjoint.copy(),
-    active_variables: env.variables.copy(),
-    active_hypotheses: env.hypotheses.map(idx => env.statements[idx].label),
+    active_disjoint: snapshot_disjoint(env),
+    active_variables: snapshot_variables(env),
+    active_hypotheses: snapshot_hypotheses(env),
     status: if kind == "$p" {
       "not_checked"
     } else if kind == "$a" {
@@ -214,6 +258,7 @@ fn add_decl(
   }
   if kind == "$f" || kind == "$e" {
     env.hypotheses.push(index)
+    env.hypotheses_snapshot = None
   }
   Ok(())
 }

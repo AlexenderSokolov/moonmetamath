@@ -27,20 +27,19 @@ pub fn scan_source(
       token_error(eof, "resource_limit", "Source exceeds max_file_bytes"),
     )
   }
-  let chars = text.iter().collect()
   let mut line = 1
   let mut column = 1
   let mut previous_cr = false
+  let mut offset = 0
   // Validate before tokenization, including comments. Accepted characters are ASCII.
-  for i in 0..<chars.length() {
-    let c = chars[i]
+  for c in text.iter() {
     if (c.to_int() < 32 && !is_mm_space(c)) || c.to_int() > 126 {
       return Err({
         code: "invalid_ascii",
         message: "Expected printable ASCII or standard whitespace",
         source,
-        start: i,
-        end: i + 1,
+        start: offset,
+        end: offset + 1,
         line,
         column,
       })
@@ -57,6 +56,7 @@ pub fn scan_source(
       column = column + 1
     }
     previous_cr = c == '\r'
+    offset = offset + 1
   }
   let tokens : Array[MMToken] = []
   let mut comment : MMToken? = None
@@ -64,9 +64,10 @@ pub fn scan_source(
   line = 1
   column = 1
   previous_cr = false
-  while i < chars.length() {
-    if is_mm_space(chars[i]) {
-      let c = chars[i]
+  // Every code unit is now ASCII, so direct indexing needs no character buffer.
+  while i < text.length() {
+    let c = text[i].unsafe_to_char()
+    if is_mm_space(c) {
       if c == '\r' {
         line = line + 1
         column = 1
@@ -84,7 +85,7 @@ pub fn scan_source(
     }
     let start = i
     let start_column = column
-    while i < chars.length() && !is_mm_space(chars[i]) {
+    while i < text.length() && !is_mm_space(text[i].unsafe_to_char()) {
       i = i + 1
       column = column + 1
     }

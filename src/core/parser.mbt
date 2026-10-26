@@ -167,11 +167,20 @@ fn parse_file(
             ),
           )
         Some((v, h, d, _)) => {
+          if env.variables.length() > v {
+            env.variables_snapshot = None
+          }
           while env.variables.length() > v {
             ignore(env.variables.pop())
           }
+          if env.hypotheses.length() > h {
+            env.hypotheses_snapshot = None
+          }
           while env.hypotheses.length() > h {
             ignore(env.hypotheses.pop())
+          }
+          if env.disjoint.length() > d {
+            env.disjoint_snapshot = None
           }
           while env.disjoint.length() > d {
             ignore(env.disjoint.pop())
@@ -299,6 +308,7 @@ fn parse_file(
           }
           env.ever_variables.set(symbol, true)
           env.variables.push(symbol)
+          env.variables_snapshot = None
         }
       }
     } else if kind == "$d" {
@@ -328,6 +338,7 @@ fn parse_file(
           let pair = pair_canonical(expression[a], expression[b])
           if !env.disjoint.contains(pair) {
             env.disjoint.push(pair)
+            env.disjoint_snapshot = None
           }
         }
       }
