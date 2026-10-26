@@ -31,8 +31,9 @@ export async function coreClient(){
  const artifact=resolve(root,'dist','moonmetamath-core.mjs');
  if(!existsSync(artifact))throw new HostError('Compiled core missing; run node scripts/build.mjs. Release archives include it.');
  const core=await import(pathToFileURL(artifact).href);
+ const dispatch=core.create_dispatcher();
  let serial=0;
- return request=>JSON.parse(core.dispatch_json(JSON.stringify({schema_version:1,request_id:String(++serial),...request})));
+ return request=>JSON.parse(dispatch(JSON.stringify({schema_version:1,request_id:String(++serial),...request})));
 }
 export function exitFor(result){
  const outcome=result.outcome;

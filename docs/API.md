@@ -4,6 +4,18 @@
 
 本文包含0.2.0新增的 `rules`、`preview`、`create_goal`；schema版本仍为1。0.2.0已从Mooncakes安装，并经独立消费者在JS/wasm-gc完成包含新增接口的15操作验收。
 
+## 0.3 独立实例与兼容入口
+
+原根 `dispatch_json(String)->String` 仍使用默认实例，所有旧操作保持 schema 1。原生消费者新增根公开 `Engine`（字段私有）、`new_engine()->Engine` 和 `dispatch_engine(Engine,String)->String`。既有 `src/core` 结构化接口继续保留。
+
+JavaScript 构建产物额外导出 `create_dispatcher()`，每次返回拥有独立数据库与会话的 `(requestJson)=>responseJson` 函数。`bin/host.mjs` 的 `coreClient()` 仍返回原签名的请求函数，现在每次调用都会创建独立 dispatcher。
+
+实例内最多保留16个数据库和64个活动构造会话。`close_session` 单独释放会话；完成但未关闭的会话仍占用资源。`unload_database` 遇到活动会话返回 `DatabaseInUse`，不会隐式级联关闭；先关闭属于该库的会话再卸载。释放后旧句柄拒绝，reset也不会使它们复活；不同实例不能串用句柄。
+
+诊断code保留原兼容拼写；`resource_limit` 与 `ResourceLimit` 均映射为 `outcome: resource_limit`。加载失败的status仍为error，批量验证报告的status语义不变。
+
+`verify` 的计数、complete和outcome描述本次检查。源与证明不可变，已经取得的verified依据不会被较小预算重验撤销；因此本次报告可能resource_limit，而list和先前会话仍可使用早先验证的定理。未验证过的定理依旧不可用。这不是缓存文件授权，也不信任持久化状态。
+
 ## 请求与响应
 
 所有请求必须包含整数 `schema_version: 1`、字符串 `request_id` 与字符串 `operation`。未知操作、未知字段、错误字段类型都会被拒绝；不忽略调用者传入的未知动作。
@@ -41,6 +53,8 @@
 | `finish` | `session_id` | `view`；只有栈恰有一项且与目标逐 token 相等才完成 |
 | `export` | `session_id`, `new_label` | `text`, `new_label`, `source_ids`；导出自足普通证明 |
 | `replay` | `database_id`, `target_label`, 可选 `limits` | `view`, `events`, `mode: "replay"`；只读检查原证明 |
+| `close_session` | `session_id` | 成功data为null；未知或已关闭句柄返回UnknownSession |
+| `unload_database` | `database_id` | 成功data为null；活动会话存在时DatabaseInUse，未知句柄UnknownDatabase |
 | `reset` | 无额外字段 | data 为 null；释放本实例全部数据库和会话句柄 |
 
 `sources` 是 `{source_id: String, text: String}` 数组。源名是逻辑名字，不授予磁盘或网络访问权限。include 只在集合内解析；相对路径以包含文件所在逻辑目录为基准，规范化后同名源只处理第一次。
@@ -179,3 +193,7 @@ const restored = await restoreNotebook(document, isolatedRequest);
 | 5 | 资源额度或取消 |
 
 具体诊断仍须读取 JSON。CLI session 接受动作数组或 `{schema_version:1, actions:[...]}`，可执行 apply_label、rewind、finish；由宿主注入 session_id，执行后最终调用 finish。CLI export 使用新标签 `moonmm-session-1`，不覆盖任何已有目的文件。Web/直接 API 可指定新标签。
+
+## 跨版本兼容检查
+
+保存格式保持schema 1，未知字段/未知动作/新版本仍明确拒绝。tests/fixtures/notebooks/v0.2.0固定保存由0.2.0原写入器产生的include、部分/完成、作用域和$d样例；新版本必须重放恢复并独立检查完成导出。将来改变格式时显式升版，不通过放宽严格动作校验来兼容。

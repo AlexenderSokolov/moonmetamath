@@ -1,9 +1,11 @@
-import { dispatch_json } from '../dist/moonmetamath-core.mjs';
+import { create_dispatcher } from '../dist/moonmetamath-core.mjs';
+
+const dispatch = create_dispatcher();
 
 // The worker owns opaque native handles. Termination deliberately destroys them.
 self.addEventListener('message', ({ data: request }) => {
   try {
-    const response = JSON.parse(dispatch_json(JSON.stringify(request)));
+    const response = JSON.parse(dispatch(JSON.stringify(request)));
     self.postMessage(response);
   } catch (error) {
     self.postMessage({

@@ -2,9 +2,11 @@
 
 MoonBit 原生的 Metamath `.mm` 验证与逐步证明库，附 Node CLI 和浏览器证明实验室。解析、代换、不交变量检查、普通/压缩证明、交互会话与导出都由同一个 MoonBit 核心执行；运行产品无需 Python、C 检查器或模型凭据。
 
-**0.2.0 已公开交付：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.2.0) · [Windows/Linux CI](https://github.com/AlexenderSokolov/moonmetamath/actions)。模块名为 `AlexenderSokolov/moonmetamath`。注册表构建成功，独立消费者已从注册表安装并在JS、wasm-gc实际运行；网页使用MoonBit生成的JavaScript。
+**0.3.0 长期使用基础：** [在线证明实验室](https://alexendersokolov.github.io/moonmetamath/web/) · [Mooncakes](https://mooncakes.io/docs/AlexenderSokolov/moonmetamath) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.3.0)。发布与验收的实际状态见 [PROGRESS.md](PROGRESS.md)。
 
-**0.2.0** 已完成规则查找、单步预览、继承上下文的新目标、保存恢复和首次真实AI补全实验。本地、实际浏览器、双平台CI、注册表安装与公共接口均已验收。
+新增独立 Engine / JavaScript dispatcher factory、单会话关闭与数据库卸载；旧 schema 1 和 dispatch_json 保持兼容。网页在目标切换、上传和恢复成功后才采用新状态，失败保留原工作。较小预算的重复验证不会撤销不可变数据库此前的有效证明依据。
+
+[独立下游示例](examples/downstream/README.md)仅导入根公开接口，演示隔离引擎、80次会话释放复用及实际证明导出。四份冻结的0.2.0工作文件持续检查旧格式兼容；Chromium回归覆盖生命周期、失败切换、恢复、取消与下载，验收记录绑定实际受测资源。
 
 ## 可以做什么
 
@@ -36,10 +38,10 @@ node bin/moonmetamath.mjs --help
 公开稳定版的注册表安装与公共入口调用已在独立消费者中完成验收：
 
 ```sh
-moon add AlexenderSokolov/moonmetamath@0.2.0
+moon add AlexenderSokolov/moonmetamath@0.3.0
 ```
 
-Mooncakes已发布0.2.0，可运行 `moon add AlexenderSokolov/moonmetamath@0.2.0`。独立注册表消费者已在两个后端验证15个操作，覆盖原子预览、新目标和独立导出。
+注册表版本验收后可运行 `moon add AlexenderSokolov/moonmetamath@0.3.0`。独立注册表消费者已在两个后端验证15个操作，覆盖原子预览、新目标和独立导出。
 
 ## CLI：检查一个真实库
 

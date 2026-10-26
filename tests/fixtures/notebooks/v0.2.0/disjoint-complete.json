@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "entry": "disjoint.mm",
+  "sources": [
+    {
+      "source_id": "disjoint.mm",
+      "text": "$( MoonMetamath exercise 03: a disjoint-variable diagnostic.\n   Self-authored teaching fixture. Dedicated to the public domain under CC0-1.0.\n   https://creativecommons.org/publicdomain/zero/1.0/\n   vx vx pair-rule fails: the substitutions intersect.\n   vx vy pair-rule succeeds. A new goal |- pair y x uses the same context. $)\n$c setvar |- pair $.\n$v x y $.\nvx $f setvar x $.\nvy $f setvar y $.\n${\n  $d x y $.\n  pair-rule $a |- pair x y $.\n  disjoint-goal $p |- pair x y $= ? $.\n$}\n",
+      "sha256": "3c0d3502198aa698002035e324368e6868489fbbdb8d6f9ece84fb11cfb0ecac"
+    }
+  ],
+  "target_label": "disjoint-goal",
+  "actions": [
+    {
+      "operation": "apply_label",
+      "label": "vx"
+    },
+    {
+      "operation": "apply_label",
+      "label": "vy"
+    },
+    {
+      "operation": "apply_label",
+      "label": "pair-rule"
+    }
+  ],
+  "completed": true
+}

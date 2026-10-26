@@ -5,5 +5,10 @@ import {
 pkgtype(kind: "foreign_library")
 
 options(
-  link: { "js": { "exports": [ "dispatch_json" ], "format": "esm" } },
+  link: {
+    "js": {
+      "exports": [ "dispatch_json", "create_dispatcher" ],
+      "format": "esm",
+    },
+  },
 )

@@ -2,6 +2,8 @@
 package "AlexenderSokolov/moonmetamath/src/js_bridge"
 
 // Values
+pub fn create_dispatcher() -> (String) -> String
+
 pub fn dispatch_json(String) -> String
 
 // Errors

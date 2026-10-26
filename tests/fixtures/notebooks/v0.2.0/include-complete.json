@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "entry": "main.mm",
+  "sources": [
+    {
+      "source_id": "main.mm",
+      "text": "$[ rules.mm $] earlier $p t a $= ax $. target $p t a $= ax copy $. future $p t a $= ax $.",
+      "sha256": "2b1cf0b605dd4f13a79c90a6759c2cd0d5ebf96440056baea34d6e7489ad859b"
+    },
+    {
+      "source_id": "rules.mm",
+      "text": "$c t a b $. $v x $. wx $f t x $. ax $a t a $. copy $a t x $.",
+      "sha256": "51fd52a629e883c3fa03be58640c368f07cb926148e0e56fde5d74c359e341b4"
+    }
+  ],
+  "target_label": "target",
+  "actions": [
+    {
+      "operation": "apply_label",
+      "label": "ax"
+    },
+    {
+      "operation": "apply_label",
+      "label": "copy"
+    }
+  ],
+  "completed": true
+}

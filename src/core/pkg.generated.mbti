@@ -12,6 +12,8 @@ pub fn create_goal(MMDatabase, String, String, Array[String], Limits) -> Result[
 
 pub fn default_limits() -> Limits
 
+pub fn dispatch_engine(Engine, String) -> String
+
 pub fn dispatch_json(String) -> String
 
 pub fn export_normal_proof(MMSession, String) -> Result[MMExport, MMError]
@@ -19,6 +21,8 @@ pub fn export_normal_proof(MMSession, String) -> Result[MMExport, MMError]
 pub fn finish(MMSession) -> Result[MMSessionView, MMError]
 
 pub fn inspect_session(MMSession) -> MMSessionView
+
+pub fn new_engine() -> Engine
 
 pub fn parse_sources(String, Array[(String, String)]) -> Result[MMDatabase, MMError]
 
@@ -41,6 +45,10 @@ pub fn verify_database(MMDatabase, Limits) -> MMReport
 // Errors
 
 // Types and methods
+pub struct Engine {
+  // private fields
+}
+
 pub struct Limits {
   max_file_bytes : Int
   max_total_bytes : Int

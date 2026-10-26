@@ -72,15 +72,16 @@ pub fn verify_database(db : MMDatabase, limits : Limits) -> MMReport {
   let mut not_checked_count = 0
   let mut resource_limit = false
   let mut operations = 0
-  for decl in db.statements {
-    if decl.kind == "$p" {
-      decl.status = "not_checked"
-    }
-  }
   for index = 0; index < db.statements.length(); index = index + 1 {
     let decl = db.statements[index]
     if decl.kind != "$p" {
       continue
+    }
+    // Source and proof are immutable. A later bounded attempt cannot revoke
+    // established evidence, but this report counts only the current attempt.
+    let previously_verified = decl.status == "verified"
+    if !previously_verified {
+      decl.status = "not_checked"
     }
     if resource_limit {
       not_checked_count = not_checked_count + 1
@@ -107,16 +108,20 @@ pub fn verify_database(db : MMDatabase, limits : Limits) -> MMReport {
       }
       Err(err) => {
         diagnostics.push(err)
-        if err.code == "ResourceLimit" {
+        if is_resource_limit(err.code) {
           resource_limit = true
           not_checked_count = not_checked_count + 1
         } else if err.code == "IncompleteProof" {
-          decl.status = "incomplete"
+          if !previously_verified {
+            decl.status = "incomplete"
+          }
           incomplete_count = incomplete_count + 1
         } else if err.code == "UnverifiedDependency" {
           not_checked_count = not_checked_count + 1
         } else {
-          decl.status = "invalid"
+          if !previously_verified {
+            decl.status = "invalid"
+          }
           invalid_count = invalid_count + 1
         }
       }

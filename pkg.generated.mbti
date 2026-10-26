@@ -2,11 +2,20 @@
 package "AlexenderSokolov/moonmetamath"
 
 // Values
+pub fn create_dispatcher() -> (String) -> String
+
+pub fn dispatch_engine(Engine, String) -> String
+
 pub fn dispatch_json(String) -> String
+
+pub fn new_engine() -> Engine
 
 // Errors
 
 // Types and methods
+pub struct Engine {
+  // private fields
+}
 
 // Type aliases
 

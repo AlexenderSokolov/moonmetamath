@@ -160,3 +160,31 @@ test "verification does not retain event history" {
   assert_eq(session.operations, 4)
   assert_eq(session.events.length(), 0)
 }
+
+///|
+test "low budget report preserves previously established immutable evidence" {
+  let db = proof_fixture("$c t $. a $a t $. p $p t $= a $. q $p t $= p $.")
+  assert_eq(verify_database(db, default_limits()).verified_count, 2)
+  let report = verify_database(db, { ..default_limits(), max_operations: 0, })
+  assert_eq(report.outcome, "resource_limit")
+  assert_eq(report.verified_count, 0)
+  assert_eq(report.not_checked_count, 2)
+  assert_eq(db.statements[db.labels["p"]].status, "verified")
+  let session = match start_proof(db, "q", default_limits()) {
+    Ok(s) => s
+    Err(e) => abort(e.message)
+  }
+  assert_true(apply_label(session, "p") is Ok(_))
+  assert_true(finish(session) is Ok(_))
+  let exported = match export_normal_proof(session, "result") {
+    Ok(e) => e
+    Err(e) => abort(e.message)
+  }
+  assert_eq(
+    verify_database(proof_fixture(exported.text), default_limits()).outcome,
+    "valid",
+  )
+  let fresh = proof_fixture("$c t $. a $a t $. p $p t $= a $. q $p t $= p $.")
+  ignore(verify_database(fresh, { ..default_limits(), max_operations: 0, }))
+  assert_true(start_proof(fresh, "q", default_limits()) is Err(_))
+}

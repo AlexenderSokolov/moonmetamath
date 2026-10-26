@@ -1,13 +1,41 @@
 // Versioned wire adapter. All semantic operations below call the native core.
 
 ///|
-let wire_databases : Map[String, MMDatabase] = Map([])
+pub struct Engine {
+  priv databases : Map[String, MMDatabase]
+  priv sessions : Map[String, (String, MMSession)]
+}
 
 ///|
-let wire_sessions : Map[String, MMSession] = Map([])
+pub fn new_engine() -> Engine {
+  { databases: Map([]), sessions: Map([]), }
+}
+
+///|
+let default_engine : Engine = new_engine()
 
 ///|
 let wire_serial : Array[Int] = [0]
+
+///|
+// Decimal digits avoid bounded integer wraparound reviving an expired handle.
+fn next_wire_id(prefix : String) -> String {
+  let mut digit = 0
+  while digit < wire_serial.length() && wire_serial[digit] == 9 {
+    wire_serial[digit] = 0
+    digit = digit + 1
+  }
+  if digit == wire_serial.length() {
+    wire_serial.push(1)
+  } else {
+    wire_serial[digit] = wire_serial[digit] + 1
+  }
+  let characters : Array[String] = []
+  for i = wire_serial.length() - 1; i >= 0; i = i - 1 {
+    characters.push(wire_serial[i].to_string())
+  }
+  prefix + characters.join("")
+}
 
 ///|
 fn jstring(value : String) -> Json {
@@ -37,6 +65,11 @@ fn jobject(fields : Array[(String, Json)]) -> Json {
 ///|
 fn wire_error(code : String, message : String) -> MMError {
   { code, message, source: "request", start: 0, end: 0, line: 1, column: 1, }
+}
+
+///|
+fn is_resource_limit(code : String) -> Bool {
+  code == "resource_limit" || code == "ResourceLimit"
 }
 
 ///|
@@ -243,8 +276,11 @@ fn rules_json(page : MMRulePage) -> Json {
 
 ///|
 fn dispatch_request(
+  engine : Engine,
   req : Json,
 ) -> Result[(Json, Json, Array[MMError]), MMError] {
+  let wire_databases = engine.databases
+  let wire_sessions = engine.sessions
   let op = match field_string(req, "operation") {
     Ok(v) => v
     Err(e) => return Err(e)
@@ -252,6 +288,7 @@ fn dispatch_request(
   let allowed = match op {
     "load" => ["entry", "sources", "limits"]
     "verify" | "list" => ["database_id", "limits"]
+    "unload_database" => ["database_id"]
     "start" | "replay" => ["database_id", "target_label", "limits"]
     "rules" =>
       ["database_id", "target_label", "query", "typecode", "offset", "limit"]
@@ -260,7 +297,7 @@ fn dispatch_request(
     "apply_label" | "preview" => ["session_id", "label"]
     "rewind" => ["session_id", "successful_step_count"]
     "export" => ["session_id", "new_label"]
-    "inspect" | "finish" => ["session_id"]
+    "inspect" | "finish" | "close_session" => ["session_id"]
     "reset" => []
     _ => return Err(wire_error("InputError", "Unknown operation: " + op))
   }
@@ -333,8 +370,7 @@ fn dispatch_request(
       Ok(v) => v
       Err(e) => return Err(e)
     }
-    wire_serial[0] = wire_serial[0] + 1
-    let id = "db-" + wire_serial[0].to_string()
+    let id = next_wire_id("db-")
     wire_databases[id] = db
     return Ok(
       (
@@ -348,7 +384,9 @@ fn dispatch_request(
       ),
     )
   }
-  if ["verify", "list", "start", "replay", "rules", "create_goal"].contains(op) {
+  if [
+      "verify", "list", "start", "replay", "rules", "create_goal", "unload_database",
+    ].contains(op) {
     let id = match field_string(req, "database_id") {
       Ok(v) => v
       Err(e) => return Err(e)
@@ -359,6 +397,19 @@ fn dispatch_request(
         return Err(
           wire_error("UnknownDatabase", "Unknown or expired database handle"),
         )
+    }
+    if op == "unload_database" {
+      for _, (owner, _) in wire_sessions {
+        if owner == id {
+          return Err(
+            wire_error(
+              "DatabaseInUse", "Close all sessions before unloading their database",
+            ),
+          )
+        }
+      }
+      wire_databases.remove(id)
+      return Ok((Json::null(), Json::null(), []))
     }
     if op == "rules" {
       let target = match field_string(req, "target_label") {
@@ -441,8 +492,7 @@ fn dispatch_request(
         Ok(c) => c
         Err(e) => return Err(e)
       }
-      wire_serial[0] = wire_serial[0] + 1
-      let id = "db-" + wire_serial[0].to_string()
+      let id = next_wire_id("db-")
       wire_databases[id] = created.database
       return Ok(
         (
@@ -537,9 +587,8 @@ fn dispatch_request(
       Ok(v) => v
       Err(e) => return Err(e)
     }
-    wire_serial[0] = wire_serial[0] + 1
-    let sid = "session-" + wire_serial[0].to_string()
-    wire_sessions[sid] = session
+    let sid = next_wire_id("session-")
+    wire_sessions[sid] = (id, session)
     return Ok(
       (
         jobject([("session_id", jstring(sid)), ("view", view_json(session))]),
@@ -553,11 +602,15 @@ fn dispatch_request(
     Err(e) => return Err(e)
   }
   let session = match wire_sessions.get(sid) {
-    Some(v) => v
+    Some((_, v)) => v
     None =>
       return Err(
         wire_error("UnknownSession", "Unknown or expired session handle"),
       )
+  }
+  if op == "close_session" {
+    wire_sessions.remove(sid)
+    return Ok((Json::null(), Json::null(), []))
   }
   if op == "apply_label" || op == "preview" {
     let label = match field_string(req, "label") {
@@ -637,6 +690,12 @@ fn dispatch_request(
 ///|
 /// Process one schema-version-1 request; contexts are local to this instance.
 pub fn dispatch_json(request : String) -> String {
+  dispatch_engine(default_engine, request)
+}
+
+///|
+/// Process one schema-version-1 request in an explicitly owned context.
+pub fn dispatch_engine(engine : Engine, request : String) -> String {
   let req = @json.parse(request) catch {
     _ =>
       return wire_response(
@@ -674,7 +733,7 @@ pub fn dispatch_json(request : String) -> String {
       false,
     ).stringify()
   }
-  match dispatch_request(req) {
+  match dispatch_request(engine, req) {
     Ok((data, outcome, diagnostics)) =>
       wire_response(op, id, data, outcome, diagnostics, true).stringify()
     Err(e) =>
@@ -682,7 +741,7 @@ pub fn dispatch_json(request : String) -> String {
         op,
         id,
         Json::null(),
-        if e.code == "ResourceLimit" {
+        if is_resource_limit(e.code) {
           jstring("resource_limit")
         } else {
           Json::null()

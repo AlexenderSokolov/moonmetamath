@@ -1,6 +1,16 @@
 # 兼容性与已测范围
 
-构建制品说明：固定0.10.14工具链在Windows/Linux生成的JavaScript仅有数值指数拼写差异（例如`1e+012`与`1e+12`），原始哈希不能跨构建平台直接比较。公网验收下载同一精确源码CI的实际Linux Pages制品并逐字节核对；Node发行ZIP单独按SHA256SUMS验证，不把两种产物混作同一个文件。`acceptance --phase publication --ref v0.2.0`可选择已发布标签，默认仍检验HEAD；该复核需要对应CI的Pages制品仍可下载，长期记录同时附在Release资源哈希文件中。
+## 0.3 长期使用契约
+
+旧schema 1/dispatch_json/src/core接口继续支持；新Engine实例隔离，关闭会话与卸载数据库不会连带清空别的资源。验证报告计数属于本次运行，私有不可变来源的历史verified依据保留。四份固定0.2.0工作文件持续重放恢复；工作文件格式不变。
+
+本轮基线为61项核心双后端、47项宿主、79项外部样例；最终实际结果见PROGRESS与0.3验收receipt。Chromium开发回归使用锁定Playwright，覆盖生命周期/候选失败/恢复/取消/导出。未据此宣称Firefox/WebKit、完整set.mm或新模型性能。
+
+浏览器receipt绑定受测的12项实际资源及原始Playwright结果，下载证明须独立C有效。旧布尔receipt不能用于新验收。`node scripts/browser-check.mjs`运行本地；显式设置`MOONMM_WEB_URL`为完整公网web入口时，测试与资源摘要均来自该公网地址。
+
+当前线上发布检查与历史版本复核分开：`acceptance --phase publication`检查所选源码对应的当前registry/latest与Pages；它明确拒绝另一版本的ref。历史制品按对应tag、Release清单和归档ZIP复核，不能要求当前Pages仍保持旧版。0.3的Release清单记录源码提交、工具链、制品哈希及本地验收摘要，长期保留；CI临时artifact不作为唯一历史凭据。
+
+构建制品说明：固定0.10.14工具链在Windows/Linux生成的JavaScript仅有数值指数拼写差异（例如`1e+012`与`1e+12`），原始哈希不能跨构建平台直接比较。公网验收下载同一精确源码CI的实际Linux Pages制品并逐字节核对；Node发行ZIP单独按SHA256SUMS验证，不把两种产物混作同一个文件。旧0.2发布记录来自当时的版本与CI。当前publication入口仅验证当前版本的选定源码；历史版本复核使用对应标签的工具与Release归档资源，不能将当前latest和Pages状态当作旧版证据。
 
 公开稳定版为 `AlexenderSokolov/moonmetamath` 0.2.0。0.1.1修复源目录和导出目的路径的IO分类；0.2.0增加上下文规则查询、原子预览、新目标和保存恢复，并已完成公开发布验收。CLI 使用 Node 24，网页使用 Web Worker 内 MoonBit 生成的 JavaScript。核心 JS 与 wasm-gc 两后端均已运行测试，网页没有把 WebAssembly 作为实际演示路径。
 

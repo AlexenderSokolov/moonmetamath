@@ -2,7 +2,7 @@ import { createNotebook, restoreNotebook } from './notebook.mjs';
 
 const $ = (id) => document.getElementById(id);
 const state = {
-  worker: null, candidate: null, serial: 0, busy: false, epoch: 0,
+  worker: null, candidate: null, serial: 0, busy: false, epoch: 0, taskId: 0,
   db: null, bundle: null, uploaded: [], theorems: [], target: null,
   session: null, view: null, events: [], mode: 'construct', replay: null, position: 0,
   rules: [], rule: null, ruleOffset: 0, ruleTotal: 0, hasLocalSave: false,
@@ -44,7 +44,9 @@ function createWorkerClient() {
     const pending = client.pending.get(data.request_id);
     if (!pending) return;
     client.pending.delete(data.request_id);
-    if (data.schema_version !== 1 || data.operation !== pending.operation) {
+    if (!client.alive || pending.epoch !== state.epoch) {
+      pending.reject(new Error('任务已取消。'));
+    } else if (data.schema_version !== 1 || data.operation !== pending.operation) {
       pending.reject(new Error('内核响应协议不匹配。'));
     } else if (data.status !== 'ok') {
       pending.reject(new Error(diagnostics(data)));
@@ -53,8 +55,10 @@ function createWorkerClient() {
   worker.addEventListener('error', (event) => {
     event.preventDefault();
     const error = new Error(`内核启动或运行失败：${event.message || '请确认已构建 dist/moonmetamath-core.mjs，并通过本地服务器打开。'}`);
-    if (state.worker === client) invalidateWorker(error);
-    else terminateClient(client, error);
+    if (state.worker === client) {
+      invalidateWorker(error);
+      notice(error.message);
+    } else terminateClient(client, error);
   });
   return client;
 }
@@ -79,7 +83,7 @@ function invalidateWorker(error) {
 }
 
 function request(operation, fields = {}) {
-  if (!state.worker) state.worker = createWorkerClient();
+  if (!state.worker) return Promise.reject(new Error('工作线程已终止；请重新加载。'));
   return requestClient(state.worker, operation, fields);
 }
 
@@ -87,21 +91,24 @@ function requestClient(client, operation, fields = {}) {
   if (!client.alive) return Promise.reject(new Error('工作线程已终止；请重新加载。'));
   const request_id = `web-${++state.serial}`;
   return new Promise((resolve, reject) => {
-    client.pending.set(request_id, { resolve, reject, operation });
+    client.pending.set(request_id, { resolve, reject, operation, epoch: state.epoch });
     client.worker.postMessage({ schema_version: 1, request_id, operation, ...fields });
   });
 }
 
 async function task(label, action) {
   if (state.busy) return;
+  const taskId = ++state.taskId;
+  const epoch = state.epoch;
   state.busy = true;
   clearNotice();
   $('activity').textContent = label;
   $('activity').classList.add('busy');
   renderControls();
-  try { await action(state.epoch); }
-  catch (error) { notice(error.message || String(error)); }
+  try { await action(epoch); }
+  catch (error) { if (epoch === state.epoch) notice(error.message || String(error)); }
   finally {
+    if (taskId !== state.taskId) return;
     state.busy = false;
     $('activity').classList.remove('busy');
     $('activity').textContent = state.db ? '内核就绪 · 显示最后一次已确认状态' : '尚无活动数据库 · 选择示例或上传文件重新加载';
@@ -175,8 +182,10 @@ function renderRules() {
 }
 
 async function searchRules(offset = 0) {
+  const epoch = state.epoch;
   const response = await request('rules', { database_id: state.db, target_label: state.target.label,
     query: $('rule-query').value.trim(), typecode: $('rule-typecode').value.trim(), offset, limit: RULE_PAGE_SIZE });
+  if (epoch !== state.epoch) return;
   state.rules = response.data.rules;
   state.ruleOffset = response.data.offset;
   state.ruleTotal = response.data.total;
@@ -277,56 +286,83 @@ async function refreshList() {
   renderTheorems();
 }
 
-async function selectTarget(theorem) {
+function requireCurrent(epoch, client) {
+  if (epoch !== state.epoch || !client.alive) throw new Error('任务已取消。');
+}
+
+async function release(client, session, database = null) {
+  if (!client?.alive) return;
+  if (session) await requestClient(client, 'close_session', { session_id: session });
+  if (database && client.alive) await requestClient(client, 'unload_database', { database_id: database });
+}
+
+async function prepareTarget(client, database, theorem, epoch) {
+  let session = null;
+  try {
+    const started = await requestClient(client, 'start', { database_id: database, target_label: theorem.label });
+    session = started.data.session_id;
+    const rules = await requestClient(client, 'rules', { database_id: database, target_label: theorem.label,
+      query: $('rule-query').value.trim(), typecode: $('rule-typecode').value.trim(), offset: 0, limit: RULE_PAGE_SIZE });
+    requireCurrent(epoch, client);
+    return { session, view: started.data.view, rules: rules.data };
+  } catch (error) {
+    await release(client, session);
+    throw error;
+  }
+}
+
+function commitTarget(theorem, prepared) {
   state.target = theorem;
-  state.session = null;
-  state.view = null;
+  state.session = prepared?.session || null;
+  state.view = prepared?.view || null;
   state.events = [];
   state.replay = null;
-  state.rule = null;
-  state.rules = [];
-  state.ruleOffset = state.ruleTotal = 0;
+  state.rules = prepared?.rules.rules || [];
+  state.rule = state.rules[0] || null;
+  state.ruleOffset = prepared?.rules.offset || 0;
+  state.ruleTotal = prepared?.rules.total || 0;
   clearPreview();
   $('replay-controls').hidden = true;
+  $('new-goal-expression').value = expression(state.view?.goal);
   renderTheorems();
   renderRules();
   renderView();
-  // A native start gives the actual active context and an empty construction.
-  const response = await request('start', { database_id: state.db, target_label: theorem.label });
-  state.session = response.data.session_id;
-  state.view = response.data.view;
-  $('new-goal-expression').value = expression(state.view.goal);
-  renderView();
-  await searchRules();
+}
+
+async function selectTarget(theorem) {
+  const epoch = state.epoch, client = state.worker, previous = state.session;
+  const prepared = await prepareTarget(client, state.db, theorem, epoch);
+  requireCurrent(epoch, client);
+  commitTarget(theorem, prepared);
+  await release(client, previous);
 }
 
 async function loadBundle(bundle) {
-  // New input owns a fresh worker, so previous opaque handles cannot leak across loads.
-  invalidateWorker(new Error('已加载新的输入，旧会话失效。'));
-  state.bundle = bundle;
-  state.target = null;
-  state.view = null;
-  state.events = [];
-  state.replay = null;
-  state.theorems = [];
-  state.rules = [];
-  state.rule = null;
-  state.ruleOffset = state.ruleTotal = 0;
-  $('report').replaceChildren();
-  $('search').value = '';
-  $('replay-controls').hidden = true;
-  renderExercise();
-  renderTheorems();
-  renderRules();
-  renderView();
-  const loaded = await request('load', { entry: bundle.entry, sources: bundle.sources });
-  state.db = loaded.data.database_id;
-  $('database-info').textContent = `${bundle.entry} · ${bundle.sources.length} 个源文件 · ${loaded.data.declaration_count} 条声明`;
-  $('activity').textContent = '正在验证数据库（解析成功不代表证明有效）…';
-  const verified = await request('verify', { database_id: state.db });
-  renderReport(verified);
-  await refreshList();
-  if (state.theorems.length) await selectTarget(state.theorems[0]);
+  const epoch = state.epoch, candidate = createWorkerClient();
+  state.candidate = candidate;
+  try {
+    const loaded = await requestClient(candidate, 'load', { entry: bundle.entry, sources: bundle.sources });
+    const database = loaded.data.database_id;
+    const verified = await requestClient(candidate, 'verify', { database_id: database });
+    const listed = await requestClient(candidate, 'list', { database_id: database });
+    const theorem = listed.data.theorems[0] || null;
+    const prepared = theorem ? await prepareTarget(candidate, database, theorem, epoch) : null;
+    requireCurrent(epoch, candidate);
+    terminateClient(state.worker);
+    state.worker = candidate;
+    state.candidate = null;
+    state.db = database;
+    state.bundle = bundle;
+    state.theorems = listed.data.theorems;
+    $('database-info').textContent = `${bundle.entry} · ${bundle.sources.length} 个源文件 · ${loaded.data.declaration_count} 条声明`;
+    $('search').value = '';
+    renderReport(verified);
+    renderExercise();
+    commitTarget(theorem, prepared);
+  } finally {
+    if (state.candidate === candidate) state.candidate = null;
+    if (state.worker !== candidate) terminateClient(candidate);
+  }
 }
 
 function decodeSource(bytes, sourceId) {
@@ -345,7 +381,7 @@ async function loadBuiltin() {
   const bytes = new Uint8Array(await response.arrayBuffer());
   if (epoch !== state.epoch) return;
   await loadBundle({ entry: `${name}.mm`, sources: [{ source_id: `${name}.mm`, text: decodeSource(bytes, `${name}.mm`) }] });
-  renderExercise(name);
+  if (epoch === state.epoch) renderExercise(name);
 }
 
 function renderExercise(name) {
@@ -525,35 +561,31 @@ $('new-goal-form').addEventListener('submit', (event) => {
     const new_label = $('new-goal-label').value.trim();
     const goalText = $('new-goal-expression').value.trim();
     if (!new_label || !goalText) throw new Error('请填写新目标标签和目标表达式。');
-    const response = await request('create_goal', { database_id: state.db, context_label: state.target.label, new_label, goal: goalText.split(/\s+/) });
-    const created = response.data;
-    const report = await request('verify', { database_id: created.database_id });
-    const listed = await request('list', { database_id: created.database_id });
-    const started = await request('start', { database_id: created.database_id, target_label: created.target_label });
-    if (epoch !== state.epoch) return;
-    const target = listed.data.theorems.find((theorem) => theorem.label === created.target_label);
-    if (!target) throw new Error('新目标未出现在核心定理列表中，当前工作已保留。');
-    state.bundle = { entry: created.entry, sources: created.sources.map(({ source_id, text }) => ({ source_id, text })) };
-    state.db = created.database_id;
-    state.theorems = listed.data.theorems;
-    state.target = target;
-    state.session = started.data.session_id;
-    state.view = started.data.view;
-    state.events = [];
-    state.replay = null;
-    state.rule = null;
-    state.rules = [];
-    state.ruleTotal = state.ruleOffset = 0;
-    $('replay-controls').hidden = true;
-    $('database-info').textContent = `${created.entry} · 继承上下文的新目标`;
-    $('new-goal-expression').value = expression(state.view.goal);
-    renderReport(report);
-    renderTheorems();
-    renderRules();
-    renderExercise();
-    setMode('construct');
-    await searchRules();
-    notice(`已创建 ${created.target_label}，继承活动假设及 $d 约束。目标尚未证明，请从空栈开始。`, true);
+    const client = state.worker, previousSession = state.session, previousDatabase = state.db;
+    let created = null, prepared = null, committed = false;
+    try {
+      const response = await requestClient(client, 'create_goal', { database_id: previousDatabase, context_label: state.target.label, new_label, goal: goalText.split(/\s+/) });
+      created = response.data;
+      const report = await requestClient(client, 'verify', { database_id: created.database_id });
+      const listed = await requestClient(client, 'list', { database_id: created.database_id });
+      const target = listed.data.theorems.find((theorem) => theorem.label === created.target_label);
+      if (!target) throw new Error('新目标未出现在核心定理列表中，当前工作已保留。');
+      prepared = await prepareTarget(client, created.database_id, target, epoch);
+      requireCurrent(epoch, client);
+      state.bundle = { entry: created.entry, sources: created.sources.map(({ source_id, text }) => ({ source_id, text })) };
+      state.db = created.database_id;
+      state.theorems = listed.data.theorems;
+      commitTarget(target, prepared);
+      committed = true;
+      $('database-info').textContent = `${created.entry} · 继承上下文的新目标`;
+      renderReport(report);
+      renderExercise();
+      setMode('construct');
+      await release(client, previousSession, previousDatabase);
+      notice(`已创建 ${created.target_label}，继承活动假设及 $d 约束。目标尚未证明，请从空栈开始。`, true);
+    } finally {
+      if (created && !committed) await release(client, prepared?.session, created.database_id);
+    }
   });
 });
 $('save-work').addEventListener('click', () => task('保存源文件与当前动作前缀…', async (epoch) => {
@@ -637,6 +669,9 @@ $('replay-prev').addEventListener('click', () => { if (state.position > 0) { sta
 $('replay-next').addEventListener('click', () => { if (state.position < state.replay.events.length) { state.position += 1; renderReplay(); } });
 $('cancel').addEventListener('click', () => {
   invalidateWorker(new Error('已取消：活动及恢复工作线程已终止。显示的只是最后确认视图；请重新加载数据库或恢复保存文件。'));
+  state.taskId += 1;
+  state.busy = false;
+  renderControls();
   $('activity').classList.remove('busy');
   $('activity').textContent = '已取消 · 原数据库与会话句柄已失效';
   notice('已终止活动及恢复工作线程。最后确认视图保留为只读；继续操作须重新加载数据库或恢复保存文件。', true);

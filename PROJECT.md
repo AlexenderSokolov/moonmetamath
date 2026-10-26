@@ -2,7 +2,15 @@
 
 更新：2026-10-24。0.1.1已公开交付；当前0.2.0本地、实际浏览器与公开交付验收通过。正式分支main，开发历史保留codex/metamath-v0.1。实时证据见[PROGRESS.md](PROGRESS.md)。
 
-## 当前扩展路线
+## 0.3当前实施入口
+
+2026-10-26用户批准第一阶段长期使用基础及独立下游示例，包括测试、独立审查、发布与验收，全自动推进。规格见[长期使用基础](docs/superpowers/specs/2026-10-26-long-term-foundation.md)，计划见[0.3实施计划](docs/superpowers/plans/2026-10-26-v03-foundation.md)，实际完成度以PROGRESS为准。
+
+根公开Engine/new_engine/dispatch_engine与JS create_dispatcher新增显式实例，旧dispatch_json与src/core入口保持兼容。close_session/unload_database明确资源归属；已验证的不可变来源证据保留，verify报告按当前尝试计数。web采用候选资源原子接管和epoch取消。examples/downstream是独立消费者，tests/fixtures/notebooks/v0.2.0固定旧格式。npm仅用于Playwright开发测试，不是产品依赖。
+
+开发浏览器检查先运行`npm ci`和`npx playwright install chromium`；`run_foundation.sh/.ps1`执行核心、消费者、独立下游和浏览器检查。`scripts/browser-check.mjs`生成绑定实际资源的receipt并独立验证下载；local acceptance可接收`--browser-receipt`复用同一构建的实际记录。
+
+## 历史0.2扩展路线
 
 用户已在2026-10-23进一步批准：0.1.1小修后完成0.2规则查找、新目标、保存恢复，再运行不泄露原证明的真实AI补全小实验；包括公开发布和验收，全自动执行，不扩展成平台。具体契约与验收见docs/superpowers/plans/2026-10-23-v02-and-ai.md，实时进度见PROGRESS.md。
 

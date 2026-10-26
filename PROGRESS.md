@@ -1,5 +1,11 @@
 # MoonMetamath 当前进度
 
+## 2026-10-26：0.3长期使用基础（实施中）
+
+用户批准第一阶段、独立下游、测试/独立审查/发布/验收，全自动推进。规格与计划见docs/superpowers/specs/2026-10-26-long-term-foundation.md及对应plans；恢复ledger为.superpowers/sdd/v03-foundation/progress.md。
+
+当前核心61测试双后端通过，集成47宿主与79fixture通过；独立下游workspace两后端实际导出并由C接受。核心Task1独立审查PASS。最终网页12项Chromium流程及独立C下载复核通过；完整本地G0–G4验收artifacts/v03-acceptance-local/result.json为PASS。Task2审查PASS，其worker故障提示P3已红绿修复。0.3尚未发布，责任为本chat根执行者；下一单元为整分支审查、完整本地验收、正式发布与实际下载验收。没有新模型实验。
+
 更新2026-10-24。唯一进度入口；历史规划不覆盖本页当前事实。
 
 ## 当前新一轮：0.1.1 → 0.2 → 真实AI补全

@@ -277,7 +277,7 @@ test "wire exposes additive workbench contracts and strict inputs" {
   let db = proof_fixture(
     "$c t a $. ax $a t a $. target $p t a $= ax $. future $p t a $= ax $.",
   )
-  wire_databases["workbench-db"] = db
+  default_engine.databases["workbench-db"] = db
   let rules = workbench_request("rules", [
     ("database_id", jstring("workbench-db")),
     ("target_label", jstring("target")),

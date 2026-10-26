@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 · 2026-10-26
+
+- Add opaque native Engine and JavaScript create_dispatcher factory while preserving the legacy dispatcher and schema 1.
+- Add close_session and unload_database with ownership, active-session checks and stale-handle rejection.
+- Preserve established verification evidence for immutable databases across bounded rechecks; reports still describe the current attempt.
+- Normalize resource outcomes without changing diagnostic codes.
+- Commit target/new-goal/upload transitions only after candidate success, release replaced resources, and prevent stale work from returning after cancellation.
+- Freeze four 0.2.0 notebook samples; add actual Chromium lifecycle/restore/cancel/export regressions and build-bound browser evidence.
+- Add an independent public-API MoonBit downstream module, checked on JS/wasm-gc and by the official external verifier.
+
+
 ## 0.2.0 · 2026-10-24
 
 - schema 1 增加 `rules`：按目标上下文返回活动假设、可见公理和此前已验证的定理，支持标签/结论搜索、类型码筛选和分页；规则结果不含原证明。

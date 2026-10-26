@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "producer": {
+    "tag": "v0.2.0",
+    "commit": "97190c31f48c031600d9e5d24cc89851d8c768be",
+    "writer_path": "web/notebook.mjs",
+    "writer_sha256": "33f06ceaf839061d44fc99faa367eb13f9a4b44b4b6b05a0032e956a41e8d8e6"
+  },
+  "fixtures": [
+    {
+      "file": "include-partial.json",
+      "target_label": "target",
+      "steps": 1,
+      "state": "open",
+      "stack": [
+        [
+          "t",
+          "a"
+        ]
+      ],
+      "goal": [
+        "t",
+        "a"
+      ]
+    },
+    {
+      "file": "include-complete.json",
+      "target_label": "target",
+      "steps": 2,
+      "state": "complete",
+      "stack": [
+        [
+          "t",
+          "a"
+        ]
+      ],
+      "goal": [
+        "t",
+        "a"
+      ]
+    },
+    {
+      "file": "disjoint-partial.json",
+      "target_label": "disjoint-goal",
+      "steps": 2,
+      "state": "open",
+      "stack": [
+        [
+          "setvar",
+          "x"
+        ],
+        [
+          "setvar",
+          "y"
+        ]
+      ],
+      "goal": [
+        "|-",
+        "pair",
+        "x",
+        "y"
+      ]
+    },
+    {
+      "file": "disjoint-complete.json",
+      "target_label": "disjoint-goal",
+      "steps": 3,
+      "state": "complete",
+      "stack": [
+        [
+          "|-",
+          "pair",
+          "x",
+          "y"
+        ]
+      ],
+      "goal": [
+        "|-",
+        "pair",
+        "x",
+        "y"
+      ]
+    }
+  ]
+}
