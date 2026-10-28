@@ -1,8 +1,8 @@
 # MoonMetamath 项目说明
 
-更新：2026-10-26。0.3.0长期使用基础、独立下游、实际浏览器及公开交付验收完成；正式main，发布标签v0.3.0，源码e99a812。事实与证据见[PROGRESS.md](PROGRESS.md)。
+更新：2026-10-28。0.4.0 第二阶段已完成发布与公开验收。当前入口为[性能报告](docs/PERFORMANCE.md)、[申报书](docs/项目申报书.md)及[PROGRESS](PROGRESS.md)。
 
-## 第二阶段：真实规模性能（当前）
+## 第二阶段：真实规模性能（已交付）
 
 用户于2026-10-26授权第二阶段全链路。固定数据库与预算见[测量计划](docs/superpowers/plans/2026-10-26-v04-performance.md)，输入锁见benchmarks/databases.lock.json，操作入口见[benchmark说明](benchmarks/README.md)。只按实测瓶颈优化；不预设增量验证，不改变统一执行器/旧API，不修改全局工具链。正式状态仍看PROGRESS。
 

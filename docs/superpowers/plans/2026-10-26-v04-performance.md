@@ -35,7 +35,7 @@ User approved stage2 on2026-10-26: small/medium/large real-database baseline, on
 
 ## Progress
 
-- [ ] Acquire fixed sources and baseline harness; validate measurement negative controls.
-- [ ] Record baseline and bottleneck evidence.
-- [ ] Implement only justified optimization and compare.
-- [ ] Complete review/tests/publish/actual acceptance and report.
+- [x] Acquire fixed sources and baseline harness; validate measurement negative controls.
+- [x] Record baseline and bottleneck evidence.
+- [x] Implement only justified optimization and compare.
+- [x] Complete review/tests/publish/actual acceptance and report.
