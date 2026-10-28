@@ -32,3 +32,10 @@ node --max-old-space-size=2048 scripts/large-workbench.mjs --out artifacts/large
 实际浏览器重库用例通过环境变量MOONMM_LARGE_WORKBENCH=1显式启用，执行tests/web/large-workbench.spec.mjs中的full-set用例；MOONMETAMATH_BROWSER_OUT指定新输出目录。默认CI只运行轻量预算贯通与普通回归，不自动下载大库。
 
 证据入口：artifacts/v05-large-workbench/api-final/result.json、browser/browser-phases.json、browser/results.json、browser/independent/result.json。公开发布及公网复验最终状态见PROGRESS.md。
+
+
+## 正式站点与发行验收
+
+v0.5.0发布源码2b46d5f，CI40714461684的双平台和Pages成功。正式站点普通13项浏览器回归及完整大库单项通过，公网全流程约5分钟：加载37.641秒、查询预览3.277秒、原表达式创建46.349秒、构造完成47.464秒、保存1.558秒、新Worker恢复39.490秒、导出118.515秒。下载证明由官方C验证有效，工作文件与证明均与本地通过验收的示例字节一致。
+
+Release附large-workbench-example.zip；已实际下载、比对压缩包及内部文件。解压后在在线实验室选择一亿操作预算，再导入large-work.json，可重放恢复完成状态。普通程序包另已完成下载、哈希、无编译器运行验收。详细汇总artifacts/publication-v05.json。

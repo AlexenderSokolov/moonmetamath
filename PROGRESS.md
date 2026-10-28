@@ -1,6 +1,20 @@
 # MoonMetamath 当前进度
 
-## 2026-10-28：0.5 完整大库工作台（发布验收中）
+## 2026-10-28：0.5 完整大库工作台交付完成
+
+此前未完成的完整set.mm新目标流程已完成修复、API与实际浏览器全链路、独立审查、正式发布及公网验收。发布源码2b46d5f7f13a4d01d0648c766dfb332620e2d86d，CI40714461684的Windows／Linux／Pages全部成功，Mooncakes0.5.0注册表消费者通过。
+
+固定完整set共48097原证明；原young2d表达式新目标创建成功，随后wff ph目标完成应用、撤回、finish、约37MB工作文件保存、全新Worker恢复和导出。API与本地浏览器导出、正式站点浏览器导出均经官方C验证有效。原young2d目标创建成功不表述为发现其新证明。
+
+72核心测试／后端、71宿主、79外部样例、普通浏览器本地／公网各13项通过；额外重库浏览器本地／公网各1项全流程通过。公网重库约5分钟，恢复后导出约118.5秒。采用显式一亿操作预算，保留默认值与原schema1。
+
+Release程序ZIP真实下载并核对、无编译器HOL151及实例隔离通过。large-workbench-example.zip亦已真实下载，其工作文件和导出证明与本地及公网验收文件逐字节相同。汇总artifacts/publication-v05.json；公开验收artifacts/v05-large-workbench/publication/result.json；重库公网artifacts/v05-large-workbench/public-large，官方C结果在其independent目录。
+
+项目申报书已更新至0.5，姓名与联系方式仍需本人填写，尚未提交主办方。当前任务已完成，临时测试进程已结束。原失败证据保留，资料未移动、未删除，收尾入口artifacts/v05-large-workbench/README.md。
+
+以下为实现及历史记录：
+
+## 历史：0.5 本地实施记录
 
 用户要求把此前未完成的大库交互继续做完。原停止点撤回；本轮已定位长字符串JSON逐字符拼接的内存膨胀，改为分块委托标准库转义，旧接口、完整sources与数学验证不变。
 

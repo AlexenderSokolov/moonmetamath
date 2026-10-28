@@ -1,6 +1,6 @@
 # MoonMetamath 项目说明
 
-更新：2026-10-28。0.4.0 第二阶段已完成发布与公开验收。当前入口为[性能报告](docs/PERFORMANCE.md)、[申报书](docs/项目申报书.md)及[PROGRESS](PROGRESS.md)。
+更新：2026-10-28。0.5.0完整大库工作台已发布并通过本地、公网和独立导出验收。当前使用与证据见[大库记录](docs/LARGE_WORKBENCH.md)、[申报书](docs/项目申报书.md)和[PROGRESS](PROGRESS.md)。
 
 ## 0.5 完整大库工作台
 
