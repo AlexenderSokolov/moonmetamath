@@ -11,6 +11,7 @@ const LOCAL_SAVE_KEY = 'moonmetamath-work-schema1';
 const LOCAL_SAVE_LIMIT = 2 * 1024 * 1024;
 const FILE_SAVE_LIMIT = 128 * 1024 * 1024;
 const RULE_PAGE_SIZE = 20;
+const BUDGETED_OPERATIONS = new Set(['load', 'verify', 'start', 'replay', 'create_goal']);
 const exercises = {
   '01-first-steps': { title: '01 · 两步构造', help: '先应用 wph，再应用 identity；检查完成。试着搜索结论中的 ->，查看 identity 如何用必要假设构造结论。' },
   '02-essential-hypothesis': { title: '02 · 必要假设', help: '先查看 lift 的必要假设。依次应用 wph、premise、lift，再检查完成。缺少 premise 时预览 lift，会得到栈不足诊断。' },
@@ -92,7 +93,9 @@ function requestClient(client, operation, fields = {}) {
   const request_id = `web-${++state.serial}`;
   return new Promise((resolve, reject) => {
     client.pending.set(request_id, { resolve, reject, operation, epoch: state.epoch });
-    client.worker.postMessage({ schema_version: 1, request_id, operation, ...fields });
+    const limits = BUDGETED_OPERATIONS.has(operation)
+      ? { limits: { max_operations: Number($('operation-budget').value) } } : {};
+    client.worker.postMessage({ schema_version: 1, request_id, operation, ...fields, ...limits });
   });
 }
 
@@ -121,7 +124,7 @@ function renderControls() {
   const active = !!state.db && !!state.target;
   const construct = active && state.mode === 'construct' && !!state.session;
   const open = construct && state.view?.state !== 'complete';
-  for (const id of ['load-builtin', 'builtin', 'files', 'construct-tab', 'replay-tab']) $(id).disabled = busy;
+  for (const id of ['load-builtin', 'builtin', 'files', 'construct-tab', 'replay-tab', 'operation-budget']) $(id).disabled = busy;
   $('load-upload').disabled = busy || !state.uploaded.length;
   $('entry').disabled = busy || !state.uploaded.length;
   $('verify').disabled = busy || !state.db;

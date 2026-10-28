@@ -699,13 +699,14 @@ pub fn dispatch_engine(engine : Engine, request : String) -> String {
   let req = @json.parse(request) catch {
     _ =>
       return wire_response(
-        "unknown",
-        "",
-        Json::null(),
-        Json::null(),
-        [wire_error("InputError", "Malformed JSON")],
-        false,
-      ).stringify()
+          "unknown",
+          "",
+          Json::null(),
+          Json::null(),
+          [wire_error("InputError", "Malformed JSON")],
+          false,
+        )
+        |> wire_stringify
   }
   let op = match json_field(req, "operation") {
     Some(String(v)) => v
@@ -715,27 +716,29 @@ pub fn dispatch_engine(engine : Engine, request : String) -> String {
     Some(String(v)) => v
     _ =>
       return wire_response(
-        op,
-        "",
-        Json::null(),
-        Json::null(),
-        [wire_error("InputError", "request_id must be a string")],
-        false,
-      ).stringify()
+          op,
+          "",
+          Json::null(),
+          Json::null(),
+          [wire_error("InputError", "request_id must be a string")],
+          false,
+        )
+        |> wire_stringify
   }
   if json_field(req, "schema_version") != Some(Json::number(1.0)) {
     return wire_response(
-      op,
-      id,
-      Json::null(),
-      Json::null(),
-      [wire_error("InputError", "schema_version must equal 1")],
-      false,
-    ).stringify()
+        op,
+        id,
+        Json::null(),
+        Json::null(),
+        [wire_error("InputError", "schema_version must equal 1")],
+        false,
+      )
+      |> wire_stringify
   }
   match dispatch_request(engine, req) {
     Ok((data, outcome, diagnostics)) =>
-      wire_response(op, id, data, outcome, diagnostics, true).stringify()
+      wire_response(op, id, data, outcome, diagnostics, true) |> wire_stringify
     Err(e) =>
       wire_response(
         op,
@@ -748,6 +751,7 @@ pub fn dispatch_engine(engine : Engine, request : String) -> String {
         },
         [e],
         false,
-      ).stringify()
+      )
+      |> wire_stringify
   }
 }

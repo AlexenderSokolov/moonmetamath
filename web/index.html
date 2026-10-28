@@ -19,6 +19,9 @@
         <div class="eyebrow">01 / DATABASE</div><h2>从一个数学库开始</h2>
         <label for="builtin">真实示例库</label>
         <div class="inline"><select id="builtin"><optgroup label="循序练习 · 自编 CC0"><option value="01-first-steps">01 · 两步构造</option><option value="02-essential-hypothesis">02 · 必要假设</option><option value="03-disjoint">03 · 不交变量诊断</option></optgroup><optgroup label="真实示例库"><option value="demo0" selected>demo0 · 等式入门</option><option value="miu">MIU · 形式系统</option><option value="hol">HOL · 高阶逻辑</option></optgroup></select><button id="load-builtin" class="button small">加载</button></div>
+        <label for="operation-budget">操作预算</label>
+        <select id="operation-budget" aria-describedby="operation-budget-help"><option value="10000000" selected>标准 · 1,000 万次（默认）</option><option value="100000000">大库 · 1 亿次（完整 set.mm）</option></select>
+        <p id="operation-budget-help" class="muted">用于后续加载、验证、创建目标、启动会话、回放及工作文件恢复。已有会话保留启动时的预算；更改后可重新开始。大库操作可能需要较长时间，可取消。</p>
         <div id="exercise-guide" class="exercise-guide" hidden></div>
         <details class="upload"><summary>上传自己的 .mm 文件</summary>
           <p class="muted">可同时选择入口与 include 文件；只读取本次选择的文件集合。</p>

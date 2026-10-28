@@ -2,6 +2,10 @@
 
 更新：2026-10-28。0.4.0 第二阶段已完成发布与公开验收。当前入口为[性能报告](docs/PERFORMANCE.md)、[申报书](docs/项目申报书.md)及[PROGRESS](PROGRESS.md)。
 
+## 0.5 完整大库工作台
+
+用户明确要求完成此前失败流程。实现与验收见[大库记录](docs/LARGE_WORKBENCH.md)，计划见docs/superpowers/plans/2026-10-28-v05-large-workbench.md，实时状态见PROGRESS。浏览器明确选择一亿操作预算后，完整源文件创建、保存恢复和独立导出已本地通过；长字符串转义保持标准库规则，旧schema1不变。
+
 ## 第二阶段：真实规模性能（已交付）
 
 用户于2026-10-26授权第二阶段全链路。固定数据库与预算见[测量计划](docs/superpowers/plans/2026-10-26-v04-performance.md)，输入锁见benchmarks/databases.lock.json，操作入口见[benchmark说明](benchmarks/README.md)。只按实测瓶颈优化；不预设增量验证，不改变统一执行器/旧API，不修改全局工具链。正式状态仍看PROGRESS。

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 · 2026-10-28
+
+- Bound long-string JSON escaping allocations while preserving standard escaping, Unicode pairs and schema 1.
+- Add explicit browser operation-budget selection and carry it through candidate-worker restore.
+- Complete full set.mm goal creation, construction, saved-work restoration and independently checked export through both the API and actual browser.
+
+
 ## 0.4.0 · 2026-10-26
 
 - Add locked complete hol/nf/set database benchmarks with bounded subprocesses, separate dispatch/IO/serialization timings and honest OOM/timeout records.

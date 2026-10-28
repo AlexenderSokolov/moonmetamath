@@ -1,5 +1,7 @@
 # 0.4：真实数据库性能基线与加载内存优化
 
+版本说明：下文保留0.4的历史测量及当时失败。0.5已修复长字符串响应内存膨胀，并完成大库工作台流程；新结果见[LARGE_WORKBENCH.md](LARGE_WORKBENCH.md)。
+
 测量日期：2026-10-26。比较已发布0.3.0与0.4候选的同一MoonBit JS公共dispatcher路径。
 三份完整数据库固定于官方`metamath/set.mm`提交`b4c3130f3b8081e1e4a33b47321141359e3380ae`，没有截短文件或改写证明。
 来源、Git blob、SHA256和固定交互目标见[输入锁](../benchmarks/databases.lock.json)；
