@@ -27,7 +27,8 @@ for (const directory of ['dist', 'web', 'LICENSES', 'benchmarks', 'examples']) {
   copy(join(root, directory), join(stage, directory));
 }
 for (const file of [
-  'bin/host.mjs', 'bin/moonmetamath.mjs', 'bin/actions.mjs', 'LICENSE',
+  'bin/host.mjs', 'bin/moonmetamath.mjs', 'bin/actions.mjs',
+  'bin/stdio.mjs', 'bin/stdio-worker.mjs', 'LICENSE',
   ...packageDocs, 'tests/fixtures/manifest.json', 'scripts/toolchain.lock.json',
 ]) copyFile(file);
 for (const name of ['demo0.mm', 'miu.mm', 'hol.mm', 'LICENSE']) {
@@ -48,6 +49,8 @@ writeFileSync(join(unpack, 'actions.json'), JSON.stringify({ schema_version: 1, 
 const checks = [];
 for (const args of [
   ['--help'], ['--version'], ['verify', 'tests/fixtures/upstream/set-mm/hol.mm'],
+  ['theorems', 'tests/fixtures/upstream/set-mm/hol.mm', '--offset', '150', '--limit', '1'],
+  ['rules', 'tests/fixtures/upstream/set-mm/demo0.mm', '--theorem', 'th1', '--query', 'tt', '--limit', '1'],
   ['session', join(unpack, 'mini.mm'), '--theorem', 'th', '--actions', join(unpack, 'actions.json'), '--export', join(unpack, 'candidate.mm'), '--new-label', 'portable-proof'],
   ['verify', join(unpack, 'candidate.mm')],
 ]) {
@@ -61,11 +64,20 @@ for (const args of [
     const expected = args[1].includes('hol.mm') ? 151 : 1;
     if (response.outcome !== 'valid' || response.data.verified_count !== expected) throw new Error('Unpacked proof verdict mismatch');
   }
+  if (args[0] === 'theorems') {
+    const response = JSON.parse(result.stdout);
+    if (response.data.total !== 151 || response.data.offset !== 150 || response.data.theorems.length !== 1 || Object.hasOwn(response.data.theorems[0], 'proof')) throw new Error('Unpacked theorem page mismatch');
+  }
+  if (args[0] === 'rules') {
+    const response = JSON.parse(result.stdout);
+    if (response.status !== 'ok' || response.data.rules.length !== 1) throw new Error('Unpacked rules query failed');
+  }
   if (args[0] === 'session') {
     const response = JSON.parse(result.stdout);
     if (response.outcome !== 'valid' || response.operation !== 'export') throw new Error('Unpacked export failed');
   }
 }
+run(process.execPath, ['scripts/agent-smoke.mjs', '--package', extracted, '--out', join(out, 'stdio')]);
 const sha256 = createHash('sha256').update(readFileSync(zip)).digest('hex');
 writeFileSync(join(out, 'SHA256SUMS.txt'), `${sha256}  ${zip.split(/[\\/]/).at(-1)}\n`);
 const result = { schema_version: 1, version, pass: true, documentLinks, archive: relative(root, zip), sha256, checks };

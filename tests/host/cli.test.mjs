@@ -4,7 +4,7 @@ import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {root,readBundle,coreClient,exitFor} from '../../bin/host.mjs';
-const dir=join(root,'artifacts','host-tests-'+Date.now());mkdirSync(dir,{recursive:true});
+const dir=join(root,'artifacts','v07-agent-usage','cli-'+Date.now());mkdirSync(dir,{recursive:true});
 const good=join(dir,'good.mm'),bad=join(dir,'bad.mm'),unknown=join(dir,'unknown.mm');
 writeFileSync(good,'$c |- a b $. ax $a |- a $. ok $p |- a $= ax $.');
 writeFileSync(bad,'$c |- a b $. ax $a |- a $. bad $p |- b $= ax $.');
@@ -136,4 +136,68 @@ test('CLI validates command options and routes explicit operation budgets',()=>{
  assert.equal(cli(['verify',good,'--max-operations','0']).status,5);
  assert.equal(cli(['verify',good,'--max-operations','100000000']).status,0);
  for(const args of [['verify',good,'--theorem','missing'],['list',good,'--export','bad.mm'],['verify',good,'--max-operations','-1'],['verify',good,'--max-operations','1.5'],['verify',good,'--format','json','--format','text']])assert.equal(cli(args).status,2);
+});
+
+
+test('CLI theorem and rule queries use bounded metadata pages', () => {
+ const listed=cli(['theorems',good,'--query','ok','--offset','0','--limit','1']);
+ assert.equal(listed.status,0,JSON.stringify(listed.json));assert.equal(listed.json.data.total,1);
+ assert.equal(listed.json.data.theorems[0].label,'ok');assert.equal('proof' in listed.json.data.theorems[0],false);
+ assert.equal(listed.json.data.theorems[0].status,'not_checked');
+ const rules=cli(['rules',good,'--theorem','ok','--query','ax','--typecode','|-','--limit','1']);
+ assert.equal(rules.status,0,JSON.stringify(rules.json));assert.equal(rules.json.data.rules[0].label,'ax');
+ assert.equal(cli(['theorems',good,'--limit','0']).json.data.theorems.length,0);
+ for(const tail of [['--offset','-1'],['--offset','0.5'],['--limit','101'],['--limit','NaN'],['--limit','1','--limit','2'],['--theorem','ok']])assert.equal(cli(['theorems',good,...tail]).status,2);
+ assert.equal(cli(['rules',good]).status,2);
+ assert.equal(cli(['rules',good,'--theorem','ok','--limit','-1']).status,2);
+});
+
+function sessionCase(name, actions, extra=[]) {
+ const path=join(dir,name+'.json');writeFileSync(path,JSON.stringify(actions));
+ return cli(['session',good,'--theorem','ok','--actions',path,...extra]);
+}
+test('failed action retains atomic view and the executed input prefix', () => {
+ const prefix=[{operation:'apply_label',label:'ax'}];
+ const r=sessionCase('prefix-context',[...prefix,{operation:'apply_label',label:'missing'}]);
+ assert.equal(r.status,1);assert.equal(r.json.status,'error');assert.equal(r.json.data,null);
+ assert.equal(r.json.session_context.phase,'action');assert.equal(r.json.session_context.action_index,1);
+ assert.deepEqual(r.json.session_context.successful_actions,prefix);assert.equal(r.json.session_context.successful_action_count,1);
+ assert.deepEqual(r.json.session_context.view.stack,[['|-','a']]);assert.equal(r.json.session_context.view.successful_step_count,1);
+});
+test('rewind counts as an executed input action but reduces the proof step count', () => {
+ const actions=[{operation:'apply_label',label:'ax'},{operation:'rewind',successful_step_count:0},{operation:'apply_label',label:'missing'}];
+ const r=sessionCase('rewind-context',actions);const c=r.json.session_context;
+ assert.equal(r.status,1);assert.equal(c.successful_action_count,2);assert.deepEqual(c.successful_actions,actions.slice(0,2));
+ assert.equal(c.view.successful_step_count,0);assert.deepEqual(c.view.stack,[]);
+});
+test('implicit finish and export failures identify their phase without an action index', () => {
+ const unfinished=sessionCase('implicit-context',[]);assert.equal(unfinished.status,4);
+ assert.equal(unfinished.json.session_context.phase,'finish');assert.equal(unfinished.json.session_context.action_index,null);
+ const actions=[{operation:'apply_label',label:'ax'},{operation:'finish'}];
+ const badExport=sessionCase('export-context',actions,['--export',join(dir,'conflict.mm'),'--new-label','ok']);
+ assert.equal(badExport.status,2);assert.equal(badExport.json.diagnostics[0].code,'DuplicateExportLabel');
+ assert.equal(badExport.json.session_context.phase,'export');assert.equal(badExport.json.session_context.action_index,null);
+ assert.equal(badExport.json.session_context.successful_action_count,2);assert.equal(badExport.json.session_context.view.state,'complete');
+ const io=sessionCase('export-io-context',actions,['--export',good]);assert.equal(io.status,3);
+ assert.equal(io.json.session_context.phase,'export');assert.equal(io.json.session_context.view.state,'complete');
+});
+test('action validation reports an explicit index without executing a valid prefix', () => {
+ const r=sessionCase('validation-context',[{operation:'apply_label',label:'ax'},{operation:'reset'}]);
+ assert.equal(r.status,2);const c=r.json.session_context;assert.equal(c.phase,'validation');assert.equal(c.action_index,1);
+ assert.equal(c.successful_action_count,0);assert.deepEqual(c.successful_actions,[]);assert.equal(c.view,null);
+ const malformed=join(dir,'malformed-context.json');writeFileSync(malformed,'[');
+ const bad=cli(['session',good,'--theorem','ok','--actions',malformed]);assert.equal(bad.json.session_context.phase,'validation');assert.equal(bad.json.session_context.action_index,null);
+});
+
+
+test('explicit finish failure identifies its input action', () => {
+ const r=sessionCase('explicit-finish-context',[{operation:'finish'}]);
+ assert.equal(r.status,4);assert.equal(r.json.session_context.phase,'action');assert.equal(r.json.session_context.action_index,0);
+ assert.deepEqual(r.json.session_context.successful_actions,[]);assert.deepEqual(r.json.session_context.view.stack,[]);
+});
+test('CLI stdio routes multiple JSON lines without the one-shot command worker', () => {
+ const input=[1,2].map(i=>JSON.stringify({schema_version:1,request_id:String(i),operation:'reset'})).join('\n')+'\n';
+ const r=spawnSync(process.execPath,['bin/moonmetamath.mjs','stdio'],{cwd:root,encoding:'utf8',input,timeout:10000});
+ assert.equal(r.status,0,r.stderr);const responses=r.stdout.trim().split('\n').map(JSON.parse);
+ assert.deepEqual(responses.map(x=>x.request_id),['1','2']);assert.ok(responses.every(x=>x.status==='ok'));
 });

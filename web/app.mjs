@@ -111,7 +111,7 @@ async function task(label, action) {
     if (taskId !== state.taskId) return;
     state.busy = false;
     $('activity').classList.remove('busy');
-    $('activity').textContent = state.db ? '内核就绪 · 显示最后一次已确认状态' : '尚无活动数据库 · 选择示例或上传文件重新加载';
+    $('activity').textContent = state.db ? '就绪' : '未加载数据库';
     renderControls();
   }
 }
@@ -443,7 +443,7 @@ function inspectLocalSave() {
     state.hasLocalSave = !!saved;
     $('local-save-info').textContent = saved
       ? '本机有一份上次保存。点击“恢复本机上次保存”会重新验证和重放；当前工作在恢复成功后替换。仅保存按钮会更新它，大小上限 2 MiB。'
-      : '点击保存时，至多 2 MiB 的工作也会留在本机浏览器；不会自动上传或无限量自动保存。';
+      : '保存时，至多 2 MiB 的工作文件也会存入本机浏览器。';
   } catch {
     state.hasLocalSave = false;
     $('local-save-info').textContent = '浏览器不允许访问本机存储；仍可下载和导入工作文件。';
@@ -530,7 +530,7 @@ function renderReplay() {
 }
 
 $('dismiss').addEventListener('click', clearNotice);
-$('load-builtin').addEventListener('click', () => task('读取真实示例库…', loadBuiltin));
+$('load-builtin').addEventListener('click', () => task('读取示例库…', loadBuiltin));
 $('files').addEventListener('change', () => {
   state.uploaded = [...$('files').files];
   $('entry').replaceChildren(...state.uploaded.map((file) => {
@@ -618,7 +618,7 @@ $('new-goal-form').addEventListener('submit', (event) => {
       renderReport(report);
       setMode('construct');
       await release(client, previousSession, previousDatabase);
-      notice(`已创建 ${created.target_label}，继承活动假设及 $d 约束。目标尚未证明，请从空栈开始。`, true);
+      notice(`已创建 ${created.target_label}，继承活动假设及 $d 约束。目标当前未完成。`, true);
     } finally {
       if (created && !committed) await release(client, prepared?.session, created.database_id);
     }

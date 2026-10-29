@@ -1,5 +1,12 @@
 # MoonMetamath 实现与复用卡片
 
+## 2026-10-29：0.7 shell agent 接入
+
+用户继续要求“完成全流程修改”，沿用已授权发布链。bin/stdio.mjs 按行处理 stdin、等待请求与 stdout 完成再读下一行，bin/stdio-worker.mjs 复用独立 dispatcher；每请求截止、单行传输上限和 Worker 堆额度分别说明。bin/moonmetamath.mjs 提供分页查询和 session_context，动作索引/成功输入前缀与当前证明步数区分。examples/agent-client.mjs 给出结果分支、失败后继续及 finally 释放；scripts/agent-smoke.mjs 对源码或解压包执行相同真实 stdin/stdout 链。
+
+额外 JSON.parse 的大源对象若留在消息回调活动帧，会与核心解析并存。首次 set.mm 52 MB 请求在 512 MiB Worker 下 OOM；把 metadata 解析隔离成仅返回两字符串的函数后，同输入同额度的 31 请求通过。保留原失败与成功结果，不用加堆额度替代修复。完整路径及发布状态见 PROGRESS，证据为 artifacts/v07-agent-usage 与 publication-v07。
+
+
 ## 2026-10-29：agent 接口与维护结构整理
 
 用户在代码质量审查后要求“就按照你上一轮的分析，改进完善，做好项目重构吧”。本轮在 codex/agent-interface-refactor 修改。随后用户明确批准完整大库复验及 0.6.0 公开发布；0.6.0 已完成发布、注册表消费者和公网验收，发行源码 ddb7c35、CI 40793006292，当前状态见 PROGRESS。

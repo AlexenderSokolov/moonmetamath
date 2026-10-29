@@ -4,7 +4,7 @@
 或生成的 JavaScript。它演示两个独立引擎、80次创建/释放会话、实际证明与导出、
 活动数据库卸载拒绝和过期句柄拒绝。它是项目提供的集成示例，不是外部采用证据。
 
-发布0.6.0后，把本目录复制到仓库以外，在固定工具链或兼容环境中运行：
+发布0.7.0后，把本目录复制到仓库以外，在固定工具链或兼容环境中运行：
 
 ```sh
 moon update
@@ -19,7 +19,7 @@ moon run . --target wasm-gc
 
 ```sh
 node scripts/downstream.mjs
-node scripts/downstream.mjs --registry --version 0.6.0
+node scripts/downstream.mjs --registry --version 0.7.0
 ```
 
 第一条使用显式 workspace 关联本地开发源码；第二条仅从注册表安装精确版本。

@@ -10,7 +10,7 @@ MoonBit 原生 Metamath 验证与逐步证明执行库。JSON API 面向 agent �
 | proof_step、substitution、compressed、verifier | 普通、压缩、交互共用的证明执行与检查 |
 | session、rules、goal、export | 会话、规则、目标与导出 |
 | dispatch、根 api.mbt | schema 1 协议、独立 Engine 与公共入口 |
-| bin | 文件读取、CLI、独立 AI 实验宿主 |
+| bin | 文件读取、文件命令、JSONL stdio Worker、动作校验及失败上下文 |
 | web | Worker、工作台视图、保存与恢复 |
 | scripts | 工具链、构建、检查、独立对照及打包 |
 | tests | 宿主和浏览器回归、固定外部样例 |
@@ -36,6 +36,8 @@ node scripts/fixtures.mjs fetch --profile october
 node scripts/build.mjs
 node scripts/check.mjs
 node scripts/consumer.mjs
+node scripts/agent-smoke.mjs
+node examples/agent-client.mjs
 npm ci
 npx playwright install chromium
 node scripts/browser-check.mjs

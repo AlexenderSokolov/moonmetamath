@@ -14,7 +14,9 @@ export function validateActions(value) {
   }
   return actions.map((action, index) => {
     const invalid = message => {
-      throw new Error(`Invalid action at index ${index}: ${message}`);
+      const error = new Error(`Invalid action at index ${index}: ${message}`);
+      error.action_index = index;
+      throw error;
     };
     if (!object(action)) invalid('expected an action object.');
     switch (action.operation) {

@@ -1,5 +1,14 @@
 # MoonMetamath 当前进度
 
+## 2026-10-29：0.7.0 shell 接入本地完成，待公开发布
+
+新增 theorems/rules 文件查询、持久 JSONL stdio、session_context 失败反馈及完整 JavaScript 例子，网页残留文案已处理。CLI 22 项、stdio 10 项、例子 1 项针对验证通过，普通浏览器 18 项通过。解压包 7 项文件命令、50 条文档链接和 24 请求 stdio 失败恢复/新目标/释放链通过。
+
+stdio 首次完整 set.mm 在 512 MiB Worker 下加载 OOM；独立审查将 metadata JSON.parse 移到独立函数，避免源对象与核心解析同时驻留。同输入、同额度重验 31 请求通过，48,097 证明 valid，原失败保留。核心数学代码未改变，本轮未重复大库浏览器流程。证据见 artifacts/v07-agent-usage。
+
+下一项为同一源码的 CI、注册表、Release 及线上文案/安装包新命令验收。责任为 Codex，发布证据集中在 artifacts/publication-v07。
+
+
 ## 2026-10-29：0.6.0 发布与线上验收完成
 
 发布源码 ddb7c358c555119f901ff6a230fab8566c0148eb；CI 40793006292 的 Windows、Linux 和 Pages 全部成功。Mooncakes 0.6.0 manifest 为 success/has_package，独立注册表消费者在 JS、wasm-gc 各执行 16 个操作（含 theorems），下游实例隔离、会话复用及导出官方 C 复核通过。

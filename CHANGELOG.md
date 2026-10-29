@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0 · 2026-10-29
+
+- Add paginated theorem/rule CLI commands and persistent JSONL stdio requests.
+- Return session failure context with input action index, successful prefix and current view.
+- Add an executable agent example covering recovery, outcomes and resource cleanup.
+- Clarify proof access for reference-free evaluation and simplify workbench copy.
+
 ## 0.6.0 · 2026-10-29
 
 - Add proof-free paginated theorem summaries, preserving legacy list.

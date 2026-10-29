@@ -268,3 +268,16 @@ test('replay position resets when a database replaces the current target', async
   await expect(page.locator('#stack-count')).toHaveText('0');
   await expect(page.locator('#replay-controls')).toBeHidden();
 });
+
+
+test('workbench copy describes operations and storage directly', async ({ page }) => {
+  await page.goto(process.env.MOONMM_WEB_URL || '/web/');
+  await ready(page);
+  await expect(page.getByRole('heading', { name: '证明工作台', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '应用规则', exact: true })).toBeVisible();
+  await expect(page.locator('#activity')).toHaveText('就绪');
+  await expect(page.locator('#local-save-info')).toContainText('2 MiB');
+  for (const phrase of ['A SMALL STEP, CHECKED.', '把证明，走一遍', '从空栈出发', '真实示例库', '无限量自动保存', '最后一次已确认状态']) {
+    await expect(page.locator('body')).not.toContainText(phrase);
+  }
+});

@@ -84,44 +84,17 @@ JavaScript 构建产物额外导出 `create_dispatcher()`，每次返回拥有�
 
 生成的独立数据库会重新解析并验证，只有前缀有效、恰有一个未完成目标时才登记新句柄。响应不含 `session_id`，须对返回的新 `database_id` 和 `target_label` 调用 `start`。`goal`、`active_hypotheses: {label, expression}[]` 与 `disjoint` 是新上下文的元数据；`entry` 和 `sources: {source_id, text}[]` 可供保存、下载和重新加载。
 
-**生成源保留此前可信定理的完整证明。** 排除原目标的证明不等于源文件适合给模型：新源、旧源、`list`、`replay` 都不能进入 AI 策略观察。AI 宿主只能从允许字段构造目标/活动假设、规则元数据、`inspect` 视图和步骤反馈。
+生成源保留此前可信定理的完整证明。进行无参考证明的生成或评测时，应只向策略提供目标、活动假设、规则元数据、`inspect` 视图和步骤反馈，避免通过源文件、`list` 或 `replay` 提供参考证明。解释、审查或复现已有证明的 agent 可以按任务需要读取这些内容。
 
-下面是可在仓库根目录运行的完整示例，所有句柄均取自实际响应：
+完整 JavaScript 接入示例见 [examples/agent-client.mjs](../examples/agent-client.mjs)：
 
-```js
-import assert from 'node:assert/strict';
-import { create_dispatcher } from './dist/moonmetamath-core.mjs';
-const dispatch_json = create_dispatcher();
-let serial = 0;
-function call(operation, values = {}) {
-  const result = JSON.parse(dispatch_json(JSON.stringify({
-    schema_version: 1, request_id: String(++serial), operation, ...values
-  })));
-  assert.equal(result.status, 'ok', JSON.stringify(result));
-  return result;
-}
-const loaded = call('load', { entry: 'mini.mm', sources: [{
-  source_id: 'mini.mm',
-  text: '$c t a $. $v x $. vx $f t x $. ax $a t a $. copy $a t x $. original $p t a $= ax $.'
-}] });
-const database_id = loaded.data.database_id;
-assert.equal(call('verify', { database_id }).outcome, 'valid');
-const rules = call('rules', { database_id, target_label: 'original',
-  query: 'copy', typecode: 't', offset: 0, limit: 20 });
-assert.equal(rules.data.rules[0].label, 'copy');
-const created = call('create_goal', { database_id, context_label: 'original',
-  new_label: 'fresh', goal: ['t', 'a'] }).data;
-const session_id = call('start', { database_id: created.database_id,
-  target_label: created.target_label }).data.session_id;
-call('apply_label', { session_id, label: 'ax' });
-const before = call('inspect', { session_id }).data.view;
-call('preview', { session_id, label: 'copy' });
-assert.deepEqual(call('inspect', { session_id }).data.view, before);
-call('apply_label', { session_id, label: 'copy' });
-assert.equal(call('finish', { session_id }).outcome, 'valid');
-const exported = call('export', { session_id, new_label: 'fresh-export' });
-console.log(exported.data.text);
+```sh
+node examples/agent-client.mjs
 ```
+
+示例实际执行正常构造、零操作预算后的重新验证、新目标 incomplete、错误步骤后的 inspect 与继续构造、预览和导出。所有数据库与会话句柄取自响应，finally 关闭两个会话并卸载两个数据库。失败步骤保持原状态；正常请求仍须读取 outcome，不能只判断 status。
+
+持续的 shell 调用可使用 [JSONL stdio](CLI.md#持续-jsonl-请求)，与这里相同的 schema 1 请求直接从 stdin 输入。
 
 ## 读取验证结果
 

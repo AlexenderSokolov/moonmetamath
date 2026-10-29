@@ -2,7 +2,7 @@
 
 MoonBit 原生的 Metamath 验证与逐步证明执行库，供 agent 和程序通过 JSON API 调用。Node CLI 处理文件和动作批次，Web 工作台用于查看、调试和手动操作。三种入口共用同一个证明核心。
 
-[在线工作台](https://alexendersokolov.github.io/moonmetamath/web/) · [0.6.0 发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.6.0)
+[在线工作台](https://alexendersokolov.github.io/moonmetamath/web/) · [发行包](https://github.com/AlexenderSokolov/moonmetamath/releases)
 
 支持普通和压缩证明、作用域、不交变量检查、规则查询、步骤预览、撤回、新目标、保存恢复与普通证明导出。
 
@@ -23,6 +23,16 @@ node scripts/build.mjs
 ```
 
 工具链为 compiler `v0.10.14+7d59c7ec9`、moon `0.1.20260920`。已有隔离环境可用 `MOONMETAMATH_TOOLCHAIN_HOME` 指定。构建支持 Windows x64 和 Linux x64。
+
+## Shell 接入
+
+```sh
+node bin/moonmetamath.mjs theorems database.mm --offset 0 --limit 20
+node bin/moonmetamath.mjs rules database.mm --theorem target --query ax --limit 20
+node bin/moonmetamath.mjs stdio
+```
+
+stdio 按 JSONL 顺序接收完整 API 请求，同一进程保留数据库与会话。错误步骤后可 inspect 并继续；session 批次失败会返回动作索引、成功前缀与会话视图。协议、EOF、超时与退出码见 [CLI](docs/CLI.md)。
 
 ## JSON API
 
@@ -52,7 +62,7 @@ call('unload_database', { database_id });
 
 `status` 表示请求执行状态，`outcome` 表示证明结果。定理摘要使用 `theorems`，规则查询使用 `rules`。旧 `list` 保持返回原证明的行为。
 
-构造顺序为 `load → verify → start → apply_label → finish → export → close_session`。MoonBit 根包提供 `Engine`、`new_engine`、`dispatch_engine`；旧 `dispatch_json` 保持兼容。字段、结果和错误约定见 [API](docs/API.md)。
+构造顺序为 `load → verify → start → apply_label → finish → export → close_session`。MoonBit 根包提供 `Engine`、`new_engine`、`dispatch_engine`；旧 `dispatch_json` 保持兼容。字段、结果和错误约定见 [API](docs/API.md)。可执行的 [agent-client.mjs](examples/agent-client.mjs) 演示构造、错误恢复、incomplete 与预算处理，以及 finally 释放资源。
 
 ## CLI
 
