@@ -1,13 +1,16 @@
 # MoonMetamath 当前进度
 
-## 2026-10-29：0.7.0 shell 接入本地完成，待公开发布
+## 2026-10-29：0.7.0 shell 接入发布与线上验收完成
 
-新增 theorems/rules 文件查询、持久 JSONL stdio、session_context 失败反馈及完整 JavaScript 例子，网页残留文案已处理。CLI 22 项、stdio 10 项、例子 1 项针对验证通过，普通浏览器 18 项通过。解压包 7 项文件命令、50 条文档链接和 24 请求 stdio 失败恢复/新目标/释放链通过。
+发行源码 ecffebc9b778716ae532772c79016194df9f1e7d；CI 40803787575 的 Windows、Ubuntu、Pages 全部成功。Mooncakes 0.7.0 manifest 为 success/has_package，实际注册表消费者两后端 16 操作及独立下游通过。[Release v0.7.0](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.7.0) 已公开。
 
-stdio 首次完整 set.mm 在 512 MiB Worker 下加载 OOM；独立审查将 metadata JSON.parse 移到独立函数，避免源对象与核心解析同时驻留。同输入、同额度重验 31 请求通过，48,097 证明 valid，原失败保留。核心数学代码未改变，本轮未重复大库浏览器流程。证据见 artifacts/v07-agent-usage。
+新增 theorems/rules 文件查询、持久 JSONL stdio、session_context 失败反馈及完整 JavaScript 例子，网页文案已处理。相关 CLI 22 项、stdio 10 项、例子 1 项通过；本地、公网普通浏览器各 18 项通过。实际下载包完成分页命令、失败上下文、可执行例子及 24 请求 stdio 错误恢复/新目标/释放链。包内 50 条文档链接通过。
 
-下一项为同一源码的 CI、注册表、Release 及线上文案/安装包新命令验收。责任为 Codex，发布证据集中在 artifacts/publication-v07。
+stdio 首次完整 set.mm 加载在 512 MiB Worker 下 OOM；metadata 解析移入独立函数后，同输入同额度的 31 请求通过，48,097 证明 valid。原失败保留。核心数学代码未变，本轮未重复大库网页流程。
 
+公网首轮 12 项在首次初始化的默认 5 秒断言超时；trace 中资源均返回 200，串行源/Worker/核心获取超过该窗口。仅首次 goto 后使用 30 秒初始化等待，普通操作断言仍为 5 秒，复验 18 项全过。测试修正提交 741b59d 与发行源码分开，线上 13 个运行资产仍逐字节匹配 ecffebc 的 CI 制品。
+
+完整入口为 artifacts/publication-v07/publication.json 与 README.md；重构和内存修复记录在 artifacts/v07-agent-usage。发布及线上验收完成，赛事状态未变。
 
 ## 2026-10-29：0.6.0 发布与线上验收完成
 

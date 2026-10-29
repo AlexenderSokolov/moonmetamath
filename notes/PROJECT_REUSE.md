@@ -4,7 +4,7 @@
 
 用户继续要求“完成全流程修改”，沿用已授权发布链。bin/stdio.mjs 按行处理 stdin、等待请求与 stdout 完成再读下一行，bin/stdio-worker.mjs 复用独立 dispatcher；每请求截止、单行传输上限和 Worker 堆额度分别说明。bin/moonmetamath.mjs 提供分页查询和 session_context，动作索引/成功输入前缀与当前证明步数区分。examples/agent-client.mjs 给出结果分支、失败后继续及 finally 释放；scripts/agent-smoke.mjs 对源码或解压包执行相同真实 stdin/stdout 链。
 
-额外 JSON.parse 的大源对象若留在消息回调活动帧，会与核心解析并存。首次 set.mm 52 MB 请求在 512 MiB Worker 下 OOM；把 metadata 解析隔离成仅返回两字符串的函数后，同输入同额度的 31 请求通过。保留原失败与成功结果，不用加堆额度替代修复。完整路径及发布状态见 PROGRESS，证据为 artifacts/v07-agent-usage 与 publication-v07。
+额外 JSON.parse 的大源对象若留在消息回调活动帧，会与核心解析并存。首次 set.mm 52 MB 请求在 512 MiB Worker 下 OOM；把 metadata 解析隔离成仅返回两字符串的函数后，同输入同额度的 31 请求通过。保留原失败与成功结果，不用加堆额度替代修复。0.7.0 已发布，发行源码 ecffebc、CI 40803787575；下载包 24 请求 stdio 链、错误上下文、查询与例子通过，本地/公网普通浏览器各 18 项通过。公网初始化网络等待与普通动作断言分开，测试修正为 741b59d，运行资产保持发行源码不变。完整记录见 PROGRESS，证据为 artifacts/v07-agent-usage 与 publication-v07。
 
 
 ## 2026-10-29：agent 接口与维护结构整理
