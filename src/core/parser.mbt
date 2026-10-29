@@ -5,6 +5,7 @@ priv struct MMParseState {
   visited : Map[String, Bool]
   limits : Limits
   mut token_count : Int
+  mut disjoint_operations : Int
 }
 
 ///|
@@ -224,7 +225,10 @@ fn parse_file(
             env.disjoint_snapshot = None
           }
           while env.disjoint.length() > d {
-            ignore(env.disjoint.pop())
+            match env.disjoint.pop() {
+              Some(pair) => env.disjoint_set.remove(pair)
+              None => ()
+            }
           }
         }
       }
@@ -376,8 +380,17 @@ fn parse_file(
               ),
             )
           }
+          if state.disjoint_operations >= state.limits.max_operations {
+            return Err(
+              token_error(
+                first, "resource_limit", "Disjoint expansion exceeds max_operations",
+              ),
+            )
+          }
+          state.disjoint_operations = state.disjoint_operations + 1
           let pair = pair_canonical(expression[a], expression[b])
-          if !env.disjoint.contains(pair) {
+          if !env.disjoint_set.contains(pair) {
+            env.disjoint_set.set(pair, true)
             env.disjoint.push(pair)
             env.disjoint_snapshot = None
           }
@@ -502,6 +515,11 @@ pub fn parse_sources_with_limits(
         ),
       )
     }
+    // All retained sources obey the same ASCII/size contract, even when unused.
+    match new_scanner(source, pair.1, limits) {
+      Err(e) => return Err(e)
+      Ok(_) => ()
+    }
     if pair.1.length() > limits.max_total_bytes - total {
       return Err(
         token_error(
@@ -522,6 +540,7 @@ pub fn parse_sources_with_limits(
     visited: Map([]),
     limits,
     token_count: 0,
+    disjoint_operations: 0,
   }
   match parse_file(state, entry, 0, entry_token) {
     Err(error) => Err(error)

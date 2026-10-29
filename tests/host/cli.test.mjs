@@ -123,3 +123,17 @@ test('CLI timeout terminates its worker with an explicit incomplete resource res
  const r=cli(['verify',good,'--timeout-ms','1']);
  assert.equal(r.status,5);assert.equal(r.json.outcome,'resource_limit');
 });
+
+
+test('CLI exports its own output under a caller selected label',()=>{
+ const actions=join(dir,'repeat-actions.json');writeFileSync(actions,JSON.stringify([{operation:'apply_label',label:'ax'}]));
+ const first=join(dir,'first-repeat.mm'),second=join(dir,'second-repeat.mm');
+ assert.equal(cli(['session',good,'--theorem','ok','--actions',actions,'--export',first]).status,0);
+ const result=cli(['session',first,'--theorem','moonmm-session-1','--actions',actions,'--export',second,'--new-label','continued']);
+ assert.equal(result.status,0,JSON.stringify(result.json));assert.equal(result.json.data.new_label,'continued');
+});
+test('CLI validates command options and routes explicit operation budgets',()=>{
+ assert.equal(cli(['verify',good,'--max-operations','0']).status,5);
+ assert.equal(cli(['verify',good,'--max-operations','100000000']).status,0);
+ for(const args of [['verify',good,'--theorem','missing'],['list',good,'--export','bad.mm'],['verify',good,'--max-operations','-1'],['verify',good,'--max-operations','1.5'],['verify',good,'--format','json','--format','text']])assert.equal(cli(args).status,2);
+});

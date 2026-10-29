@@ -288,6 +288,7 @@ fn dispatch_request(
   let allowed = match op {
     "load" => ["entry", "sources", "limits"]
     "verify" | "list" => ["database_id", "limits"]
+    "theorems" => ["database_id", "query", "offset", "limit"]
     "unload_database" => ["database_id"]
     "start" | "replay" => ["database_id", "target_label", "limits"]
     "rules" =>
@@ -385,7 +386,7 @@ fn dispatch_request(
     )
   }
   if [
-      "verify", "list", "start", "replay", "rules", "create_goal", "unload_database",
+      "verify", "list", "theorems", "start", "replay", "rules", "create_goal", "unload_database",
     ].contains(op) {
     let id = match field_string(req, "database_id") {
       Ok(v) => v
@@ -534,6 +535,69 @@ fn dispatch_request(
       let report = verify_database(db, limits)
       return Ok(
         (report_json(report), jstring(report.outcome), report.diagnostics),
+      )
+    }
+    if op == "theorems" {
+      let query = match json_field(req, "query") {
+        None => ""
+        Some(_) =>
+          match field_string(req, "query") {
+            Ok(v) => v
+            Err(e) => return Err(e)
+          }
+      }
+      let offset = match json_field(req, "offset") {
+        None => 0
+        Some(_) =>
+          match field_int(req, "offset") {
+            Ok(v) => v
+            Err(e) => return Err(e)
+          }
+      }
+      let limit = match json_field(req, "limit") {
+        None => 20
+        Some(_) =>
+          match field_int(req, "limit") {
+            Ok(v) => v
+            Err(e) => return Err(e)
+          }
+      }
+      if limit > 100 {
+        return Err(wire_error("InputError", "Theorem limit must be 0..100"))
+      }
+      let theorems : Array[Json] = []
+      let mut total = 0
+      for decl in db.statements {
+        if decl.kind != "$p" {
+          continue
+        }
+        if !query.is_empty() &&
+          !decl.label.contains(query) &&
+          !decl.expression.join(" ").contains(query) {
+          continue
+        }
+        if total >= offset && theorems.length() < limit {
+          theorems.push(
+            jobject([
+              ("label", jstring(decl.label)),
+              ("decl_id", jnumber(decl.order)),
+              ("status", jstring(decl.status)),
+              ("goal", jstrings(decl.expression)),
+            ]),
+          )
+        }
+        total = total + 1
+      }
+      return Ok(
+        (
+          jobject([
+            ("theorems", Json::array(theorems)),
+            ("total", jnumber(total)),
+            ("offset", jnumber(offset)),
+          ]),
+          Json::null(),
+          [],
+        ),
       )
     }
     if op == "list" {

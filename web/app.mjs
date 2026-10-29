@@ -1,9 +1,10 @@
+import { readTheorems } from './theorems.mjs';
 import { createNotebook, restoreNotebook } from './notebook.mjs';
 
 const $ = (id) => document.getElementById(id);
 const state = {
   worker: null, candidate: null, serial: 0, busy: false, epoch: 0, taskId: 0,
-  db: null, bundle: null, uploaded: [], theorems: [], target: null,
+  db: null, bundle: null, uploaded: [], theorems: [], theoremOffset: 0, theoremMatches: 0, target: null,
   session: null, view: null, events: [], mode: 'construct', replay: null, position: 0,
   rules: [], rule: null, ruleOffset: 0, ruleTotal: 0, hasLocalSave: false,
 };
@@ -11,12 +12,8 @@ const LOCAL_SAVE_KEY = 'moonmetamath-work-schema1';
 const LOCAL_SAVE_LIMIT = 2 * 1024 * 1024;
 const FILE_SAVE_LIMIT = 128 * 1024 * 1024;
 const RULE_PAGE_SIZE = 20;
+const THEOREM_PAGE_SIZE = 100;
 const BUDGETED_OPERATIONS = new Set(['load', 'verify', 'start', 'replay', 'create_goal']);
-const exercises = {
-  '01-first-steps': { title: '01 · 两步构造', help: '先应用 wph，再应用 identity；检查完成。试着搜索结论中的 ->，查看 identity 如何用必要假设构造结论。' },
-  '02-essential-hypothesis': { title: '02 · 必要假设', help: '先查看 lift 的必要假设。依次应用 wph、premise、lift，再检查完成。缺少 premise 时预览 lift，会得到栈不足诊断。' },
-  '03-disjoint': { title: '03 · 不交变量诊断', help: '尝试 vx、vx，再预览 pair-rule：同一个变量不能满足 $d x y。撤回第二步，应用 vy，然后预览并应用 pair-rule。合法顺序为 vx、vy、pair-rule。' },
-};
 const statusText = { verified: '已验证', not_checked: '未检查', invalid: '无效', incomplete: '未完成', valid: '验证通过', unsupported: '不支持', resource_limit: '达到资源限制', cancelled: '已取消' };
 const expression = (tokens) => Array.isArray(tokens) ? tokens.join(' ') : '';
 
@@ -129,6 +126,8 @@ function renderControls() {
   $('entry').disabled = busy || !state.uploaded.length;
   $('verify').disabled = busy || !state.db;
   $('search').disabled = busy || !state.theorems.length;
+  $('theorems-prev').disabled = busy || !state.db || state.theoremOffset === 0;
+  $('theorems-next').disabled = busy || !state.db || state.theoremOffset + THEOREM_PAGE_SIZE >= state.theoremMatches;
   $('cancel').disabled = !busy;
   $('restart').disabled = busy || !active;
   $('apply').disabled = $('label').disabled = busy || !open;
@@ -146,7 +145,7 @@ function renderControls() {
   $('import-work').disabled = busy;
   $('import-work').parentElement.classList.toggle('disabled', busy);
   $('restore-last').disabled = busy || !state.hasLocalSave;
-  $('step-count').textContent = `${state.view?.successful_step_count || 0} 步已确认`;
+  $('step-count').textContent = `${state.mode === 'replay' ? (state.replay ? state.position : 0) : state.view?.successful_step_count || 0} 步已确认`;
   for (const node of document.querySelectorAll('.theorem-item')) node.disabled = busy || !state.db;
   for (const node of document.querySelectorAll('.hypothesis')) node.disabled = busy || !open;
   for (const node of document.querySelectorAll('.rule-item')) node.disabled = busy || !active;
@@ -197,12 +196,34 @@ async function searchRules(offset = 0) {
   renderRules();
 }
 
+function matchingTheorems() {
+  const query = $('search').value.trim().toLowerCase();
+  if (!query) return state.theorems;
+  return state.theorems.filter(theorem =>
+    theorem.label.toLowerCase().includes(query) || expression(theorem.goal).toLowerCase().includes(query));
+}
+
+function revealTargetPage() {
+  let matches = matchingTheorems();
+  let index = matches.findIndex(theorem => theorem.label === state.target?.label);
+  if (index < 0 && state.target) {
+    $('search').value = '';
+    matches = state.theorems;
+    index = matches.findIndex(theorem => theorem.label === state.target.label);
+  }
+  state.theoremOffset = index < 0 ? 0 : Math.floor(index / THEOREM_PAGE_SIZE) * THEOREM_PAGE_SIZE;
+}
+
 function renderTheorems() {
   $('theorem-count').textContent = String(state.theorems.length);
-  const query = $('search').value.toLowerCase();
+  const matches = matchingTheorems();
+  state.theoremMatches = matches.length;
+  const lastOffset = Math.max(0, Math.ceil(matches.length / THEOREM_PAGE_SIZE) - 1) * THEOREM_PAGE_SIZE;
+  state.theoremOffset = Math.min(state.theoremOffset, lastOffset);
+  const page = matches.slice(state.theoremOffset, state.theoremOffset + THEOREM_PAGE_SIZE);
   const list = $('theorems');
   list.replaceChildren();
-  for (const theorem of state.theorems.filter((t) => t.label.toLowerCase().includes(query))) {
+  for (const theorem of page) {
     const button = element('button', `theorem-item${state.target?.label === theorem.label ? ' selected' : ''}`);
     button.type = 'button';
     button.setAttribute('aria-pressed', String(state.target?.label === theorem.label));
@@ -210,7 +231,11 @@ function renderTheorems() {
     button.addEventListener('click', () => task('恢复目标活动上下文…', () => selectTarget(theorem)));
     list.append(button);
   }
-  if (!list.children.length) list.append(element('p', 'muted', state.theorems.length ? '没有匹配的定理。' : '数据库中没有 $p 定理。'));
+  if (!page.length) list.append(element('p', 'muted', state.theorems.length ? '没有匹配的定理。' : '数据库中没有 $p 定理。'));
+  $('theorems-page').textContent = matches.length
+    ? `${state.theoremOffset / THEOREM_PAGE_SIZE + 1} / ${Math.ceil(matches.length / THEOREM_PAGE_SIZE)} 页 · ${matches.length} 条`
+    : '0 / 0 页 · 0 条';
+  renderControls();
 }
 
 function renderView(view = state.view, events = state.events) {
@@ -237,7 +262,7 @@ function renderView(view = state.view, events = state.events) {
   $('stack').replaceChildren();
   if (!stack.length) {
     const empty = element('div', 'empty-state');
-    empty.append(element('span', '', '∅'), element('strong', '', '空栈也是一个起点'), element('p', '', '应用假设或断言后，表达式会出现在这里。'));
+    empty.append(element('span', '', '∅'), element('strong', '', '栈为空'), element('p', '', '应用假设或断言后，表达式会出现在这里。'));
     $('stack').append(empty);
   } else {
     stack.forEach((tokens, index) => {
@@ -284,7 +309,7 @@ function renderReport(response) {
 }
 
 async function refreshList() {
-  state.theorems = (await request('list', { database_id: state.db })).data.theorems;
+  state.theorems = (await readTheorems(request, state.db)).data.theorems;
   if (state.target) state.target = state.theorems.find((t) => t.label === state.target.label) || null;
   renderTheorems();
 }
@@ -320,6 +345,7 @@ function commitTarget(theorem, prepared) {
   state.view = prepared?.view || null;
   state.events = [];
   state.replay = null;
+  state.position = 0;
   state.rules = prepared?.rules.rules || [];
   state.rule = state.rules[0] || null;
   state.ruleOffset = prepared?.rules.offset || 0;
@@ -327,9 +353,10 @@ function commitTarget(theorem, prepared) {
   clearPreview();
   $('replay-controls').hidden = true;
   $('new-goal-expression').value = expression(state.view?.goal);
+  revealTargetPage();
   renderTheorems();
   renderRules();
-  renderView();
+  renderCurrentView();
 }
 
 async function selectTarget(theorem) {
@@ -347,7 +374,7 @@ async function loadBundle(bundle) {
     const loaded = await requestClient(candidate, 'load', { entry: bundle.entry, sources: bundle.sources });
     const database = loaded.data.database_id;
     const verified = await requestClient(candidate, 'verify', { database_id: database });
-    const listed = await requestClient(candidate, 'list', { database_id: database });
+    const listed = await readTheorems((op, fields) => requestClient(candidate, op, fields), database);
     const theorem = listed.data.theorems[0] || null;
     const prepared = theorem ? await prepareTarget(candidate, database, theorem, epoch) : null;
     requireCurrent(epoch, candidate);
@@ -360,7 +387,6 @@ async function loadBundle(bundle) {
     $('database-info').textContent = `${bundle.entry} · ${bundle.sources.length} 个源文件 · ${loaded.data.declaration_count} 条声明`;
     $('search').value = '';
     renderReport(verified);
-    renderExercise();
     commitTarget(theorem, prepared);
   } finally {
     if (state.candidate === candidate) state.candidate = null;
@@ -378,20 +404,12 @@ function decodeSource(bytes, sourceId) {
 async function loadBuiltin() {
   const name = $('builtin').value;
   const epoch = state.epoch;
-  const path = exercises[name] ? `../examples/exercises/${name}.mm` : `../tests/fixtures/upstream/set-mm/${name}.mm`;
+  const path = `../tests/fixtures/upstream/set-mm/${name}.mm`;
   const response = await fetch(new URL(path, import.meta.url));
   if (!response.ok) throw new Error(`示例库读取失败 (${response.status})。请先获取项目测试数据。`);
   const bytes = new Uint8Array(await response.arrayBuffer());
   if (epoch !== state.epoch) return;
   await loadBundle({ entry: `${name}.mm`, sources: [{ source_id: `${name}.mm`, text: decodeSource(bytes, `${name}.mm`) }] });
-  if (epoch === state.epoch) renderExercise(name);
-}
-
-function renderExercise(name) {
-  const guide = exercises[name];
-  $('exercise-guide').hidden = !guide;
-  $('exercise-guide').replaceChildren();
-  if (guide) $('exercise-guide').append(element('strong', '', guide.title), element('p', '', guide.help));
 }
 
 function apply(label) {
@@ -402,7 +420,7 @@ function apply(label) {
     state.events.push(response.data.event);
     clearPreview();
     $('label').value = '';
-    renderView();
+    renderCurrentView();
     // Focus only once the task's finally has enabled the input again.
     setTimeout(() => { if (!$('label').disabled) $('label').focus(); }, 0);
   });
@@ -455,6 +473,7 @@ async function restoreWork(document, epoch) {
     state.theorems = restored.theorems;
     state.target = restored.target;
     state.replay = null;
+    state.position = 0;
     state.rule = null;
     state.rules = [];
     state.ruleTotal = state.ruleOffset = 0;
@@ -463,9 +482,9 @@ async function restoreWork(document, epoch) {
     $('new-goal-expression').value = expression(state.view.goal);
     $('database-info').textContent = `${state.bundle.entry} · ${state.bundle.sources.length} 个源文件 · 从工作文件重新验证`;
     renderReport(restored.report);
+    revealTargetPage();
     renderTheorems();
     renderRules();
-    renderExercise();
     setMode('construct');
     notice(`已重新验证并恢复 ${state.events.length} 步${state.view.state === 'complete' ? '，完成状态已再次检查' : '，可继续构造'}。`, true);
   } finally {
@@ -485,8 +504,12 @@ function setMode(mode) {
   $('construct-panel').hidden = mode !== 'construct';
   $('replay-panel').hidden = mode !== 'replay';
   clearNotice();
-  if (mode === 'replay' && state.replay) renderReplay();
-  else renderView(mode === 'replay' && state.view ? { ...state.view, stack: [], successful_step_count: 0 } : state.view, mode === 'replay' ? [] : state.events);
+  renderCurrentView();
+}
+
+function renderCurrentView() {
+  if (state.mode === 'replay' && state.replay) renderReplay();
+  else renderView(state.mode === 'replay' && state.view ? { ...state.view, stack: [], successful_step_count: 0 } : state.view, state.mode === 'replay' ? [] : state.events);
 }
 
 function renderReplay() {
@@ -535,9 +558,20 @@ $('verify').addEventListener('click', () => task('按声明次序验证数据库
   const response = await request('verify', { database_id: state.db });
   renderReport(response);
   await refreshList();
-  renderView();
+  renderCurrentView();
 }));
-$('search').addEventListener('input', renderTheorems);
+$('search').addEventListener('input', () => {
+  state.theoremOffset = 0;
+  renderTheorems();
+});
+$('theorems-prev').addEventListener('click', () => {
+  state.theoremOffset = Math.max(0, state.theoremOffset - THEOREM_PAGE_SIZE);
+  renderTheorems();
+});
+$('theorems-next').addEventListener('click', () => {
+  state.theoremOffset += THEOREM_PAGE_SIZE;
+  renderTheorems();
+});
 $('rules-form').addEventListener('submit', (event) => { event.preventDefault(); task('查找目标上下文中的可见规则…', () => searchRules()); });
 $('rules-prev').addEventListener('click', () => task('读取上一页规则…', () => searchRules(Math.max(0, state.ruleOffset - RULE_PAGE_SIZE))));
 $('rules-next').addEventListener('click', () => task('读取下一页规则…', () => searchRules(state.ruleOffset + RULE_PAGE_SIZE)));
@@ -549,7 +583,7 @@ $('preview-rule').addEventListener('click', () => task('在副本中检查这一
     const response = await request('preview', { session_id: state.session, label });
     const output = $('preview-output');
     output.classList.remove('failed');
-    output.append(element('strong', '', `${label}：当前栈可执行这一步`), element('p', '', '仅预览，当前栈和已确认动作均未改变。是否有助于目标，需要你判断。'), element('div', 'detail-label', '预计得到的表达式'), element('div', 'math', expression(response.data.event.result)), element('p', '', `预计弹出 ${response.data.event.popped} 项、推入 ${response.data.event.pushed} 项；预览后栈共 ${response.data.view.stack.length} 项。`));
+    output.append(element('strong', '', `${label}：当前栈可执行这一步`), element('p', '', '预览结果；应用后才更新当前栈。'), element('div', 'detail-label', '预计得到的表达式'), element('div', 'math', expression(response.data.event.result)), element('p', '', `预计弹出 ${response.data.event.popped} 项、推入 ${response.data.event.pushed} 项；预览后栈共 ${response.data.view.stack.length} 项。`));
     output.hidden = false;
   } catch (error) {
     if (!state.session) throw error;
@@ -570,7 +604,7 @@ $('new-goal-form').addEventListener('submit', (event) => {
       const response = await requestClient(client, 'create_goal', { database_id: previousDatabase, context_label: state.target.label, new_label, goal: goalText.split(/\s+/) });
       created = response.data;
       const report = await requestClient(client, 'verify', { database_id: created.database_id });
-      const listed = await requestClient(client, 'list', { database_id: created.database_id });
+      const listed = await readTheorems((op, fields) => requestClient(client, op, fields), created.database_id);
       const target = listed.data.theorems.find((theorem) => theorem.label === created.target_label);
       if (!target) throw new Error('新目标未出现在核心定理列表中，当前工作已保留。');
       prepared = await prepareTarget(client, created.database_id, target, epoch);
@@ -582,7 +616,6 @@ $('new-goal-form').addEventListener('submit', (event) => {
       committed = true;
       $('database-info').textContent = `${created.entry} · 继承上下文的新目标`;
       renderReport(report);
-      renderExercise();
       setMode('construct');
       await release(client, previousSession, previousDatabase);
       notice(`已创建 ${created.target_label}，继承活动假设及 $d 约束。目标尚未证明，请从空栈开始。`, true);
@@ -636,13 +669,13 @@ $('rewind').addEventListener('click', () => task('重放成功动作前缀…', 
   state.events = state.events.slice(0, successful_step_count);
   state.view = response.data.view;
   clearPreview();
-  renderView();
+  renderCurrentView();
 }));
 $('finish').addEventListener('click', () => task('检查最终栈与目标是否一致…', async () => {
   const response = await request('finish', { session_id: state.session });
   state.view = response.data.view;
   clearPreview();
-  renderView();
+  renderCurrentView();
   notice('构造完成：最终栈与目标一致。现在可以下载普通 .mm 证明。', true);
 }));
 $('export').addEventListener('click', () => task('生成自足普通证明文件…', async () => {
@@ -650,7 +683,7 @@ $('export').addEventListener('click', () => task('生成自足普通证明文件
   if (!new_label) throw new Error('请填写一个新的定理标签。');
   const response = await request('export', { session_id: state.session, new_label });
   download(response.data.text, `${new_label}.mm`, 'text/plain;charset=us-ascii');
-  notice('已生成下载文件。此导出由 MoonBit 核心构造；独立检查器复核需另行运行。', true);
+  notice('已生成下载文件。', true);
 }));
 $('run-replay').addEventListener('click', () => task('检查数据库原证明并生成回放…', async () => {
   const response = await request('replay', { database_id: state.db, target_label: state.target.label });

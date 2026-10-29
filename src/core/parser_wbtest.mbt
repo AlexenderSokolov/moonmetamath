@@ -155,3 +155,57 @@ test "private parser buffer retains only one declaration or include lookahead" {
     assert_eq(tokens.map(t => t.text), expected)
   }
 }
+
+///|
+test "derived disjoint work is bounded and scoped pairs can return" {
+  let text = "$v a b c $. $d a b c $."
+  match
+    parse_sources_with_limits("a.mm", [("a.mm", text)], {
+      ..default_limits(),
+      max_operations: 2,
+    }) {
+    Err(e) => assert_eq(e.code, "resource_limit")
+    Ok(_) => fail("derived pairs ignored budget")
+  }
+  let db = parse_ok(
+    "$c t $. $v a b $. fa $f t a $. fb $f t b $. ${ $d a b $. $} $d a b $. ax $a t a b $.",
+  )
+  assert_eq(db.statements[db.labels["ax"]].disjoint.length(), 1)
+}
+
+///|
+test "unused bundle sources obey ASCII and individual byte limits" {
+  for
+    (text, limits) in [
+      ("中文", default_limits()),
+      ("abc", { ..default_limits(), max_file_bytes: 2, }),
+    ] {
+    match
+      parse_sources_with_limits(
+        "empty.mm",
+        [("empty.mm", ""), ("unused.mm", text)],
+        limits,
+      ) {
+      Err(_) => ()
+      Ok(_) => fail("unused source escaped validation")
+    }
+  }
+}
+
+///|
+test "disjoint duplicate work is counted across includes and nested scopes" {
+  let limits = { ..default_limits(), max_operations: 1, }
+  match
+    parse_sources_with_limits(
+      "a.mm",
+      [("a.mm", "$v x y $. $d x y $. $[ b.mm $]"), ("b.mm", "$d y x $.")],
+      limits,
+    ) {
+    Err(e) => assert_eq(e.code, "resource_limit")
+    Ok(_) => fail("include reset disjoint work budget")
+  }
+  let db = parse_ok(
+    "$c t $. $v a b $. fa $f t a $. fb $f t b $. $d a b $. ${ $d b a $. $} ax $a t a b $.",
+  )
+  assert_eq(db.statements[db.labels["ax"]].disjoint.length(), 1)
+}

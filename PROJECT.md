@@ -1,72 +1,34 @@
-# MoonMetamath 项目说明
+# MoonMetamath 开发说明
 
-更新：2026-10-28。0.5.0完整大库工作台已发布并通过本地、公网和独立导出验收。当前使用与证据见[大库记录](docs/LARGE_WORKBENCH.md)、[申报书](docs/项目申报书.md)和[PROGRESS](PROGRESS.md)。
+MoonBit 原生 Metamath 验证与逐步证明执行库。JSON API 面向 agent 和程序，CLI 负责文件与批次操作，Web 工作台供查看、调试和手动操作。产品入口见 [README](README.md)，模块复用记录见 [notes/PROJECT_REUSE.md](notes/PROJECT_REUSE.md)。
 
-## 0.5 完整大库工作台
+## 代码与数据流
 
-用户明确要求完成此前失败流程。实现与验收见[大库记录](docs/LARGE_WORKBENCH.md)，计划见docs/superpowers/plans/2026-10-28-v05-large-workbench.md，实时状态见PROGRESS。浏览器明确选择一亿操作预算后，完整源文件创建、保存恢复和独立导出已本地通过；长字符串转义保持标准库规则，旧schema1不变。
+| 模块 | 职责 |
+| --- | --- |
+| src/core/lexer、parser、environment | 源集合、ASCII 输入、include、声明与作用域 |
+| proof_step、substitution、compressed、verifier | 普通、压缩、交互共用的证明执行与检查 |
+| session、rules、goal、export | 会话、规则、目标与导出 |
+| dispatch、根 api.mbt | schema 1 协议、独立 Engine 与公共入口 |
+| bin | 文件读取、CLI、独立 AI 实验宿主 |
+| web | Worker、工作台视图、保存与恢复 |
+| scripts | 工具链、构建、检查、独立对照及打包 |
+| tests | 宿主和浏览器回归、固定外部样例 |
+| artifacts | 忽略的运行记录与临时复现材料 |
 
-## 第二阶段：真实规模性能（已交付）
+本目录为独立 Git 仓库；父目录 MoonFlowGraph 及相邻项目各自维护。
 
-用户于2026-10-26授权第二阶段全链路。固定数据库与预算见[测量计划](docs/superpowers/plans/2026-10-26-v04-performance.md)，输入锁见benchmarks/databases.lock.json，操作入口见[benchmark说明](benchmarks/README.md)。只按实测瓶颈优化；不预设增量验证，不改变统一执行器/旧API，不修改全局工具链。正式状态仍看PROGRESS。
+## 核心约定
 
-## 0.3长期使用基础
+加载只解析声明；验证后才允许已验证定理成为依赖。目标自身、未来定理与非活动假设不可作为前提。普通、压缩和交互路径共用执行器，检查必要假设顺序、同时代换、类型码和不交变量约束。
 
-2026-10-26用户批准第一阶段长期使用基础及独立下游示例，包括测试、独立审查、发布与验收，全自动推进。规格见[长期使用基础](docs/superpowers/specs/2026-10-26-long-term-foundation.md)，计划见[0.3实施计划](docs/superpowers/plans/2026-10-26-v03-foundation.md)，实际完成度以PROGRESS为准。
+失败步骤保持会话状态。预览复制会话与预算，完成要求最终栈恰有一项且逐 token 等于目标。保存文件包含源和动作，恢复时重新解析、验证、重放。构造和回放有独立展示状态。
 
-根公开Engine/new_engine/dispatch_engine与JS create_dispatcher新增显式实例，旧dispatch_json与src/core入口保持兼容。close_session/unload_database明确资源归属；已验证的不可变来源证据保留，verify报告按当前尝试计数。web采用候选资源原子接管和epoch取消。examples/downstream是独立消费者，tests/fixtures/notebooks/v0.2.0固定旧格式。npm仅用于Playwright开发测试，不是产品依赖。
+schema 1 旧操作保持兼容；摘要查询不返回原证明。数据库与会话属于其 Engine，调用者负责关闭会话和卸载数据库。资源参数及错误约定集中在 [API](docs/API.md) 与 [兼容性](docs/COMPATIBILITY.md)。
 
-开发浏览器检查先运行`npm ci`和`npx playwright install chromium`；`run_foundation.sh/.ps1`执行核心、消费者、独立下游和浏览器检查。`scripts/browser-check.mjs`生成绑定实际资源的receipt并独立验证下载；local acceptance可接收`--browser-receipt`复用同一构建的实际记录。
+## 开发环境
 
-## 历史0.2扩展路线
-
-用户已在2026-10-23进一步批准：0.1.1小修后完成0.2规则查找、新目标、保存恢复，再运行不泄露原证明的真实AI补全小实验；包括公开发布和验收，全自动执行，不扩展成平台。具体契约与验收见docs/superpowers/plans/2026-10-23-v02-and-ai.md，实时进度见PROGRESS.md。
-
-## 目标与授权
-
-MoonBit原生Metamath `.mm`验证与逐步证明执行库，附Node CLI和浏览器实验室。面向需要可嵌入检查器的MoonBit开发者、学习形式证明的使用者，以及把外部证明动作接到确定性检查器的AI4Math工程。当前已有一次无原证明输入的固定10题真实模型补全实验，成功10/10；没有真实外部人类用户或新数学成果。
-
-用户2026-10-23明确将原“只做文档、交Claude Code”改为“Codex在独立目录全自动实现、发布、验收，不重复确认”。最新授权包括本项目必要依赖、本地Git、公开仓库、CI、Mooncakes及静态站发布。禁止删除、破坏其他项目、伪造用户反馈或赛事回执。独立Git顶层就是本目录，父目录MoonFlowGraph不是本仓库。
-
-## 阅读顺序
-
-- [README.md](README.md)：产品与实际使用方法。
-- [PROGRESS.md](PROGRESS.md)：当前事实、证据及剩余工作。
-- [docs/API.md](docs/API.md)：实际公开接口、资源与错误语义。
-- [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)、[docs/THIRD_PARTY.md](docs/THIRD_PARTY.md)：兼容与许可边界。
-- [DESIGN_AND_SCOPE.md](DESIGN_AND_SCOPE.md)、[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)、[ACCEPTANCE.md](ACCEPTANCE.md)：原规格、任务和验收设计；实际布局以本文件/API为准。
-- [REFERENCES.md](REFERENCES.md)：固定来源、规范和生态排重证据。
-- [notes/PROJECT_REUSE.md](notes/PROJECT_REUSE.md)：模块复用和提示词来源。
-
-## 实际结构与数据流
-
-| 路径 | 职责 |
-|---|---|
-| src/core/types.mbt、lexer.mbt、parser.mbt | ASCII词法、声明、作用域与include展开 |
-| src/core/proof_step.mbt、substitution.mbt、compressed.mbt、verifier.mbt | 普通/压缩证明的统一执行、代换与不交变量约束 |
-| src/core/session.mbt、export.mbt | 原声明上下文的构造、原子失败、回退、完成与自足导出 |
-| src/core/dispatch.mbt、根api.mbt | schema 1严格JSON协议、opaque句柄与根公共入口 |
-| src/js_bridge | 同一核心的薄桥接，不复制数学语义 |
-| bin/host.mjs、moonmetamath.mjs | 受限源文件解析、Node Worker CLI和退出码 |
-| web | 独立Worker、规则预览、新目标、保存/隔离恢复、构造/回放、上传/取消/下载 |
-| bin/ai-*.mjs、examples/ai | 本地无工具策略适配、固定十题、有限搜索与独立C复核；不向模型提供原proof/source |
-| scripts | 固定工具链、编译、fixtures、独立oracle、检查、消费者、演示、打包、验收 |
-| tests/fixtures/manifest.json | 固定上游版本、字节哈希、预期状态与逐文件许可 |
-| artifacts（忽略） | 实际运行输出、失败记录、下载、审阅和发布证据 |
-
-原计划的core/wire纯组织拆分合并到单一core包，避免公开内部可变结构；根包仅导出dispatch_json。数学判断全部在MoonBit进行，参考Python和C仅参与开发验收。
-
-## 不可放宽的正确性
-
-加载不等于验证。未验证、目标自身和未来定理不可作为可信前提；合法活动假设与公理可用。普通、压缩与交互共用执行器，处理声明顺序、同时代换、合法空代换、类型码、作用域与不交变量约束。
-
-错误步骤不改变会话。最终栈恰好一项且等于目标才完成。未完成、超限与取消不能返回Valid。首版只导出完成的普通ApplyLabel构造会话；原压缩证明回放只读。网页取消实际terminate Worker，重新加载才能恢复新句柄。
-
-原生数据内部字段私有化；验证不保存事件，交互/回放的累计事件令牌预算受限。CLI Worker设置512MiB old-generation heap和默认120秒截止，不承诺该值等于进程总内存上限。
-
-## 运行与验收
-
-Node24，固定compiler v0.10.14+7d59c7ec9、moon0.1.20260920。构建脚本支持Windows x64/Linux x64；不修改全局工具链。源码首次执行：
+Node.js 24；compiler v0.10.14+7d59c7ec9、moon 0.1.20260920，来源见 scripts/toolchain.lock.json。使用项目安装器或 MOONMETAMATH_TOOLCHAIN_HOME 指定的隔离环境。
 
 ```sh
 node scripts/toolchain.mjs install
@@ -74,21 +36,18 @@ node scripts/fixtures.mjs fetch --profile october
 node scripts/build.mjs
 node scripts/check.mjs
 node scripts/consumer.mjs
-node scripts/demo.mjs --oracle
-node scripts/serve.mjs --port 4173
+npm ci
+npx playwright install chromium
+node scripts/browser-check.mjs
+node scripts/package.mjs
 ```
 
-run_check、run_demo、run_acceptance同时提供.ps1/.sh。完整本地验收需真实浏览器receipt，不能仅创建空文件：
+外部样例准备需要网络。独立官方 C 检查器在 Windows 使用 MSVC x86、Linux 使用 gcc；Python 用于参考检查和制品脚本。运行产品不依赖参考检查器。
 
-```sh
-node scripts/acceptance.mjs --phase local
-node scripts/acceptance.mjs --phase publication --ref v0.2.0 --receipt artifacts/publication-v02.json
-```
+run_check.sh/.ps1、run_foundation.sh/.ps1 沿用上述脚本。验收覆盖核心 JS 与 wasm-gc、宿主、固定外部样例和相关浏览器流程。发行包另检查实际解压后的 CLI 与本地文档链接。
 
-0.2本地验收记录artifacts/v02-acceptance-local/result.json。55项MoonBit测试在JS/wasm-gc通过，39项宿主集成测试通过，79外部样例与mmreference匹配；官方C四个真实数据库及浏览器下载候选通过，完整边界集有7项已解释差异。peano是120声明、0证明，不宣传为算术证明结果。完整set.mm和Mac/ARM未验证。
+## 历史与当前工作
 
-## 长期方向与赛事边界
+版本发布与历史验收见 [PROGRESS](PROGRESS.md)、[CHANGELOG](CHANGELOG.md)。0.4 性能和 0.5 大库工作台记录分别在 [性能报告](docs/PERFORMANCE.md) 和 [大库记录](docs/LARGE_WORKBENCH.md)，保留当时条件及失败。
 
-优先维护格式兼容、真实下游接入、可复现性能基线，维护已有薄模型适配器与首次真实补全结果，再按实际需求考虑增量验证。先拿实际采用证据，不做通用Agent平台。图论平台与GraphTea重叠、实根方向已有Symbit，因此未采用；10/23生态排重未发现直接MoonBit Metamath实现，不能证明私有或未索引项目不存在。
-
-G5只由真实远端CI、注册表发布及干净消费者通过确认；G6报名、初审、验收、奖金须分别有主办方回执。官网10/31与旧章程日期不一致仍需保留。技术发布不保证获奖，AI起草材料不冒称人工撰写。
+原设计、实施计划和启动提示词作为历史材料保留；当前开发以本说明、API 和实际代码为准。2026-10-29 重构范围来自用户对代码质量审查的批准，记录位于 artifacts/refactor-20261029。本地修改与正式发布分别记录。

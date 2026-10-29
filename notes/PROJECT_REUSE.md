@@ -1,5 +1,18 @@
 # MoonMetamath 实现与复用卡片
 
+## 2026-10-29：agent 接口与维护结构整理
+
+用户在代码质量审查后要求“就按照你上一轮的分析，改进完善，做好项目重构吧”。本轮在 codex/agent-interface-refactor 修改。随后用户明确批准完整大库复验及 0.6.0 公开发布；当前状态见 PROGRESS。
+
+新增 theorems 提供不含 proof 的分页摘要，旧 list 保持兼容；web/theorems.mjs 供网页与 Notebook 恢复共用。bin/actions.mjs 负责完整动作文件校验，CLI 允许显式新标签和操作预算。parser 为活动不交变量对维护集合，随作用域同步回收；解析派生对与证明执行分别使用 max_operations 配置。所有保留源预检 ASCII 与大小。
+
+README、API、CLI、PROJECT 各负其责；旧 SCENARIOS 保留导航入口。发行包使用 scripts/package-docs.mjs 的明确清单，并验证全部文档相对链接。已有测试样例继续作为回归输入，网页撤下练习引导。
+
+本轮整套检查：核心 JS/wasm-gc 各 77 项、宿主 74 项、外部样例 79 项通过；浏览器 14 项通过，实际下载由官方 C 接受。独立审查补充回放切换后的步号重置后，对应 2 项浏览器回归及格式整理后的 15 项 CLI 测试通过。最终发行包 44 条相对文档链接、5 条无编译器命令通过，记录见 artifacts/refactor-20261029。原始失败保留。后续已按新增授权完成完整 set.mm API/CLI 验证及实际浏览器重库复验。定理 DOM 分页修复全量列表造成的阻塞，恢复后导出从首次 249.717 秒降为 1.610 秒；证据见 artifacts/publication-v06。
+
+## 历史阶段记录
+
+
 更新2026-10-23。原规划已由Codex实现，G0–G5技术验收通过；Mooncakes0.1.0、双平台CI、独立registry消费者及公网实验室实际使用通过。正式资产与精确提交见Release，赛事外部审核仍待真实回执。
 
 ## 最小阅读路径

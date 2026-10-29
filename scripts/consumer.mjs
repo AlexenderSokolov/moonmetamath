@@ -31,6 +31,7 @@ writeFileSync(join(consumer, 'moon.work'), `members = ${JSON.stringify(registry 
 writeFileSync(join(consumer, 'moon.pkg'), `import {\n  "${moduleName}",\n  "moonbitlang/core/json",\n}\noptions(is_main: true)\n`);
 const load = { schema_version: 1, request_id: 'consumer-load', operation: 'load', entry: 'consumer.mm', sources: [{ source_id: 'consumer.mm', text: '$c |- a $. ax $a |- a $. th $p |- a $= ax $.' }] };
 const exportLabel = `consumer-export-${Date.now()}`;
+const summaryQuery = Number(requestedVersion.split('.')[0]) > 0 || Number(requestedVersion.split('.')[1]) >= 6;
 const workbench = requestedVersion.split('.').slice(0,2).map(Number).some((n,i)=>i===0?n>0:n>=2);
 writeFileSync(join(consumer, 'main.mbt'), `///|
 fn field(value : Json, key : String) -> Json {
@@ -86,6 +87,8 @@ ${workbench ? `  let _ = action("rules", [("database_id", database_id), ("target
   let _ = action("finish", [("session_id", goal_session)])
   let _ = action("export", [("session_id", goal_session), ("new_label", Json::string("consumer-new-export"))])
 ` : ''}
+${summaryQuery ? `  let _ = action("theorems", [("database_id", database_id), ("offset", Json::number(0.0)), ("limit", Json::number(1.0))])
+` : ''}
 }
 `);
 let failure = null, outputs = [];
@@ -95,7 +98,16 @@ try {
     invoke(`${target}-check`, tc.moon, ['check', '--target', target, '--deny-warn'], consumer);
     const text = invoke(`${target}-run`, tc.moon, ['run', '.', '--target', target, '--deny-warn'], consumer);
     const records = text.trim().split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line));
-    const operations = ['load', 'verify', 'start', 'apply_label', 'finish', 'export', ...(workbench?['rules','rewind','preview','inspect','create_goal','start','apply_label','finish','export']:[])];
+    const operations = ['load', 'verify', 'start', 'apply_label', 'finish', 'export', ...(workbench?['rules','rewind','preview','inspect','create_goal','start','apply_label','finish','export']:[]), ...(summaryQuery ? ['theorems'] : [])];
+    if (summaryQuery) {
+      const page = records.at(-1).data;
+      assert.equal(page.total, 1);
+      assert.equal(page.offset, 0);
+      assert.equal(page.theorems.length, 1);
+      assert.equal(page.theorems[0].label, 'th');
+      assert.deepEqual(page.theorems[0].goal, ['|-', 'a']);
+      assert.equal(Object.hasOwn(page.theorems[0], 'proof'), false);
+    }
     assert.equal(records.length, operations.length, `${target}: expected ${operations.length} actual responses`);
     for (const [index, operation] of operations.entries()) {
       const record = records[index];

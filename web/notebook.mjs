@@ -1,3 +1,4 @@
+import { readTheorems } from './theorems.mjs';
 // Persistence records inputs and successful actions, never native handles or stacks.
 const MAX_BYTES = 128 * 1024 * 1024;
 const MAX_ACTIONS = 10000;
@@ -112,7 +113,7 @@ export async function restoreNotebook(input, request) {
   // An incomplete target or a bad later proof does not invalidate a legal target
   // prefix. Native start remains authoritative about that prefix's trust state.
   if (!['valid', 'incomplete', 'invalid'].includes(report.outcome)) fail(`verify did not complete: ${report.outcome}.`);
-  const listed = await checked('list', { database_id });
+  const listed = await readTheorems(checked, database_id);
   const theorems = listed.data.theorems;
   const target = theorems.find((theorem) => theorem.label === document.target_label);
   if (!target) fail(`Target theorem is missing: ${document.target_label}.`);

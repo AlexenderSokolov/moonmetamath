@@ -32,7 +32,7 @@ async function start(request, input = bundle, target_label = 'target') {
   assert.equal(loaded.status, 'ok');
   const database_id = loaded.data.database_id;
   const report = await request({ operation: 'verify', database_id });
-  const listed = await request({ operation: 'list', database_id });
+  const listed = await request({ operation: 'theorems', database_id });
   const started = await request({ operation: 'start', database_id, target_label });
   assert.equal(started.status, 'ok', JSON.stringify(started));
   return { database_id, session_id: started.data.session_id, view: started.data.view, report, theorems: listed.data.theorems };

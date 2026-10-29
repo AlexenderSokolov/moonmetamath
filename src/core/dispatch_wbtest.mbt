@@ -329,3 +329,67 @@ test "legacy default dispatcher shares no owned resources with explicit engines"
     .contains("\"status\":\"ok\""),
   )
 }
+
+///|
+test "theorem summaries are paged and omit original proofs" {
+  let engine = new_engine()
+  let id = lifecycle_load(engine)
+  let page = lifecycle_call(engine, "theorems", [
+    ("database_id", jstring(id)),
+    ("offset", jnumber(1)),
+    ("limit", jnumber(1)),
+  ]).stringify()
+  assert_true(page.contains("\"status\":\"ok\""))
+  assert_true(page.contains("\"label\":\"q\""))
+  assert_false(page.contains("\"proof\""))
+  assert_true(page.contains("\"total\":2"))
+  let empty = lifecycle_call(engine, "theorems", [
+    ("database_id", jstring(id)),
+    ("limit", jnumber(0)),
+  ]).stringify()
+  assert_true(empty.contains("\"theorems\":[]"))
+  assert_true(
+    lifecycle_call(engine, "theorems", [
+      ("database_id", jstring(id)),
+      ("limit", jnumber(101)),
+    ])
+    .stringify()
+    .contains("InputError"),
+  )
+  assert_true(
+    lifecycle_call(engine, "list", [("database_id", jstring(id))])
+    .stringify()
+    .contains("\"proof\""),
+  )
+}
+
+///|
+test "theorem summary filters and rejects malformed paging" {
+  let engine = new_engine()
+  let id = lifecycle_load(engine)
+  let filtered = lifecycle_call(engine, "theorems", [
+    ("database_id", jstring(id)),
+    ("query", jstring("q")),
+  ]).stringify()
+  assert_true(filtered.contains("\"total\":1"))
+  assert_true(filtered.contains("\"label\":\"q\""))
+  let beyond = lifecycle_call(engine, "theorems", [
+    ("database_id", jstring(id)),
+    ("offset", jnumber(99)),
+  ]).stringify()
+  assert_true(beyond.contains("\"theorems\":[]"))
+  assert_true(beyond.contains("\"total\":2"))
+  for
+    field in [
+      ("offset", jnumber(-1)),
+      ("limit", Json::number(0.5)),
+      ("query", jnumber(1)),
+      ("proof", jbool(true)),
+    ] {
+    assert_true(
+      lifecycle_call(engine, "theorems", [("database_id", jstring(id)), field])
+      .stringify()
+      .contains("InputError"),
+    )
+  }
+}

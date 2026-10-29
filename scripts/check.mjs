@@ -38,6 +38,11 @@ let failure = null;
 try {
   execute('pinned-toolchain', process.execPath, ['scripts/toolchain.mjs', 'verify']);
   execute('format', tc.moon, ['fmt', '--check'], tc.env);
+  for (const directory of ['bin', 'web', 'scripts']) {
+    for (const name of readdirSync(join(root, directory)).filter(name => name.endsWith('.mjs')).sort()) {
+      execute(`syntax-${directory}-${name}`, process.execPath, ['--check', join(directory, name)]);
+    }
+  }
   const before = interfaces();
   execute('interfaces', tc.moon, ['info'], tc.env);
   const after = interfaces();

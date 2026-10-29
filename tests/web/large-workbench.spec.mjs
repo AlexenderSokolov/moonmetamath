@@ -49,8 +49,10 @@ test('explicit operation budget reaches load, verify, start, replay, create and 
   }
   await page.locator('#operation-budget').selectOption('100000000');
   await page.evaluate(() => { window.__requests = []; });
-  await page.locator('#builtin').selectOption('01-first-steps');
-  await page.locator('#load-builtin').click();
+  await page.locator('.upload > summary').click();
+  await page.locator('#files').setInputFiles(resolve('examples/exercises/01-first-steps.mm'));
+  await page.locator('#load-upload').click();
+  await page.locator('.upload > summary').click();
   await ready(page);
   await page.locator('#replay-tab').click();
   await page.locator('#run-replay').click();
@@ -113,6 +115,7 @@ if (process.env.MOONMM_LARGE_WORKBENCH === '1') test('full-set: locked young2d c
     await expect(page.locator('#database-info')).toContainText('set.mm');
     await expect(page.locator('#report')).toContainText('验证通过');
     await expect(page.locator('#theorem-count')).toHaveText(String(source.expected_proofs));
+    expect(await page.locator('.theorem-item').count()).toBeLessThanOrEqual(100);
   });
   await phase('young2d-context-query-preview', async () => {
     await page.locator('#search').fill(source.workload.target_label);
@@ -159,14 +162,26 @@ if (process.env.MOONMM_LARGE_WORKBENCH === '1') test('full-set: locked young2d c
     await expect(page.locator('#target-status')).toHaveText('构造已完成');
     await expect(page.locator('#step-count')).toHaveText('1 步已确认');
     await expect(page.locator('#notice')).toContainText('完成状态已再次检查');
+    const visibleTheorems = await page.locator('.theorem-item').count();
+    expect(visibleTheorems).toBeLessThanOrEqual(100);
+    await writeFile(resolve(out, 'layout-result.json'), JSON.stringify({ total: source.expected_proofs, visibleTheorems }, null, 2));
   });
   await phase('export-after-restore', async () => {
-    await page.locator('#export-label').fill('moonmm-large-verified');
+    const steps = [];
+    async function measured(name, action) {
+      const begin = Date.now();
+      const result = await action();
+      steps.push({ name, duration_ms: Date.now() - begin });
+      await writeFile(resolve(out, 'export-details.json'), JSON.stringify(steps, null, 2));
+      return result;
+    }
+    await measured('fill-label', () => page.locator('#export-label').fill('moonmm-large-verified'));
     const event = page.waitForEvent('download', { timeout });
-    await page.locator('#export').click();
-    await (await event).saveAs(resolve(out, 'moonmm-large-verified.mm'));
-    await ready(page, timeout);
-    await page.screenshot({ path: resolve(out, 'browser-completed.png'), fullPage: false });
+    await measured('click-export', () => page.locator('#export').click());
+    const download = await measured('wait-download', () => event);
+    await measured('save-file', () => download.saveAs(resolve(out, 'moonmm-large-verified.mm')));
+    await measured('ready', () => ready(page, timeout));
+    await measured('screenshot', () => page.screenshot({ path: resolve(out, 'browser-completed.png'), fullPage: false }));
   });
   await writeFile(resolve(out, 'browser-requests.json'), JSON.stringify(await page.evaluate(() => window.__requests), null, 2));
 });

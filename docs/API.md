@@ -2,9 +2,9 @@
 
 公共根包 `AlexenderSokolov/moonmetamath` 暴露 `dispatch_json(String) -> String`。它接受一个 JSON 请求并返回一个 JSON 响应；数学语义由 MoonBit 核心执行。JS 构建产物 `dist/moonmetamath-core.mjs` 导出同名函数。根包与 `src/core` 的实际导出分别见 `pkg.generated.mbti`、`src/core/pkg.generated.mbti`。
 
-本文包含0.2.0新增的 `rules`、`preview`、`create_goal`；schema版本仍为1。0.2.0已从Mooncakes安装，并经独立消费者在JS/wasm-gc完成包含新增接口的15操作验收。
+schema 1 同时支持旧全量查询和分页定理摘要。
 
-## 0.3 独立实例与兼容入口
+## 独立实例与兼容入口
 
 原根 `dispatch_json(String)->String` 仍使用默认实例，所有旧操作保持 schema 1。原生消费者新增根公开 `Engine`（字段私有）、`new_engine()->Engine` 和 `dispatch_engine(Engine,String)->String`。既有 `src/core` 结构化接口继续保留。
 
@@ -14,7 +14,7 @@ JavaScript 构建产物额外导出 `create_dispatcher()`，每次返回拥有�
 
 诊断code保留原兼容拼写；`resource_limit` 与 `ResourceLimit` 均映射为 `outcome: resource_limit`。加载失败的status仍为error，批量验证报告的status语义不变。
 
-`verify` 的计数、complete和outcome描述本次检查。源与证明不可变，已经取得的verified依据不会被较小预算重验撤销；因此本次报告可能resource_limit，而list和先前会话仍可使用早先验证的定理。未验证过的定理依旧不可用。这不是缓存文件授权，也不信任持久化状态。
+`verify` 的计数、complete和outcome描述本次检查。源与证明不可变，已经取得的verified依据不会被较小预算重验撤销；因此本次报告可能resource_limit，而list和先前会话仍可使用早先验证的定理。未验证过的定理依旧不可用。持久化文件通过重新验证恢复可信状态。
 
 ## 请求与响应
 
@@ -43,6 +43,7 @@ JavaScript 构建产物额外导出 `create_dispatcher()`，每次返回拥有�
 | `load` | `entry`, `sources`, 可选 `limits` | `database_id`, `declaration_count`, `verified_count: 0`；解析源集合，不验证 `$p` |
 | `verify` | `database_id`, 可选 `limits` | 顺序检查数据库；返回下述完整性与计数 |
 | `list` | `database_id`, 可选 `limits` | `theorems`: label、decl_id、status、goal、proof；不会隐式验证 |
+| `theorems` | `database_id`，可选 `query`, `offset`, `limit` | `theorems`: label、decl_id、status、goal；以及 total、offset，不含 proof |
 | `rules` | `database_id`, `target_label`，可选 `query`, `typecode`, `offset`, `limit` | `rules`, `total`, `offset`；按可信目标上下文查找可用规则，不返回 proof |
 | `create_goal` | `database_id`, `context_label`, `new_label`, `goal: String[]`，可选 `limits` | 新 `database_id`, `target_label`, `entry`, `sources`, `goal`, `active_hypotheses`, `disjoint`；创建继承上下文的独立未完成目标，不创建会话 |
 | `start` | `database_id`, `target_label`, 可选 `limits` | `session_id`, `view`；从空栈开始重做现有 `$p` |
@@ -61,6 +62,10 @@ JavaScript 构建产物额外导出 `create_dispatcher()`，每次返回拥有�
 
 所有句柄只属于当前 dispatcher 实例。当前最多持有 16 个数据库、64 个构造会话；达到上限时返回资源诊断。`reset` 后旧句柄失效；它不重置数学语义或为旧句柄绑定新库。宿主重建模块或终止 Worker 同样会丢弃上下文。
 
+## 定理摘要
+
+`theorems` 不隐式验证。query 默认空串，按大小写敏感子串匹配标签或空格连接的结论。offset 默认 0，须非负；limit 默认 20，范围 0..100。按声明顺序返回，total 为筛选后的总数。limit 为 0 或 offset 越界时返回空数组。旧 list 的全量含 proof 输出不变。
+
 ## 规则查找、预览与新目标
 
 `rules` 使用与 `start`/标签应用相同的上下文与信任检查；前缀中的 `$p` 须先验证。候选规则为活动 `$f/$e`、此前可见 `$a` 和此前 verified 的 `$p`。原目标、未来声明和非活动假设被排除；已结束作用域内声明的公理仍按其原有必要假设框架使用。
@@ -71,7 +76,7 @@ JavaScript 构建产物额外导出 `create_dispatcher()`，每次返回拥有�
 {"label":"copy","kind":"$a","conclusion":["t","x"],"mandatory_hypotheses":[{"label":"vx","kind":"$f","expression":["t","x"]}],"disjoint":[]}
 ```
 
-`mandatory_hypotheses` 保持原声明次序；假设自身直接入栈，该数组为空。`disjoint` 为变量名二元数组。结果没有 proof 数组或源文本。旧 `list` **有意保留** `proof`，`replay` 有意读取原证明，二者适合显式教学或宿主查询，不能用作 AI 的观察输入。
+`mandatory_hypotheses` 保持原声明次序；假设自身直接入栈，该数组为空。`disjoint` 为变量名二元数组。结果没有 proof 数组或源文本。旧 `list` 返回 `proof`，`replay` 读取原证明。无参考证明的模型策略应使用 `theorems`、`rules` 与会话反馈。
 
 `preview` 在私有会话副本上调用同一执行器。成功返回的 `view` 包含预计的新栈和成功步数；原会话的栈、日志、完成状态与额度都不变，错误同样不改变原会话。宿主可随后 `inspect` 比较当前状态，或显式 `apply_label` 真正提交。预览只检查这一步能否合法执行，不评估其对目标的帮助。
 
@@ -81,11 +86,12 @@ JavaScript 构建产物额外导出 `create_dispatcher()`，每次返回拥有�
 
 **生成源保留此前可信定理的完整证明。** 排除原目标的证明不等于源文件适合给模型：新源、旧源、`list`、`replay` 都不能进入 AI 策略观察。AI 宿主只能从允许字段构造目标/活动假设、规则元数据、`inspect` 视图和步骤反馈。
 
-下面是可在仓库根目录运行的完整 0.2 示例，所有句柄均取自实际响应：
+下面是可在仓库根目录运行的完整示例，所有句柄均取自实际响应：
 
 ```js
 import assert from 'node:assert/strict';
-import { dispatch_json } from './dist/moonmetamath-core.mjs';
+import { create_dispatcher } from './dist/moonmetamath-core.mjs';
+const dispatch_json = create_dispatcher();
 let serial = 0;
 function call(operation, values = {}) {
   const result = JSON.parse(dispatch_json(JSON.stringify({
@@ -119,7 +125,7 @@ console.log(exported.data.text);
 
 ## 读取验证结果
 
-`verify.data` 包含 `complete`、`declaration_count`、`proof_count`、`verified_count`、`invalid_count`、`incomplete_count`、`not_checked_count`。只有本次范围完整检查且应验证的证明全部有效，才返回 outcome valid。`?` 是 incomplete；依赖未验证、无效或未完成证明的项不能升级为 verified。一个没有 `$p` 的合法数据库可以 valid，但 proof_count 为 0，不能据此声称验证过证明。
+`verify.data` 包含 `complete`、`declaration_count`、`proof_count`、`verified_count`、`invalid_count`、`incomplete_count`、`not_checked_count`。只有本次范围完整检查且应验证的证明全部有效，才返回 outcome valid。`?` 是 incomplete；依赖未验证、无效或未完成证明的项不能升级为 verified。合法的纯声明数据库可返回 valid，此时 proof_count 为 0。
 
 ```json
 {"schema_version":1,"request_id":"verify-1","operation":"verify","database_id":"db-1"}
@@ -163,7 +169,7 @@ replay_proof(MMDatabase, String, Limits) -> Result[MMSession, MMError]
 
 ## 工作文件与恢复宿主
 
-`web/notebook.mjs` 是异步宿主助手，不是新增 dispatcher 操作：
+`web/notebook.mjs` 提供独立的异步保存恢复助手：
 
 ```js
 const document = await createNotebook({ bundle: { entry, sources },
@@ -173,11 +179,13 @@ const restored = await restoreNotebook(document, isolatedRequest);
 
 `createNotebook`、`restoreNotebook` 从该模块导入。工作文件严格包含 `schema_version: 1`、`entry`、`sources: [{source_id, text, sha256}]`、`target_label`、`actions: [{operation: "apply_label", label}]` 和布尔 `completed`；缺失或未知字段均拒绝。最多 128 MiB UTF-8 序列化数据和 10,000 个成功动作；源名需规范化、互不重复且不得逃出集合。撤回后只保存剩余成功前缀，不存 rewind/finish 动作、数据库/会话句柄、原始栈或内部可信状态。
 
-恢复时先核对源文本 SHA-256，再在**新建且隔离**的核心/Worker 中执行 `load → verify → list → start → apply_label...`。`isolatedRequest` 是接收 `{operation, ...fields}` 并异步返回完整 schema 1 响应的函数；宿主补齐公共字段。verify 可报告 valid/incomplete/invalid；选定目标前缀是否可信仍由原生 start 决定。只有 `completed: true` 才额外调用 finish，且必须再次得到有效完成；该标记和源哈希都不是证明结论。返回 bundle、实际句柄、view、events、theorems、report 和 target。
+恢复时先核对源文本 SHA-256，再在**新建且隔离**的核心/Worker 中执行 `load → verify → theorems → start → apply_label...`。`isolatedRequest` 是接收 `{operation, ...fields}` 并异步返回完整 schema 1 响应的函数；宿主补齐公共字段。verify 可报告 valid/incomplete/invalid；选定目标前缀是否可信仍由原生 start 决定。只有 `completed: true` 才额外调用 finish，且必须再次得到有效完成；完成状态以此次 finish 结果为准。返回 bundle、实际句柄、view、events、theorems、report 和 target。
 
 调用者须在恢复全部成功后才采用返回的新内核，失败时保留当前工作。浏览器按此方式隔离候选 Worker；主动保存时至多 2 MiB 的文档另存本机上次保存，不自动上传，不自动持续保存。文件恢复和本机恢复均重新验证/重放。
 
 ## 额度与取消
+
+load 对所有保留源执行 ASCII 与单文件大小检查，再累计总字节数。解析时 `$d` 展开的变量对累计受 max_operations 限制，计数跨 include 共享；证明验证使用独立的执行计数。二者分别适用同一配置值。
 
 默认额度见 [COMPATIBILITY.md](COMPATIBILITY.md)。同步 `dispatch_json` 不接收可中断当前调用的 cancel 消息。Web 宿主使用 Worker.terminate() 真正取消；最后确认视图只读，继续需要重新加载或恢复此前保存的工作文件。保存恢复通过新内核重放，不恢复已终止 Worker 的内部状态。Node CLI 将操作放入 worker_threads，默认 120000 ms 截止及 512 MiB old-generation heap 限制；`--timeout-ms N` 可设为 1..300000，超时或 SIGINT 由宿主终止线程并以退出码 5 返回未完成。CLI 不自动保存会话或提供精细进度。
 
@@ -192,12 +200,12 @@ const restored = await restoreNotebook(document, isolatedRequest);
 | 4 | 未完成或不支持的结果；含最终栈未达目标 |
 | 5 | 资源额度或取消 |
 
-具体诊断仍须读取 JSON。CLI session 接受动作数组或 `{schema_version:1, actions:[...]}`，可执行 apply_label、rewind、finish；由宿主注入 session_id，执行后最终调用 finish。CLI export 使用新标签 `moonmm-session-1`，不覆盖任何已有目的文件。Web/直接 API 可指定新标签。
+具体诊断仍须读取 JSON。CLI session 接受动作数组或 `{schema_version:1, actions:[...]}`，可执行 apply_label、rewind、finish；由宿主注入 session_id，执行后最终调用 finish。CLI export 默认使用 `moonmm-session-1`，可用 `--new-label` 指定新标签，不覆盖已有文件。`--max-operations` 显式传入本次 load、verify、start 或 replay；各阶段分别计数。参数详见 [CLI](CLI.md)。
 
 ## 跨版本兼容检查
 
 保存格式保持schema 1，未知字段/未知动作/新版本仍明确拒绝。tests/fixtures/notebooks/v0.2.0固定保存由0.2.0原写入器产生的include、部分/完成、作用域和$d样例；新版本必须重放恢复并独立检查完成导出。将来改变格式时显式升版，不通过放宽严格动作校验来兼容。
 
-## 0.5 大库使用
+## 大库使用
 
-公开JSON字段及schema1工作文件不变。长字符串响应分块委托同一标准库转义，保护UTF-16代理对。浏览器提供默认一千万和显式一亿操作额度；完整set的加载、验证、新目标及恢复前选择一亿。已有会话使用开始时的额度，更改后重新开始。工作文件仍不包含可信状态或limits字段，恢复采用当前显式配置并重新验证。
+公开JSON字段及schema1工作文件不变。浏览器提供默认一千万和显式一亿操作额度；完整set的加载、验证、新目标及恢复前选择一亿。已有会话使用开始时的额度，更改后重新开始。工作文件仍不包含可信状态或limits字段，恢复采用当前显式配置并重新验证。

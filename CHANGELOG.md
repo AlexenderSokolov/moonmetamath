@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0 · 2026-10-29
+
+- Add proof-free paginated theorem summaries, preserving legacy list.
+- Add CLI export-label and operation-budget options with per-command validation.
+- Bound disjoint-variable expansion and validate all retained sources before byte accounting.
+- Separate theorem retrieval and action validation; keep replay views consistent.
+- Bound the theorem panel to 100 DOM entries per page, including restored large-database work.
+- Consolidate API, CLI and development documentation; remove tutorial navigation.
+- Package an explicit document set and check local links after extraction.
+
 ## 0.5.0 · 2026-10-28
 
 - Bound long-string JSON escaping allocations while preserving standard escaping, Unicode pairs and schema 1.

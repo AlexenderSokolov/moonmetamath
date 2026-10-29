@@ -6,6 +6,7 @@ priv struct MMEnv {
   variables : Array[String]
   hypotheses : Array[Int]
   disjoint : Array[(String, String)]
+  disjoint_set : Map[(String, String), Bool]
   // Snapshots are private, immutable after publication, and independent of the
   // mutable environment arrays. Only the changed component is invalidated.
   mut variables_snapshot : Array[String]?
@@ -24,6 +25,7 @@ fn new_env() -> MMEnv {
     variables: [],
     hypotheses: [],
     disjoint: [],
+    disjoint_set: Map([]),
     variables_snapshot: None,
     hypotheses_snapshot: None,
     disjoint_snapshot: None,

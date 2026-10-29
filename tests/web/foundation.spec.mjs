@@ -16,10 +16,17 @@ async function apply(page, label) {
 async function exercise(page) {
   await page.goto(process.env.MOONMM_WEB_URL || '/web/');
   await ready(page);
-  await page.locator('#builtin').selectOption('01-first-steps');
-  await page.locator('#load-builtin').click();
+  await page.locator('.upload > summary').click();
+  await page.locator('#files').setInputFiles(resolve('examples/exercises/01-first-steps.mm'));
+  await page.locator('#load-upload').click();
+  await page.locator('.upload > summary').click();
   await ready(page);
   await expect(page.locator('#target-label')).toHaveText('first-steps');
+}
+
+async function reloadFixture(page) {
+  await page.locator('.upload').evaluate(node => { node.open = true; });
+  await page.locator('#load-upload').click();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -173,7 +180,7 @@ for (const operation of ['start', 'rules', 'apply_label', 'create_goal', 'load']
     } else if (operation === 'create_goal') {
       await page.locator('.new-goal-details > summary').click();
       await page.locator('#create-goal').click();
-    } else if (operation === 'load') await page.locator('#load-builtin').click();
+    } else if (operation === 'load') await reloadFixture(page);
     else await page.locator('#restart').click();
     await expect.poll(() => page.evaluate(() => window.__wireTest.held.length)).toBe(1);
     await page.locator('#cancel').click();
@@ -181,7 +188,7 @@ for (const operation of ['start', 'rules', 'apply_label', 'create_goal', 'load']
     await expect(page.locator('#apply')).toBeDisabled();
     await expect(page.locator('#activity')).not.toHaveClass(/busy/);
     await expect(page.locator('#step-count')).toHaveText('0 步已确认');
-    await page.locator('#load-builtin').click();
+    await reloadFixture(page);
     await ready(page);
     await apply(page, 'wph');
     await page.evaluate(() => { for (const deliver of window.__wireTest.held.splice(0)) deliver(); });
@@ -201,7 +208,7 @@ test('cancel: notebook candidate cannot replace a newer worker after delayed ver
   await expect.poll(() => page.evaluate(() => window.__wireTest.held.length)).toBe(1);
   await page.locator('#cancel').click();
   await expect(page.locator('#apply')).toBeDisabled();
-  await page.locator('#load-builtin').click();
+  await reloadFixture(page);
   await ready(page);
   await page.evaluate(() => { for (const deliver of window.__wireTest.held.splice(0)) deliver(); });
   await expect(page.locator('#step-count')).toHaveText('0 步已确认');
@@ -227,4 +234,37 @@ test('lifecycle: active worker runtime errors remain visible after invalidation'
   await expect(page.locator('#restart')).toBeDisabled();
   await expect(page.locator('#apply')).toBeDisabled();
   await expect(page.locator('#activity')).not.toHaveClass(/busy/);
+});
+
+
+test('replay view survives database verification', async ({page}) => {
+  await page.goto(process.env.MOONMM_WEB_URL || '/web/');
+  await ready(page);
+  await page.locator('#replay-tab').click();
+  await page.locator('#run-replay').click();
+  await ready(page);
+  await page.locator('#proof-labels button').last().click();
+  const stack = await page.locator('#stack').textContent();
+  const progress = await page.locator('#replay-progress').textContent();
+  await page.locator('#verify').click();
+  await ready(page);
+  await expect(page.locator('#stack')).toHaveText(stack);
+  await expect(page.locator('#replay-progress')).toHaveText(progress);
+  await expect(page.locator('#step-count')).toHaveText('34 步已确认');
+});
+
+
+test('replay position resets when a database replaces the current target', async ({page}) => {
+  await page.goto(process.env.MOONMM_WEB_URL || '/web/');
+  await ready(page);
+  await page.locator('#replay-tab').click();
+  await page.locator('#run-replay').click();
+  await ready(page);
+  await page.locator('#proof-labels button').last().click();
+  await expect(page.locator('#step-count')).toHaveText('34 步已确认');
+  await page.locator('#load-builtin').click();
+  await ready(page);
+  await expect(page.locator('#step-count')).toHaveText('0 步已确认');
+  await expect(page.locator('#stack-count')).toHaveText('0');
+  await expect(page.locator('#replay-controls')).toBeHidden();
 });

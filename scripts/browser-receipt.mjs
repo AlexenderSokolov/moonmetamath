@@ -6,7 +6,7 @@ import { root } from './common.mjs';
 
 export const webAssets = [
   'web/index.html', 'web/app.mjs', 'web/worker.mjs', 'web/notebook.mjs', 'web/style.css',
-  'dist/moonmetamath-core.mjs',
+  'dist/moonmetamath-core.mjs', 'web/theorems.mjs',
   'tests/fixtures/upstream/set-mm/demo0.mm', 'tests/fixtures/upstream/set-mm/miu.mm', 'tests/fixtures/upstream/set-mm/hol.mm',
   'examples/exercises/01-first-steps.mm', 'examples/exercises/02-essential-hypothesis.mm', 'examples/exercises/03-disjoint.mm',
 ];
