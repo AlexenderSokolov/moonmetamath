@@ -2,6 +2,8 @@
 
 MoonBit 原生的 Metamath 验证与逐步证明执行库，供 agent 和程序通过 JSON API 调用。Node CLI 处理文件和动作批次，Web 工作台用于查看、调试和手动操作。三种入口共用同一个证明核心。
 
+[在线工作台](https://alexendersokolov.github.io/moonmetamath/web/) · [0.6.0 发行包](https://github.com/AlexenderSokolov/moonmetamath/releases/tag/v0.6.0)
+
 支持普通和压缩证明、作用域、不交变量检查、规则查询、步骤预览、撤回、新目标、保存恢复与普通证明导出。
 
 ## 运行
