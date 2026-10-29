@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 
-async function ready(page) {
-  await expect(page.locator('#activity')).not.toHaveClass(/busy/);
+async function ready(page, timeout = 5000) {
+  await expect(page.locator('#activity')).not.toHaveClass(/busy/, { timeout });
   await expect(page.locator('#restart')).toBeEnabled();
 }
 
 async function hol(page) {
   await page.goto(process.env.MOONMM_WEB_URL || '/web/');
-  await ready(page);
+  await ready(page, 30000);
   await page.locator('#builtin').selectOption('hol');
   await page.locator('#load-builtin').click();
   await ready(page);

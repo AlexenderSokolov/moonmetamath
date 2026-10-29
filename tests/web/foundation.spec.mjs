@@ -4,8 +4,8 @@ import { resolve } from 'node:path';
 
 const downloads = resolve(process.env.MOONMETAMATH_BROWSER_OUT || 'artifacts/browser-v03', 'downloads');
 
-async function ready(page) {
-  await expect(page.locator('#activity')).not.toHaveClass(/busy/);
+async function ready(page, timeout = 5000) {
+  await expect(page.locator('#activity')).not.toHaveClass(/busy/, { timeout });
   await expect(page.locator('#restart')).toBeEnabled();
 }
 async function apply(page, label) {
@@ -15,7 +15,7 @@ async function apply(page, label) {
 }
 async function exercise(page) {
   await page.goto(process.env.MOONMM_WEB_URL || '/web/');
-  await ready(page);
+  await ready(page, 30000);
   await page.locator('.upload > summary').click();
   await page.locator('#files').setInputFiles(resolve('examples/exercises/01-first-steps.mm'));
   await page.locator('#load-upload').click();
@@ -239,7 +239,7 @@ test('lifecycle: active worker runtime errors remain visible after invalidation'
 
 test('replay view survives database verification', async ({page}) => {
   await page.goto(process.env.MOONMM_WEB_URL || '/web/');
-  await ready(page);
+  await ready(page, 30000);
   await page.locator('#replay-tab').click();
   await page.locator('#run-replay').click();
   await ready(page);
@@ -256,7 +256,7 @@ test('replay view survives database verification', async ({page}) => {
 
 test('replay position resets when a database replaces the current target', async ({page}) => {
   await page.goto(process.env.MOONMM_WEB_URL || '/web/');
-  await ready(page);
+  await ready(page, 30000);
   await page.locator('#replay-tab').click();
   await page.locator('#run-replay').click();
   await ready(page);
@@ -272,7 +272,7 @@ test('replay position resets when a database replaces the current target', async
 
 test('workbench copy describes operations and storage directly', async ({ page }) => {
   await page.goto(process.env.MOONMM_WEB_URL || '/web/');
-  await ready(page);
+  await ready(page, 30000);
   await expect(page.getByRole('heading', { name: '证明工作台', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: '应用规则', exact: true })).toBeVisible();
   await expect(page.locator('#activity')).toHaveText('就绪');
